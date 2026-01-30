@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { getVisitedFaces } from "@/lib/visited-faces";
 
 // Radius in px per number of OTHER faces visited (0-5)
@@ -10,13 +11,24 @@ export default function Flashlight({ children }: { children: React.ReactNode }) 
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: -1000, y: -1000 });
   const [radius, setRadius] = useState(0);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Dev override: ?radius=50 (or any number)
+    const radiusOverride = searchParams.get("radius");
+    if (radiusOverride) {
+      const parsed = parseInt(radiusOverride, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        setRadius(parsed);
+        return;
+      }
+    }
+
     // Count how many NON-"back" faces have been visited
     const visited = getVisitedFaces().filter((id) => id !== "back");
     const count = Math.min(visited.length, 5);
     setRadius(RADIUS_MAP[count]);
-  }, []);
+  }, [searchParams]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
