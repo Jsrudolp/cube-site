@@ -55,9 +55,9 @@ export default function AlternatingSection({
               <span className="text-xs font-bold uppercase tracking-wide">
                 {group.discipline}
               </span>
-              {group.labels.map((label) => (
+              {group.labels.map((label, i) => (
                 <span
-                  key={label}
+                  key={`${label}-${i}`}
                   className="text-xs px-2 py-0.5 rounded-full border border-foreground/20 bg-foreground/5"
                 >
                   {label}
