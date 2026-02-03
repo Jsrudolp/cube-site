@@ -18,7 +18,7 @@ interface CompanyLinkProps {
 const BASE = {
   gap: 6,        // px
   paddingX: 16,  // px
-  paddingY: 4,   // px
+  height: 24,    // px (fixed height for consistency)
   iconSize: 16,  // px
   fontSize: 0.9, // em
   verticalMargin: -4, // px
@@ -40,7 +40,7 @@ export default function CompanyLink({
   // Scale all values proportionally
   const gap = BASE.gap * scale;
   const paddingX = BASE.paddingX * scale;
-  const paddingY = BASE.paddingY * scale;
+  const height = Math.round(BASE.height * scale);
   const iconSize = Math.round(BASE.iconSize * scale);
   const fontSize = BASE.fontSize * scale;
   const verticalPos = verticalOffset ?? 0;
@@ -71,8 +71,7 @@ export default function CompanyLink({
         gap: `${gap}px`,
         paddingLeft: `${paddingX}px`,
         paddingRight: `${paddingX}px`,
-        paddingTop: `${paddingY}px`,
-        paddingBottom: `${paddingY}px`,
+        height: `${height}px`,
         top: `${verticalPos}px`,
       }}
       onMouseEnter={handleMouseEnter}

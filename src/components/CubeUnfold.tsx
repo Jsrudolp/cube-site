@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { FACES, FaceId } from "@/lib/faces";
-import { FaceIcon } from "@/components/icons/FaceIcons";
+import { useCubeNav } from "@/components/cube";
+import { FACE_ICONS } from "@/components/FaceNav";
 
 interface CubeUnfoldProps {
   currentFaceId?: FaceId;
@@ -32,6 +33,7 @@ const CELL = SIZE + GAP;
 
 export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) {
   const [phase, setPhase] = useState<"cube" | "open" | "closing">("cube");
+  const { switchToFace } = useCubeNav();
 
   useEffect(() => {
     const id = setTimeout(() => setPhase("open"), 900);
@@ -41,6 +43,18 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
   const close = () => {
     setPhase("closing");
     setTimeout(onClose, 500);
+  };
+
+  const handleFaceClick = (faceId: FaceId) => {
+    if (faceId === currentFaceId) {
+      close();
+      return;
+    }
+    close();
+    // Small delay to let the unfold close, then trigger cube transition
+    setTimeout(() => {
+      switchToFace(faceId);
+    }, 300);
   };
 
   // Faces stay flat when open OR closing (don't re-fold on dismiss)
@@ -59,14 +73,13 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
     const f = FACES.find((x) => x.id === id)!;
     const active = id === currentFaceId;
     return (
-      <Link
+      <button
         key={id}
-        href={f.route}
-        onClick={close}
-        className={`absolute flex flex-col items-center justify-center gap-1.5 rounded-xl ${
+        onClick={() => handleFaceClick(id)}
+        className={`absolute flex items-center justify-center rounded-xl cursor-pointer overflow-hidden ${
           active
-            ? "bg-foreground text-background shadow-lg"
-            : "bg-background text-foreground shadow-md border border-foreground/10 hover:shadow-lg"
+            ? "ring-2 ring-foreground shadow-lg"
+            : "shadow-md border border-foreground/10 hover:shadow-lg"
         }`}
         style={{
           width: SIZE,
@@ -76,9 +89,14 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
         }}
         title={f.label}
       >
-        <FaceIcon faceId={id} size={22} />
-        <span className="text-[10px] font-medium leading-none">{f.label}</span>
-      </Link>
+        <Image
+          src={FACE_ICONS[id]}
+          alt={f.label}
+          width={SIZE}
+          height={SIZE}
+          className="object-cover w-full h-full"
+        />
+      </button>
     );
   }
 

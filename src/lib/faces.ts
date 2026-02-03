@@ -19,3 +19,13 @@ export const FACES: FaceConfig[] = [
 export const FACE_MAP = Object.fromEntries(
   FACES.map((f) => [f.id, f])
 ) as Record<FaceId, FaceConfig>;
+
+// Maps FaceId to cube position description and Three.js face index
+export const FACE_CUBE_POSITIONS: Record<FaceId, { position: string; index: number }> = {
+  community: { position: "Right (+X)", index: 0 },
+  music: { position: "Left (-X)", index: 1 },
+  thinking: { position: "Top (+Y)", index: 2 },
+  building: { position: "Bottom (-Y)", index: 3 },
+  front: { position: "Front (+Z)", index: 4 },
+  back: { position: "Back (-Z)", index: 5 },
+};

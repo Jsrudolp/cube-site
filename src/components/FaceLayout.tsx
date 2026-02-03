@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { FaceId } from "@/lib/faces";
 import { markFaceVisited } from "@/lib/visited-faces";
+import { CubeNavProvider } from "@/components/cube";
 import FaceNav from "./FaceNav";
 
 interface FaceLayoutProps {
@@ -17,9 +18,11 @@ export default function FaceLayout({ faceId, children, className = "" }: FaceLay
   }, [faceId]);
 
   return (
-    <div className={`min-h-screen pt-20 ${className}`}>
-      <FaceNav />
-      {children}
-    </div>
+    <CubeNavProvider currentFace={faceId}>
+      <div className={`min-h-screen pt-20 ${className}`}>
+        <FaceNav />
+        {children}
+      </div>
+    </CubeNavProvider>
   );
 }

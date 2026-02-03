@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getVisitedFaces } from "@/lib/visited-faces";
 
 // Radius in px per number of OTHER faces visited (0-5)
 const RADIUS_MAP = [50, 90, 140, 200, 280, 400];
 
-export default function Flashlight({ children }: { children: React.ReactNode }) {
+function FlashlightInner({ children }: { children: React.ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: -1000, y: -1000 });
   const [radius, setRadius] = useState(0);
@@ -70,5 +70,13 @@ export default function Flashlight({ children }: { children: React.ReactNode }) 
         }}
       />
     </div>
+  );
+}
+
+export default function Flashlight({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="relative">{children}</div>}>
+      <FlashlightInner>{children}</FlashlightInner>
+    </Suspense>
   );
 }
