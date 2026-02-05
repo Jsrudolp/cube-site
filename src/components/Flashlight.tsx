@@ -13,6 +13,18 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
   const [radius, setRadius] = useState(0);
   const searchParams = useSearchParams();
 
+  // Store last known cursor position in viewport coordinates
+  const cursorRef = useRef({ clientX: -1000, clientY: -1000 });
+
+  const updatePosition = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setPosition({
+      x: cursorRef.current.clientX - rect.left,
+      y: cursorRef.current.clientY - rect.top,
+    });
+  }, []);
+
   useEffect(() => {
     // Dev override: ?radius=50 (or any number)
     const radiusOverride = searchParams.get("radius");
@@ -30,24 +42,22 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
     setRadius(RADIUS_MAP[count]);
   }, [searchParams]);
 
+  // Update position on scroll
+  useEffect(() => {
+    window.addEventListener("scroll", updatePosition);
+    return () => window.removeEventListener("scroll", updatePosition);
+  }, [updatePosition]);
+
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top + window.scrollY,
-    });
-  }, []);
+    cursorRef.current = { clientX: e.clientX, clientY: e.clientY };
+    updatePosition();
+  }, [updatePosition]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setPosition({
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top + window.scrollY,
-    });
-  }, []);
+    cursorRef.current = { clientX: touch.clientX, clientY: touch.clientY };
+    updatePosition();
+  }, [updatePosition]);
 
   return (
     <div
@@ -62,7 +72,7 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
 
       {/* Dark overlay with circular cutout */}
       <div
-        className="absolute inset-0 pointer-events-none z-40 transition-[mask-position] duration-75 ease-out"
+        className="absolute inset-0 pointer-events-none z-40"
         style={{
           background: "black",
           maskImage: `radial-gradient(circle ${radius}px at ${position.x}px ${position.y}px, transparent 0%, transparent 80%, black 100%)`,

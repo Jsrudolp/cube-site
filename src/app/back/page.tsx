@@ -5,17 +5,19 @@ import Flashlight from "@/components/Flashlight";
 
 export default function BackPage() {
   return (
-    <FaceLayout faceId="back" className="bg-black text-white">
+    <FaceLayout faceId="back" className="bg-[#373737] text-white">
+      {/* Black header bar */}
+      <div className="fixed top-0 left-0 right-0 h-20 bg-black z-40" />
       <Flashlight>
-        <div className="max-w-3xl mx-auto px-6 pb-16">
+        <div className="mx-auto px-6 pb-16 pt-12 max-w-[48rem] text-[15px]">
           {/* Header */}
-          <h1 className="text-2xl font-bold">Jake Rudolph</h1>
-          <p className="text-white/60 mt-1">To be honest, still figuring it out</p>
+          <p className="font-bold">Jake Rudolph</p>
+          <p className="text-white/70">To be honest, still figuring it out</p>
 
-          <hr className="my-8 border-white/15" />
+          <hr className="my-10 border-white/20" />
 
           {/* Current */}
-          <ul className="space-y-5 text-[15px] leading-relaxed">
+          <ul className="space-y-2 leading-relaxed">
             <li className="list-disc ml-5">
               My biggest fears are:
               <ul className="mt-2 space-y-2 ml-5">
@@ -61,8 +63,8 @@ export default function BackPage() {
           </ul>
 
           {/* Previously */}
-          <h2 className="font-bold mt-10 mb-4 text-[15px]">Previously:</h2>
-          <ul className="space-y-5 text-[15px] leading-relaxed">
+          <h2 className="font-bold mt-10 mb-4">Previously:</h2>
+          <ul className="space-y-2 leading-relaxed">
             <li className="list-disc ml-5">
               When I first moved to Canada from South Africa at 4 years old, I{" "}
               <strong>scribbled</strong> a treasure map all over my new bunk bed
@@ -98,14 +100,14 @@ export default function BackPage() {
             </li>
           </ul>
 
-          <hr className="my-10 border-white/15" />
+          <hr className="my-10 border-white/20" />
 
           {/* Footer */}
           <div className="space-y-4">
-            <p className="text-sm">
+            <p className="text-[0.9em]">
               If you made it all the way here, let&apos;s be friends!
             </p>
-            <p className="text-sm">
+            <p className="text-[0.9em]">
               <a href="https://instagram.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="hover:underline">Instagram</a>
               {" | "}
               <a href="https://substack.com/@jakerudolph" target="_blank" rel="noopener noreferrer" className="hover:underline">Substack</a>

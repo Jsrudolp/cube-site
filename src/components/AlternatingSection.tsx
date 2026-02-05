@@ -8,6 +8,8 @@ interface AlternatingSectionProps {
   tags?: { discipline: string; labels: string[] }[];
   imageSrc?: string;
   imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   children?: React.ReactNode;
 }
 
@@ -21,19 +23,29 @@ export default function AlternatingSection({
   tags,
   imageSrc,
   imageAlt,
+  imageWidth,
+  imageHeight,
   children,
 }: AlternatingSectionProps) {
   const isOdd = index % 2 === 0; // 0-indexed: first item has text on left
 
   const titleElement = (
-    <h2 className="text-2xl font-bold mb-2">
+    <h2 className="text-2xl font-bold mb-7">
       {titleHighlight === "yellow" ? (
-        <span className="relative inline-block">
-          <span className="relative z-10">{title}</span>
+        <span className="relative inline-block ml-3">
           <span
-            className="absolute left-0 bottom-0 w-full h-[40%] bg-yellow-200/70 -z-0 -rotate-[0.5deg]"
+            className="absolute inset-0 -z-0"
+            style={{
+              backgroundColor: "rgba(255, 241, 0, 0.5)",
+              transform: "skewX(-8deg)",
+              margin: "-4px -12px",
+              padding: "4px 12px",
+              width: "calc(100% + 24px)",
+              height: "calc(100% + 8px)",
+            }}
             aria-hidden
           />
+          <span className="relative z-10">{title}</span>
         </span>
       ) : (
         title
@@ -47,7 +59,11 @@ export default function AlternatingSection({
       {metadata && (
         <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
       )}
-      <p className="leading-relaxed">{description}</p>
+      <div className="leading-relaxed space-y-3">
+        {description.split("\n\n").map((paragraph, i) => (
+          <p key={i}>{paragraph}</p>
+        ))}
+      </div>
       {tags && tags.length > 0 && (
         <div className="mt-4 space-y-2">
           {tags.map((group) => (
@@ -76,7 +92,10 @@ export default function AlternatingSection({
         <img
           src={imageSrc}
           alt={imageAlt || title}
-          className="w-full max-w-md rounded-lg"
+          width={imageWidth}
+          height={imageHeight}
+          className="max-w-full h-auto"
+          style={imageWidth ? { width: imageWidth, maxWidth: "100%" } : undefined}
         />
       ) : children ? (
         children

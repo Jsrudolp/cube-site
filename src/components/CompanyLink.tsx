@@ -12,17 +12,20 @@ interface CompanyLinkProps {
   verticalOffset?: number;
   shineWhite?: boolean;
   shineDuration?: number;
+  paddingX?: number;
+  paddingY?: number;
+  borderRadius?: number;
 }
 
 // Base values at scale 1.0
 const BASE = {
   gap: 6,        // px
-  paddingX: 16,  // px
+  paddingX: 8,   // px
   height: 24,    // px (fixed height for consistency)
   iconSize: 16,  // px
   fontSize: 0.9, // em
   verticalMargin: -4, // px
-  borderRadius: 9999, // px (full)
+  borderRadius: 8, // px
 };
 
 export default function CompanyLink({
@@ -34,16 +37,21 @@ export default function CompanyLink({
   verticalOffset,
   shineWhite = true,
   shineDuration = 400,
+  paddingX: customPaddingX,
+  paddingY: customPaddingY,
+  borderRadius: customBorderRadius,
 }: CompanyLinkProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
   // Scale all values proportionally
   const gap = BASE.gap * scale;
-  const paddingX = BASE.paddingX * scale;
+  const paddingX = customPaddingX ?? BASE.paddingX * scale;
+  const paddingY = customPaddingY ?? 0;
   const height = Math.round(BASE.height * scale);
   const iconSize = Math.round(BASE.iconSize * scale);
   const fontSize = BASE.fontSize * scale;
   const verticalPos = verticalOffset ?? 0;
+  const borderRadius = customBorderRadius ?? BASE.borderRadius;
 
   const handleMouseEnter = () => {
     if (!isAnimating) {
@@ -65,13 +73,16 @@ export default function CompanyLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="company-pill inline-flex items-center rounded-full align-baseline relative overflow-hidden"
+      className="company-pill inline-flex items-center align-baseline relative overflow-hidden"
       style={{
         backgroundColor: bgColor,
         gap: `${gap}px`,
         paddingLeft: `${paddingX}px`,
         paddingRight: `${paddingX}px`,
-        height: `${height}px`,
+        paddingTop: `${paddingY}px`,
+        paddingBottom: `${paddingY}px`,
+        height: paddingY ? "auto" : `${height}px`,
+        borderRadius: `${borderRadius}px`,
         top: `${verticalPos}px`,
       }}
       onMouseEnter={handleMouseEnter}
