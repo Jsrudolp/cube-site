@@ -95,7 +95,7 @@ export default function MusicPage() {
           </div>
         </div>
 
-        {/* Album grid */}
+        {/* Album grids */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12">
           {ALBUMS.map((album) => (
             <button
