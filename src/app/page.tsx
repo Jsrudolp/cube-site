@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CubeScene, CubeHud, FadeOverlay } from "@/components/cube";
+import { CubeScene, CubeHud, CSSCubeZoom } from "@/components/cube";
+import type { CubeHandoffState } from "@/components/cube";
 import { FaceId, FACES } from "@/lib/faces";
 
 // Valid face IDs for query param validation
@@ -12,8 +13,8 @@ const VALID_FACE_IDS = FACES.map(f => f.id);
 const ANIMATION_DURATION = 1800;
 
 function HomeContent() {
-  const [fadeVisible, setFadeVisible] = useState(false);
-  const fadeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [handoffState, setHandoffState] = useState<CubeHandoffState | null>(null);
+  const [webglVisible, setWebglVisible] = useState(true);
   const searchParams = useSearchParams();
 
   // Get initial face from query param (for returning from a face page)
@@ -22,28 +23,30 @@ function HomeContent() {
     ? (fromParam as FaceId)
     : undefined;
 
-  const handleZoomStart = (_faceId: FaceId) => {
-    // Start fade halfway through the zoom animation
-    fadeTimeoutRef.current = setTimeout(() => {
-      setFadeVisible(true);
-    }, ANIMATION_DURATION * 0.4);
+  const handleHandoff = (state: CubeHandoffState) => {
+    // Hide WebGL canvas and show CSS 3D cube
+    setWebglVisible(false);
+    setHandoffState(state);
   };
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (fadeTimeoutRef.current) {
-        clearTimeout(fadeTimeoutRef.current);
-      }
-    };
-  }, []);
+  const handleZoomComplete = () => {
+    // Reset state after navigation
+    setHandoffState(null);
+    setWebglVisible(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#e5e5e0]">
-      {/* 3D Cube Scene */}
-      <div className="fixed inset-0">
+      {/* 3D Cube Scene (WebGL) */}
+      <div
+        className="fixed inset-0"
+        style={{
+          opacity: webglVisible ? 1 : 0,
+          pointerEvents: webglVisible ? "auto" : "none",
+        }}
+      >
         <CubeScene
-          onZoomStart={handleZoomStart}
+          onHandoff={handleHandoff}
           animationDuration={ANIMATION_DURATION}
           initialFace={initialFace}
         />
@@ -52,8 +55,12 @@ function HomeContent() {
       {/* HUD Overlay */}
       <CubeHud />
 
-      {/* Fade overlay for navigation transition */}
-      <FadeOverlay visible={fadeVisible} />
+      {/* CSS 3D Cube for zoom animation */}
+      <CSSCubeZoom
+        handoffState={handoffState}
+        onComplete={handleZoomComplete}
+        animationDuration={ANIMATION_DURATION}
+      />
     </div>
   );
 }

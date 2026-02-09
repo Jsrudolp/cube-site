@@ -1,20 +1,39 @@
 "use client";
 
+import { useState, type CSSProperties } from "react";
+
 interface SvgArtifactProps {
   src: string;
+  hoverSrc?: string;
   alt: string;
   className?: string;
+  size?: number;
+  style?: CSSProperties;
 }
 
-export default function SvgArtifact({ src, alt, className = "" }: SvgArtifactProps) {
+export default function SvgArtifact({
+  src,
+  hoverSrc,
+  alt,
+  className = "",
+  size = 160,
+  style,
+}: SvgArtifactProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const currentSrc = hoverSrc && isHovered ? hoverSrc : src;
+
   return (
     <div
-      className={`inline-block flex-shrink-0 transition-transform duration-300 hover:scale-110 ${className}`}
+      className={`inline-block flex-shrink-0 ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ width: size, height: size, ...style }}
     >
       <img
-        src={src}
+        src={currentSrc}
         alt={alt}
-        className="w-20 h-20 object-contain"
+        className="w-full h-full object-contain"
         loading="lazy"
       />
     </div>

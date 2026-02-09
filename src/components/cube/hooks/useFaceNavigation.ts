@@ -14,11 +14,21 @@ import {
 } from "@/lib/cube-config";
 import { easeInOutQuint } from "@/lib/animation-modes";
 
+export interface CubeHandoffState {
+  faceId: FaceId;
+  rotationX: number;
+  rotationY: number;
+  rotationZ: number;
+  cameraDistance: number;
+  cubeScreenSize: number;
+}
+
 interface UseFaceNavigationOptions {
   meshRef: React.RefObject<THREE.Mesh | null>;
   onZoomStart?: (faceId: FaceId) => void;
   onRotateComplete?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
+  onHandoff?: (state: CubeHandoffState) => void;
   enabled?: boolean;
   animationDuration?: number;
 }
@@ -31,6 +41,7 @@ export function useFaceNavigation({
   onZoomStart,
   onRotateComplete,
   onZoomComplete,
+  onHandoff,
   enabled = true,
   animationDuration = 1800,
 }: UseFaceNavigationOptions) {
@@ -43,6 +54,22 @@ export function useFaceNavigation({
 
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
+
+  // Calculate current cube screen size based on camera distance
+  const calculateCubeScreenSize = useCallback(() => {
+    const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+    const distance = camera.position.length();
+    const cubeWorldSize = 2; // Cube is 2 units
+    const verticalFovSize = 2 * Math.tan(fov / 2) * distance;
+    return (cubeWorldSize / verticalFovSize) * size.height;
+  }, [camera, size]);
+
+  // Get current rotation as Euler angles for CSS
+  const getCurrentRotation = useCallback(() => {
+    if (!meshRef.current) return { x: 0, y: 0, z: 0 };
+    const euler = new THREE.Euler().setFromQuaternion(meshRef.current.quaternion, "XYZ");
+    return { x: euler.x, y: euler.y, z: euler.z };
+  }, [meshRef]);
 
   // Calculate zoom distance needed to fill screen with face
   const calculateFillDistance = useCallback(() => {
@@ -66,6 +93,24 @@ export function useFaceNavigation({
       isAnimating.current = true;
       onZoomStart?.(faceId);
 
+      // If we have a handoff callback, trigger CSS 3D transition immediately
+      if (onHandoff) {
+        const rotation = getCurrentRotation();
+        const cubeScreenSize = calculateCubeScreenSize();
+        const cameraDistance = camera.position.length();
+
+        onHandoff({
+          faceId,
+          rotationX: rotation.x,
+          rotationY: rotation.y,
+          rotationZ: rotation.z,
+          cameraDistance,
+          cubeScreenSize,
+        });
+        return;
+      }
+
+      // Fallback to original WebGL animation if no handoff callback
       const mesh = meshRef.current;
       const defaultCameraPos = new THREE.Vector3(...CAMERA_POSITION);
 
@@ -169,7 +214,7 @@ export function useFaceNavigation({
 
       animationRef.current = requestAnimationFrame(animate);
     },
-    [camera, enabled, meshRef, onZoomStart, onRotateComplete, onZoomComplete, router, calculateFillDistance]
+    [camera, enabled, meshRef, onZoomStart, onRotateComplete, onZoomComplete, onHandoff, router, calculateFillDistance, getCurrentRotation, calculateCubeScreenSize]
   );
 
   const onClick = useCallback(

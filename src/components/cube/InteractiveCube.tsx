@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
 import { INITIAL_ROTATION, CANONICAL_QUATERNIONS } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
-import { useFaceNavigation } from "./hooks/useFaceNavigation";
+import { useFaceNavigation, CubeHandoffState } from "./hooks/useFaceNavigation";
 import {
   createAllPlaceholderTextures,
   loadTexturesWithFallback,
@@ -16,6 +16,7 @@ import {
 interface InteractiveCubeProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
+  onHandoff?: (state: CubeHandoffState) => void;
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
@@ -32,6 +33,7 @@ function disposeMaterials(materials: THREE.MeshStandardMaterial[]) {
 export function InteractiveCube({
   onZoomStart,
   onZoomComplete,
+  onHandoff,
   disabled = false,
   animationDuration = 1800,
   initialFace,
@@ -85,6 +87,7 @@ export function InteractiveCube({
       onZoomStart?.(faceId);
     },
     onZoomComplete,
+    onHandoff,
     enabled: !disabled,
     animationDuration,
   });
