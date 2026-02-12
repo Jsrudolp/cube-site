@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FaceLayout from "@/components/FaceLayout";
 import AudioPlayer from "@/components/AudioPlayer";
 
@@ -53,19 +53,37 @@ const ALBUMS: Album[] = [
 export default function MusicPage() {
   const [activeAlbum, setActiveAlbum] = useState<Album | null>(null);
 
+  // On mount, check URL hash for a song to auto-play
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const album = ALBUMS.find((a) => a.id === hash);
+      if (album) setActiveAlbum(album);
+    }
+  }, []);
+
+  // Update URL hash when active album changes
+  useEffect(() => {
+    if (activeAlbum) {
+      window.history.replaceState(null, "", `#${activeAlbum.id}`);
+    } else {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [activeAlbum]);
+
   return (
-    <FaceLayout faceId="music" className="bg-[#100023] text-white !pt-0">
+    <FaceLayout faceId="music" className="bg-[#100023] text-white !pt-0 font-[family-name:var(--font-work-sans)]">
       {/* Hero - Full viewport */}
       <div className="relative w-screen h-screen flex items-end justify-center overflow-hidden">
         {/* Hero background - no gradient overlay */}
         <div className="absolute inset-0 bg-[url('/music-hero.png')] bg-cover bg-center" />
 
         {/* Hero content - positioned in lower third */}
-        <div className="relative text-center z-10 pb-[15vh]">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/90 mb-3">
+        <div className="relative text-center z-10 pb-[calc(8vh+64px)]">
+          <p className="text-sm uppercase tracking-[0.1em] font-semibold text-white/90 mb-3">
             New Demo
           </p>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-wider">
+          <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">
             Supermagnetic
           </h1>
           <button
@@ -80,14 +98,14 @@ export default function MusicPage() {
       {/* Album section */}
       <div className="w-[90%] max-w-[1280px] mx-auto pb-32">
         {/* Section header */}
-        <div className="mt-12 mb-6">
-          <h2 className="text-xl font-bold uppercase tracking-wider">Music</h2>
+        <div className="mt-[80px] mb-6">
+          <h2 className="text-xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">Music</h2>
         </div>
 
         {/* Description box with gradient border */}
         <div className="relative mb-6 md:mb-12">
-          <div className="border-t-[6px] border-l-2 border-r-2 border-b-2 border-white/30 bg-gradient-to-r from-white/5 to-white/15 py-3 px-6 text-center">
-            <p className="text-base text-white/60 leading-snug">
+          <div className="border-t-[6px] border-l-2 border-r-2 border-b-2 border-[#584D65] bg-gradient-to-r from-[#1D0D30] to-[#332647] py-3 px-6 text-center">
+            <p className="text-base text-white/40 leading-snug">
               Raw demos of songs I&apos;ve written and recorded + album artwork and photography.
               <br />
               Click or press on an album cover to listen.
@@ -113,7 +131,7 @@ export default function MusicPage() {
                   loading="lazy"
                 />
               </div>
-              <p className="mt-3 text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors">
+              <p className="mt-3 text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors font-[family-name:var(--font-druk-wide-bold)]">
                 {album.title}
               </p>
             </button>

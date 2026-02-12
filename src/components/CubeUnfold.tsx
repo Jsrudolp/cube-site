@@ -14,10 +14,10 @@ interface CubeUnfoldProps {
 /*
   Animation flow:
   1. Mount → "cube" phase: faces are folded into a 3D cube, parent is tilted
-  2. After 900ms → "open" phase: parent flattens, faces hinge open into T-shape
+  2. After 400ms → "open" phase: parent flattens, faces hinge open into T-shape
   3. Click/dismiss → "closing" phase: fade out (faces stay flat, don't re-fold)
 
-  T-shape layout:
+  T-shape layout (no gaps — a true cube net):
             [thinking]
   [music]   [front]   [community]  [back]
             [building]
@@ -27,16 +27,33 @@ interface CubeUnfoldProps {
   to form the right side + back of the cube).
 */
 
-const SIZE = 72;
-const GAP = 4;
+const SIZE = 80;
+const GAP = 0;
 const CELL = SIZE + GAP;
+
+const FACE_BG: Record<FaceId, { color: string; extra?: React.CSSProperties }> = {
+  front: { color: "#FFFFFF" },
+  music: { color: "#100023" },
+  building: { color: "#f5e6d3" },
+  community: { color: "#FFFCF3" },
+  thinking: {
+    color: "#F5F5F5",
+    extra: {
+      backgroundImage: "radial-gradient(circle, #ccc 1px, transparent 1px)",
+      backgroundSize: "20px 20px",
+    },
+  },
+  back: { color: "#373737" },
+};
+
+const DARK_FACES = new Set<FaceId>(["music", "back"]);
 
 export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) {
   const [phase, setPhase] = useState<"cube" | "open" | "closing">("cube");
   const { switchToFace } = useCubeNav();
 
   useEffect(() => {
-    const id = setTimeout(() => setPhase("open"), 900);
+    const id = setTimeout(() => setPhase("open"), 400);
     return () => clearTimeout(id);
   }, []);
 
@@ -51,20 +68,17 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       return;
     }
     close();
-    // Small delay to let the unfold close, then trigger cube transition
     setTimeout(() => {
       switchToFace(faceId);
     }, 300);
   };
 
-  // Faces stay flat when open OR closing (don't re-fold on dismiss)
   const flat = phase === "open" || phase === "closing";
   const closing = phase === "closing";
 
   const ease = "650ms cubic-bezier(0.4, 0, 0.2, 1)";
   const stagger = (ms: number) => `${flat ? ms : 0}ms`;
 
-  // 3D scene: tilted to show cube depth, flattened when open
   const sceneTransform = flat
     ? "rotateX(0deg) rotateY(0deg)"
     : "rotateX(-25deg) rotateY(32deg)";
@@ -72,19 +86,25 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
   function faceCard(id: FaceId, extraStyle?: React.CSSProperties) {
     const f = FACES.find((x) => x.id === id)!;
     const active = id === currentFaceId;
+    const dark = DARK_FACES.has(id);
+    const bg = FACE_BG[id];
+
     return (
       <button
         key={id}
         onClick={() => handleFaceClick(id)}
-        className={`absolute flex items-center justify-center rounded-xl cursor-pointer overflow-hidden ${
-          active
-            ? "ring-2 ring-foreground shadow-lg"
-            : "shadow-md border border-foreground/10 hover:shadow-lg"
-        }`}
+        className="absolute flex items-center justify-center cursor-pointer overflow-hidden group"
         style={{
           width: SIZE,
           height: SIZE,
           backfaceVisibility: "hidden",
+          backgroundColor: bg.color,
+          ...bg.extra,
+          boxShadow: active
+            ? dark
+              ? "inset 0 0 0 2.5px rgba(255,255,255,0.45)"
+              : "inset 0 0 0 2.5px rgba(0,0,0,0.15)"
+            : "none",
           ...extraStyle,
         }}
         title={f.label}
@@ -96,6 +116,22 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
           height={SIZE}
           className="object-cover w-full h-full"
         />
+        {/* Hover overlay */}
+        <span
+          className={`absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 ${
+            dark ? "bg-white/[0.08]" : "bg-black/[0.04]"
+          }`}
+        />
+        {/* Label on hover */}
+        <span
+          className={`absolute inset-x-0 bottom-0 pt-5 pb-1.5 text-[9px] font-semibold tracking-wider uppercase text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none select-none ${
+            dark
+              ? "text-white/90 bg-gradient-to-t from-black/40 to-transparent"
+              : "text-black/60 bg-gradient-to-t from-white/70 to-transparent"
+          }`}
+        >
+          {f.label}
+        </span>
       </button>
     );
   }
@@ -106,9 +142,9 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       <div
         className="fixed inset-0 z-[60]"
         style={{
-          background: "rgba(0,0,0,0.25)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
+          background: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           opacity: closing ? 0 : 1,
           transition: "opacity 400ms ease",
         }}
@@ -169,11 +205,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             transition: `transform ${ease} ${stagger(250)}`,
           })}
 
-          {/* Community + Back wrapper.
-              The wrapper folds as one unit from front's right edge.
-              Inside, Back has its own nested fold from Community's right edge.
-              This nesting is required so Back's fold composes with Community's
-              fold to form the back of the cube. */}
+          {/* Community + Back wrapper */}
           <div
             style={{
               position: "absolute",

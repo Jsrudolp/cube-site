@@ -40,14 +40,14 @@ export default function FaceNav() {
         <div className="flex items-center">
           {currentFaceId && (
             <div
-              className="flex items-center justify-center w-10 h-10"
+              className="flex items-center justify-center w-12 h-12"
               title={currentFace?.label}
             >
               <Image
                 src={FACE_ICONS[currentFaceId]}
                 alt={currentFace?.label || ""}
-                width={28}
-                height={28}
+                width={34}
+                height={34}
                 className="object-contain"
               />
             </div>
@@ -58,7 +58,7 @@ export default function FaceNav() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setUnfoldOpen(!unfoldOpen)}
-            className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+            className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors ${
               unfoldOpen
                 ? "bg-foreground text-background"
                 : "bg-foreground/10 hover:bg-foreground/20"
@@ -66,15 +66,15 @@ export default function FaceNav() {
             title="Navigate faces"
             aria-label="Open cube navigation"
           >
-            <CubeIcon size={20} />
+            <CubeIcon size={22} />
           </button>
 
           <button
             onClick={handleZoomOut}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-foreground/10 hover:bg-foreground/20 transition-colors"
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-foreground/10 hover:bg-foreground/20 transition-colors"
             title="Zoom out to cube"
           >
-            <ZoomOutIcon size={20} />
+            <ZoomOutIcon size={22} />
           </button>
         </div>
       </nav>

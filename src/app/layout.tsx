@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +18,23 @@ const caveat = Caveat({
   subsets: ["latin"],
 });
 
+const drukWideBold = localFont({
+  src: "../../public/fonts/DrukWideBold.ttf",
+  variable: "--font-druk-wide-bold",
+  weight: "700",
+});
+
+const workSans = Work_Sans({
+  variable: "--font-work-sans",
+  subsets: ["latin"],
+});
+
+const belanosima = Belanosima({
+  variable: "--font-belanosima",
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Jake Rudolph",
   description:
@@ -31,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} antialiased`}
       >
         {children}
       </body>

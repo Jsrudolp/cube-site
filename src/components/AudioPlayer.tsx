@@ -120,7 +120,7 @@ export default function AudioPlayer({ albumTitle, tracks, onClose }: AudioPlayer
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <div className="truncate">
-                <span className="text-xs text-white/50 uppercase tracking-wider">{albumTitle}</span>
+                <span className="text-xs text-white/50 uppercase tracking-wider">Jake Rudolph</span>
                 <span className="text-white/30 mx-2">·</span>
                 <span className="text-white font-medium">{currentTrack?.title || "No track"}</span>
               </div>
