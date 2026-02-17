@@ -5,11 +5,11 @@ const pill = { scale: 0.75, verticalOffset: 0, shineWhite: true, shineDuration: 
 
 export default function FrontPage() {
   return (
-    <FaceLayout faceId="front" className="bg-[#FFFFFF] text-[#434343]">
+    <FaceLayout faceId="front" className="bg-[#FFFFFF] text-[#434343]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
       <div className="mx-auto px-7 pb-12 max-w-[52rem] text-[18px] leading-[1.4]">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-[32px] font-bold tracking-tight leading-[1.1]">
+          <h1 className="text-[32px] tracking-tight leading-[1.1]">
             Jake Rudolph
           </h1>
           <p className="mt-2 text-[17px] text-foreground/50 leading-[1.5]">
@@ -48,13 +48,13 @@ export default function FrontPage() {
                 a community of kind, ambitious people that meets weekly to make and
                 share progress on our passion projects.
               </p>
-              <div className="mt-3 pl-5 border-l-2 border-foreground/10 space-y-3 text-foreground/70">
-                <p>
+              <div className="mt-3 space-y-3 text-foreground/70">
+                <p className="pl-5 border-l-2 border-foreground/10">
                   Rented out a hockey rink for Symposium, the{" "}
                   <strong className="text-[#434343]">world&apos;s largest student-run demo day</strong> with
                   80 projects and 2,500 attendees.
                 </p>
-                <p>
+                <p className="pl-5 border-l-2 border-foreground/10">
                   Supported by{" "}
                   <CompanyLink href="https://anthropic.com" logo="/logos/anthropic.png" name="Anthropic" bgColor="#f5e0dc" {...pill} />,{" "}
                   <CompanyLink href="https://shopify.com" logo="/logos/shopify.svg" name="Shopify" bgColor="#e8ebe0" {...pill} />,
@@ -77,16 +77,16 @@ export default function FrontPage() {
                 <CompanyLink href="https://shopify.com" logo="/logos/shopify.svg" name="Shopify" bgColor="#e8ebe0" {...pill} />
                 .
               </p>
-              <div className="mt-3 pl-5 border-l-2 border-foreground/10 space-y-3 text-foreground/70">
-                <p>
+              <div className="mt-3 space-y-3 text-foreground/70">
+                <p className="pl-5 border-l-2 border-foreground/10">
                   Built internal tooling, dashboards, automations and CRMs for{" "}
                   <CompanyLink href="https://almacare.ca" logo="/logos/almacares.png" name="Alma Care" bgColor="#e0f0eb" {...pill} />.
                 </p>
-                <p>
+                <p className="pl-5 border-l-2 border-foreground/10">
                   Architected the handbag subscription system for{" "}
                   <CompanyLink href="https://zerocollective.com" logo="/logos/zerocollective.png" name="Zero Collective" bgColor="#d8d8d8" {...pill} />.
                 </p>
-                <p>
+                <p className="pl-5 border-l-2 border-foreground/10">
                   Explored the business case for new concepts in Fintech, Vertical
                   AI and Health.
                 </p>

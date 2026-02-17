@@ -1,3 +1,14 @@
+export interface TunerStyles {
+  gap?: number;
+  titleSize?: number;
+  textSize?: number;
+  lineHeight?: number;
+  imageScale?: number;
+  imageOffsetY?: number;
+  sectionPadding?: number;
+  textWidth?: number;
+}
+
 interface AlternatingSectionProps {
   id: string;
   index: number;
@@ -11,6 +22,7 @@ interface AlternatingSectionProps {
   imageWidth?: number;
   imageHeight?: number;
   children?: React.ReactNode;
+  tunerStyles?: TunerStyles;
 }
 
 export default function AlternatingSection({
@@ -26,11 +38,12 @@ export default function AlternatingSection({
   imageWidth,
   imageHeight,
   children,
+  tunerStyles: ts,
 }: AlternatingSectionProps) {
   const isOdd = index % 2 === 0; // 0-indexed: first item has text on left
 
   const titleElement = (
-    <h2 className="text-2xl font-bold mb-7">
+    <h2 className="text-2xl font-normal mb-7 font-[family-name:var(--font-merriweather)]" style={ts?.titleSize ? { fontSize: ts.titleSize } : undefined}>
       {titleHighlight === "yellow" ? (
         <span className="relative inline-block ml-3">
           <span
@@ -54,12 +67,12 @@ export default function AlternatingSection({
   );
 
   const textBlock = (
-    <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0" style={ts?.textWidth ? { flex: `0 0 ${ts.textWidth}%` } : undefined}>
       {titleElement}
       {metadata && (
         <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
       )}
-      <div className="leading-relaxed space-y-3">
+      <div className="leading-relaxed space-y-3" style={{ ...(ts?.textSize ? { fontSize: ts.textSize } : {}), ...(ts?.lineHeight ? { lineHeight: ts.lineHeight } : {}) }}>
         {description.split("\n\n").map((paragraph, i) => (
           <p key={i}>{paragraph}</p>
         ))}
@@ -86,16 +99,18 @@ export default function AlternatingSection({
     </div>
   );
 
+  const scaledWidth = imageWidth && ts?.imageScale ? imageWidth * (ts.imageScale / 100) : imageWidth;
+
   const imageBlock = (
-    <div className="flex-1 min-w-0 flex items-center justify-center">
+    <div className="flex-1 min-w-0 flex items-center justify-center" style={ts?.imageOffsetY ? { transform: `translateY(${ts.imageOffsetY}px)` } : undefined}>
       {imageSrc ? (
         <img
           src={imageSrc}
           alt={imageAlt || title}
-          width={imageWidth}
+          width={scaledWidth}
           height={imageHeight}
           className="max-w-full h-auto"
-          style={imageWidth ? { width: imageWidth, maxWidth: "100%" } : undefined}
+          style={scaledWidth ? { width: scaledWidth, maxWidth: "100%" } : undefined}
         />
       ) : children ? (
         children
@@ -111,6 +126,7 @@ export default function AlternatingSection({
     <section
       id={id}
       className="flex flex-col md:flex-row gap-8 md:gap-12 items-start py-12"
+      style={{ ...(ts?.gap ? { gap: ts.gap } : {}), ...(ts?.sectionPadding ? { paddingTop: ts.sectionPadding, paddingBottom: ts.sectionPadding } : {}) }}
     >
       {isOdd ? (
         <>

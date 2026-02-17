@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -35,6 +35,17 @@ const belanosima = Belanosima({
   subsets: ["latin"],
 });
 
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Jake Rudolph",
   description:
@@ -49,7 +60,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} antialiased`}
       >
         {children}
       </body>

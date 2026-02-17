@@ -83,7 +83,23 @@ export function useFaceNavigation({
 
   const getFaceFromClick = useCallback((e: ThreeEvent<MouseEvent>): FaceId | null => {
     if (!e.face) return null;
-    const faceIndex = Math.floor(e.faceIndex! / 2);
+
+    // Use face normal (in object space) to determine which cube face was clicked.
+    // This works with any geometry, including RoundedBoxGeometry.
+    const { x, y, z } = e.face.normal;
+    const absX = Math.abs(x);
+    const absY = Math.abs(y);
+    const absZ = Math.abs(z);
+
+    let faceIndex: number;
+    if (absX >= absY && absX >= absZ) {
+      faceIndex = x > 0 ? 0 : 1; // +X (community) or -X (music)
+    } else if (absY >= absX && absY >= absZ) {
+      faceIndex = y > 0 ? 2 : 3; // +Y (thinking) or -Y (building)
+    } else {
+      faceIndex = z > 0 ? 4 : 5; // +Z (front) or -Z (back)
+    }
+
     return FACE_INDEX_TO_ID[faceIndex] ?? null;
   }, []);
 

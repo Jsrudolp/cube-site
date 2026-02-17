@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three-stdlib";
 import { FaceId } from "@/lib/faces";
 import { INITIAL_ROTATION, CANONICAL_QUATERNIONS } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
@@ -39,6 +40,7 @@ export function InteractiveCube({
   initialFace,
 }: InteractiveCubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const geometry = useMemo(() => new RoundedBoxGeometry(2, 2, 2, 4, 0.07), []);
   const [materials, setMaterials] = useState<THREE.MeshStandardMaterial[]>([]);
   const materialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
 
@@ -121,8 +123,7 @@ export function InteractiveCube({
 
   if (materials.length === 0) {
     return (
-      <mesh ref={meshRef} rotation={INITIAL_ROTATION}>
-        <boxGeometry args={[2, 2, 2]} />
+      <mesh ref={meshRef} rotation={INITIAL_ROTATION} geometry={geometry}>
         <meshStandardMaterial color="#888" wireframe />
       </mesh>
     );
@@ -137,8 +138,7 @@ export function InteractiveCube({
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
       onClick={onClick}
-    >
-      <boxGeometry args={[2, 2, 2]} />
-    </mesh>
+      geometry={geometry}
+    />
   );
 }

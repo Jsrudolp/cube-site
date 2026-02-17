@@ -11,7 +11,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/socratica-svg.svg",
       hoverSrc: "/community-artifacts/socratica-svg-hover.svg",
       alt: "Croissant",
-      offsetY: 24,
+      offsetY: 55,
+      size: 170,
     },
     photos: [
       { src: "/community-images/socratica-1.png", alt: "Community event", rotation: -3 },
@@ -29,7 +30,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/go-outside-svg.svg",
       hoverSrc: "/community-artifacts/go-outside-svg-hover.svg",
       alt: "Trophy",
-      size: 185,
+      offsetY: -15,
+      size: 225,
     },
     photos: [
       { src: "/community-images/go-outside-1.png", alt: "Outside event", rotation: 2 },
@@ -47,8 +49,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/symposium-svg.svg",
       hoverSrc: "/community-artifacts/symposium-svg-hover.svg",
       alt: "Hockey jersey",
-      size: 185,
-      offsetY: 24,
+      offsetY: 40,
+      size: 195,
     },
     photos: [
       { src: "/community-images/symposium-1.png", alt: "Symposium", rotation: 2 },
@@ -66,8 +68,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/hotgxrl-svg.svg",
       hoverSrc: "/community-artifacts/hotgxrl-svg-hover.svg",
       alt: "Ice cream cone",
-      size: 185,
-      offsetY: -15,
+      offsetY: -30,
+      size: 250,
     },
     photos: [
       { src: "/community-images/hot-gxrl-1.png", alt: "Walk club", rotation: -2 },
@@ -85,8 +87,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/silly-songs-svg.svg",
       hoverSrc: "/community-artifacts/silly-songs-svg-hover.svg",
       alt: "Guitar",
-      size: 320,
       offsetY: -120,
+      size: 360,
     },
     photos: [
       { src: "/community-images/silly-little-songs-1.png", alt: "Music night", rotation: 2 },
@@ -104,8 +106,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/kickoff-svg.svg",
       hoverSrc: "/community-artifacts/kickoff-svg-hover.svg",
       alt: "Traffic cone",
-      size: 180,
-      offsetY: 20,
+      offsetY: 50,
+      size: 200,
     },
     photos: [
       { src: "/community-images/kickoff-1.png", alt: "Friends", rotation: -1 },
@@ -123,6 +125,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/syde-svg.svg",
       hoverSrc: "/community-artifacts/syde-svg-hover.svg",
       alt: "Sharpie",
+      offsetY: 35,
+      size: 170,
     },
     photos: [
       { src: "/community-images/syde-1.png", alt: "SYDE event", rotation: -1 },
@@ -140,8 +144,8 @@ const COMMUNITY_ROWS = [
       src: "/community-artifacts/deca-svg.svg",
       hoverSrc: "/community-artifacts/deca-svg-hover.svg",
       alt: "Mug",
-      size: 180,
-      offsetY: 30,
+      offsetY: 55,
+      size: 175,
     },
     photos: [
       { src: "/community-images/deca-1.png", alt: "Competition", rotation: 2 },
@@ -160,6 +164,7 @@ const COMMUNITY_ROWS = [
       hoverSrc: "/community-artifacts/beta-camp-svg-hover.svg",
       alt: "Kettlebell",
       offsetY: 50,
+      size: 175,
     },
     photos: [
       { src: "/community-images/beta-camp-1.png", alt: "Camp", rotation: -3 },
