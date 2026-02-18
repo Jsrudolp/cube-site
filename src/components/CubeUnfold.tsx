@@ -27,9 +27,7 @@ interface CubeUnfoldProps {
   to form the right side + back of the cube).
 */
 
-const SIZE = 80;
 const GAP = 0;
-const CELL = SIZE + GAP;
 
 const FACE_BG: Record<FaceId, { color: string; extra?: React.CSSProperties }> = {
   front: { color: "#FFFFFF" },
@@ -43,7 +41,7 @@ const FACE_BG: Record<FaceId, { color: string; extra?: React.CSSProperties }> = 
       backgroundSize: "20px 20px",
     },
   },
-  back: { color: "#373737" },
+  back: { color: "#1a1a1a" },
 };
 
 const DARK_FACES = new Set<FaceId>(["music", "back"]);
@@ -52,9 +50,28 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
   const [phase, setPhase] = useState<"cube" | "open" | "closing">("cube");
   const { switchToFace } = useCubeNav();
 
+  // SIZE = 1 cell = 50vh / 3 rows, clamped to a sensible range
+  const [SIZE, setSIZE] = useState(() =>
+    typeof window !== "undefined" ? Math.floor(window.innerHeight * 0.5 / 3) : 160
+  );
+  useEffect(() => {
+    const compute = () => setSIZE(Math.floor(window.innerHeight * 0.5 / 3));
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, []);
+  const CELL = SIZE + GAP;
+
   useEffect(() => {
     const id = setTimeout(() => setPhase("open"), 400);
     return () => clearTimeout(id);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const close = () => {
@@ -100,38 +117,40 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
           backfaceVisibility: "hidden",
           backgroundColor: bg.color,
           ...bg.extra,
-          boxShadow: active
+          ...(id === "thinking" ? { backgroundSize: `${Math.round(SIZE / 6)}px ${Math.round(SIZE / 6)}px` } : {}),
+          outline: active
             ? dark
-              ? "inset 0 0 0 2.5px rgba(255,255,255,0.45)"
-              : "inset 0 0 0 2.5px rgba(0,0,0,0.15)"
+              ? "2.5px solid rgba(255,255,255,0.5)"
+              : "2.5px solid rgba(0,0,0,0.2)"
             : "none",
+          outlineOffset: "-2.5px",
+          transition: "transform 200ms ease",
           ...extraStyle,
         }}
         title={f.label}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = ((extraStyle as { transform?: string })?.transform ?? "") + " scale(1.06)"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = (extraStyle as { transform?: string })?.transform ?? ""; }}
       >
+        {/* Face icon — centered, not full-bleed */}
         <Image
           src={FACE_ICONS[id]}
           alt={f.label}
-          width={SIZE}
-          height={SIZE}
-          className="object-cover w-full h-full"
+          width={Math.round(SIZE * 0.46)}
+          height={Math.round(SIZE * 0.46)}
+          className="object-contain"
         />
+        {/* Active dot */}
+        {active && (
+          <span
+            className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${dark ? "bg-white/60" : "bg-black/25"}`}
+          />
+        )}
         {/* Hover overlay */}
         <span
-          className={`absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 ${
-            dark ? "bg-white/[0.08]" : "bg-black/[0.04]"
+          className={`absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 ${
+            dark ? "bg-white/[0.06]" : "bg-black/[0.03]"
           }`}
         />
-        {/* Label on hover */}
-        <span
-          className={`absolute inset-x-0 bottom-0 pt-5 pb-1.5 text-[9px] font-semibold tracking-wider uppercase text-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none select-none ${
-            dark
-              ? "text-white/90 bg-gradient-to-t from-black/40 to-transparent"
-              : "text-black/60 bg-gradient-to-t from-white/70 to-transparent"
-          }`}
-        >
-          {f.label}
-        </span>
       </button>
     );
   }
@@ -154,7 +173,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       {/* Perspective wrapper */}
       <div
         className="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none"
-        style={{ perspective: "900px" }}
+        style={{ perspective: `${SIZE * 10}px` }}
       >
         {/* 3D scene */}
         <div
@@ -163,11 +182,12 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             width: CELL * 4,
             height: CELL * 3,
             transformStyle: "preserve-3d",
-            transform: closing ? `${sceneTransform} scale(0.92)` : sceneTransform,
+            transformOrigin: `${CELL + SIZE / 2}px ${CELL + SIZE / 2}px`,
+            transform: closing ? `${sceneTransform} scale(0.94)` : sceneTransform,
             opacity: closing ? 0 : 1,
             transition: closing
-              ? "transform 400ms ease, opacity 400ms ease"
-              : "transform 700ms cubic-bezier(0.4, 0, 0.2, 1)",
+              ? "transform 350ms ease, opacity 350ms ease"
+              : "transform 650ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
           {/* Front — center of T, no fold */}

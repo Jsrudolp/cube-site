@@ -7,7 +7,7 @@ import { getVisitedFaces } from "@/lib/visited-faces";
 // Radius in px per number of OTHER faces visited (0-5)
 const RADIUS_MAP = [50, 90, 140, 200, 280, 400];
 
-function FlashlightInner({ children }: { children: React.ReactNode }) {
+function FlashlightInner({ children, fullscreen, overlayZIndex = 40 }: { children: React.ReactNode; fullscreen?: boolean; overlayZIndex?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: -1000, y: -1000 });
   const [radius, setRadius] = useState(0);
@@ -17,13 +17,17 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
   const cursorRef = useRef({ clientX: -1000, clientY: -1000 });
 
   const updatePosition = useCallback(() => {
+    if (fullscreen) {
+      setPosition({ x: cursorRef.current.clientX, y: cursorRef.current.clientY });
+      return;
+    }
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     setPosition({
       x: cursorRef.current.clientX - rect.left,
       y: cursorRef.current.clientY - rect.top,
     });
-  }, []);
+  }, [fullscreen]);
 
   useEffect(() => {
     // Dev override: ?radius=50 (or any number)
@@ -72,8 +76,8 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
 
       {/* Dark overlay with circular cutout */}
       <div
-        className="absolute inset-0 pointer-events-none z-40"
-        style={{
+        className={`${fullscreen ? "fixed" : "absolute"} inset-0 pointer-events-none`}
+        style={{ zIndex: overlayZIndex,
           background: "black",
           maskImage: `radial-gradient(circle ${radius}px at ${position.x}px ${position.y}px, transparent 0%, transparent 80%, black 100%)`,
           WebkitMaskImage: `radial-gradient(circle ${radius}px at ${position.x}px ${position.y}px, transparent 0%, transparent 80%, black 100%)`,
@@ -83,10 +87,10 @@ function FlashlightInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function Flashlight({ children }: { children: React.ReactNode }) {
+export default function Flashlight({ children, fullscreen, overlayZIndex }: { children: React.ReactNode; fullscreen?: boolean; overlayZIndex?: number }) {
   return (
     <Suspense fallback={<div className="relative">{children}</div>}>
-      <FlashlightInner>{children}</FlashlightInner>
+      <FlashlightInner fullscreen={fullscreen} overlayZIndex={overlayZIndex}>{children}</FlashlightInner>
     </Suspense>
   );
 }

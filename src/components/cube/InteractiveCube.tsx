@@ -78,12 +78,14 @@ export function InteractiveCube({
     onPointerMove,
     onPointerUp,
     update,
+    hasDragged,
     setEnabled: setRotationEnabled,
   } = useCubeRotation({ meshRef, enabled: !disabled });
 
   // Navigation hook (now with meshRef)
   const { onClick, isAnimating, cleanup } = useFaceNavigation({
     meshRef,
+    hasDragged,
     onZoomStart: (faceId) => {
       setRotationEnabled(false);
       onZoomStart?.(faceId);

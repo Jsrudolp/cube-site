@@ -6,7 +6,6 @@ import { FaceId, FACE_MAP } from "@/lib/faces";
 import {
   FACE_INDEX_TO_ID,
   FACE_CENTERS,
-  DOUBLE_CLICK_THRESHOLD,
   CAMERA_POSITION,
   CANONICAL_QUATERNIONS,
   SQUARED_CAMERA_POSITIONS,
@@ -25,6 +24,7 @@ export interface CubeHandoffState {
 
 interface UseFaceNavigationOptions {
   meshRef: React.RefObject<THREE.Mesh | null>;
+  hasDragged?: React.RefObject<boolean>;
   onZoomStart?: (faceId: FaceId) => void;
   onRotateComplete?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
@@ -38,6 +38,7 @@ type AnimationPhase = "rotate" | "square" | "zoom";
 
 export function useFaceNavigation({
   meshRef,
+  hasDragged,
   onZoomStart,
   onRotateComplete,
   onZoomComplete,
@@ -49,8 +50,6 @@ export function useFaceNavigation({
   const { camera, size } = useThree();
   const isAnimating = useRef(false);
   const animationRef = useRef<number | null>(null);
-  const lastClickTime = useRef(0);
-  const lastClickFace = useRef<FaceId | null>(null);
 
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
@@ -82,11 +81,15 @@ export function useFaceNavigation({
   }, [camera, size]);
 
   const getFaceFromClick = useCallback((e: ThreeEvent<MouseEvent>): FaceId | null => {
-    if (!e.face) return null;
+    if (!meshRef.current) return null;
 
-    // Use face normal (in object space) to determine which cube face was clicked.
-    // This works with any geometry, including RoundedBoxGeometry.
-    const { x, y, z } = e.face.normal;
+    // Transform the world-space intersection point to the mesh's local space.
+    // This is more reliable than e.face.normal for RoundedBoxGeometry, whose
+    // rounded edges have non-axis-aligned normals that can confuse normal-based detection.
+    const localPoint = e.point.clone();
+    meshRef.current.worldToLocal(localPoint);
+
+    const { x, y, z } = localPoint;
     const absX = Math.abs(x);
     const absY = Math.abs(y);
     const absZ = Math.abs(z);
@@ -101,7 +104,7 @@ export function useFaceNavigation({
     }
 
     return FACE_INDEX_TO_ID[faceIndex] ?? null;
-  }, []);
+  }, [meshRef]);
 
   const animateToFace = useCallback(
     (faceId: FaceId) => {
@@ -236,28 +239,16 @@ export function useFaceNavigation({
   const onClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
       if (!enabled || isAnimating.current) return;
+      // Don't navigate if the user dragged (vs. clicked)
+      if (hasDragged?.current) return;
       e.stopPropagation();
 
       const faceId = getFaceFromClick(e);
       if (!faceId) return;
 
-      const now = performance.now();
-      const timeSinceLastClick = now - lastClickTime.current;
-
-      // Check for double-click on same face
-      if (
-        timeSinceLastClick < DOUBLE_CLICK_THRESHOLD &&
-        lastClickFace.current === faceId
-      ) {
-        animateToFace(faceId);
-        lastClickTime.current = 0;
-        lastClickFace.current = null;
-      } else {
-        lastClickTime.current = now;
-        lastClickFace.current = faceId;
-      }
+      animateToFace(faceId);
     },
-    [enabled, getFaceFromClick, animateToFace]
+    [enabled, hasDragged, getFaceFromClick, animateToFace]
   );
 
   const cleanup = useCallback(() => {

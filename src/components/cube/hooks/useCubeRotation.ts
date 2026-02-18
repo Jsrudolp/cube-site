@@ -15,6 +15,8 @@ interface UseCubeRotationOptions {
 
 export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOptions) {
   const isDragging = useRef(false);
+  const hasDragged = useRef(false);
+  const pointerDownPos = useRef({ x: 0, y: 0 });
   const isIdle = useRef(true);
   const lastPointer = useRef({ x: 0, y: 0 });
   const velocity = useRef({ x: 0, y: 0 });
@@ -42,6 +44,8 @@ export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOpti
       e.stopPropagation();
       (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
       isDragging.current = true;
+      hasDragged.current = false;
+      pointerDownPos.current = { x: e.clientX, y: e.clientY };
       lastPointer.current = { x: e.clientX, y: e.clientY };
       velocity.current = { x: 0, y: 0 };
       resetIdleTimer();
@@ -56,6 +60,13 @@ export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOpti
 
       const deltaX = e.clientX - lastPointer.current.x;
       const deltaY = e.clientY - lastPointer.current.y;
+
+      // Track if the pointer moved significantly from where it was pressed
+      const totalDx = e.clientX - pointerDownPos.current.x;
+      const totalDy = e.clientY - pointerDownPos.current.y;
+      if (totalDx * totalDx + totalDy * totalDy > 25) { // 5px threshold
+        hasDragged.current = true;
+      }
 
       velocity.current = {
         x: deltaX * DRAG_SENSITIVITY,
@@ -124,6 +135,7 @@ export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOpti
     onPointerUp,
     update,
     isDragging,
+    hasDragged,
     setEnabled,
   };
 }
