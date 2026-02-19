@@ -5,9 +5,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
 import { FaceId } from "@/lib/faces";
-import { INITIAL_ROTATION, CANONICAL_QUATERNIONS } from "@/lib/cube-config";
+import { INITIAL_ROTATION, FACE_NORMALS, CAMERA_POSITION } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
-import { useFaceNavigation, CubeHandoffState } from "./hooks/useFaceNavigation";
+import { useFaceNavigation } from "./hooks/useFaceNavigation";
 import {
   createAllPlaceholderTextures,
   loadTexturesWithFallback,
@@ -17,14 +17,13 @@ import {
 interface InteractiveCubeProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onHandoff?: (state: CubeHandoffState) => void;
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
 }
 
 // Helper to dispose materials and their textures
-function disposeMaterials(materials: THREE.MeshStandardMaterial[]) {
+function disposeMaterials(materials: THREE.MeshBasicMaterial[]) {
   materials.forEach((m) => {
     m.map?.dispose();
     m.dispose();
@@ -34,15 +33,14 @@ function disposeMaterials(materials: THREE.MeshStandardMaterial[]) {
 export function InteractiveCube({
   onZoomStart,
   onZoomComplete,
-  onHandoff,
   disabled = false,
   animationDuration = 1800,
   initialFace,
 }: InteractiveCubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const geometry = useMemo(() => new RoundedBoxGeometry(2, 2, 2, 4, 0.07), []);
-  const [materials, setMaterials] = useState<THREE.MeshStandardMaterial[]>([]);
-  const materialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+  const [materials, setMaterials] = useState<THREE.MeshBasicMaterial[]>([]);
+  const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
 
   // Keep ref in sync for cleanup
   useEffect(() => {
@@ -91,7 +89,6 @@ export function InteractiveCube({
       onZoomStart?.(faceId);
     },
     onZoomComplete,
-    onHandoff,
     enabled: !disabled,
     animationDuration,
   });
@@ -107,11 +104,16 @@ export function InteractiveCube({
   useEffect(() => {
     if (meshRef.current) {
       if (initialFace) {
-        // Use canonical orientation for this face (matches zoom-out end state)
-        const quaternion = CANONICAL_QUATERNIONS[initialFace].clone();
+        // Orient so the visited face points directly at the camera —
+        // matches the cube state at the end of the zoom-out animation.
+        const cameraDir = new THREE.Vector3(...CAMERA_POSITION).normalize();
+        const quaternion = new THREE.Quaternion().setFromUnitVectors(
+          FACE_NORMALS[initialFace].clone(),
+          cameraDir
+        );
         meshRef.current.quaternion.copy(quaternion);
       } else {
-        // Use default tilted rotation showing 3 faces
+        // Default tilted rotation showing 3 faces
         meshRef.current.rotation.set(...INITIAL_ROTATION);
       }
     }

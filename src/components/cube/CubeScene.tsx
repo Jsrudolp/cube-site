@@ -6,12 +6,10 @@ import { FaceId } from "@/lib/faces";
 import { CAMERA_POSITION, CAMERA_FOV } from "@/lib/cube-config";
 import { InteractiveCube } from "./InteractiveCube";
 import { CubeShadow } from "./CubeShadow";
-import type { CubeHandoffState } from "./hooks/useFaceNavigation";
 
 interface CubeSceneProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onHandoff?: (state: CubeHandoffState) => void;
   animationDuration?: number;
   initialFace?: FaceId;
 }
@@ -28,7 +26,6 @@ function LoadingFallback() {
 export function CubeScene({
   onZoomStart,
   onZoomComplete,
-  onHandoff,
   animationDuration = 1800,
   initialFace,
 }: CubeSceneProps) {
@@ -41,11 +38,6 @@ export function CubeScene({
 
   const handleZoomComplete = (faceId: FaceId) => {
     onZoomComplete?.(faceId);
-  };
-
-  const handleHandoff = (state: CubeHandoffState) => {
-    setIsZooming(true);
-    onHandoff?.(state);
   };
 
   return (
@@ -63,22 +55,11 @@ export function CubeScene({
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
-        {/* Lighting */}
-        <ambientLight intensity={0.6} />
-        <directionalLight
-          position={[5, 5, 5]}
-          intensity={1}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-        />
-        <directionalLight position={[-3, 3, -3]} intensity={0.3} />
-
         {/* Cube */}
         <Suspense fallback={<LoadingFallback />}>
           <InteractiveCube
             onZoomStart={handleZoomStart}
             onZoomComplete={handleZoomComplete}
-            onHandoff={handleHandoff}
             disabled={isZooming}
             animationDuration={animationDuration}
             initialFace={initialFace}

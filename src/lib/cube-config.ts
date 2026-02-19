@@ -51,21 +51,19 @@ export const FACE_CENTERS: Record<FaceId, THREE.Vector3> = {
   back: new THREE.Vector3(0, 0, -1),       // -Z
 };
 
-// Canonical quaternions - cube rotation so each face points along its natural axis
-// These are the "squared" orientations where face edges align with world axes
+// Canonical quaternions - identity for all faces.
+// The squared camera positions already sit along each face's natural axis
+// (community → +X, music → -X, etc.), so each face's local normal already
+// points toward its camera in the default (identity) orientation.
+// The previous non-identity values were designed for the CSS cube (fixed +Z
+// viewer) and caused the wrong face to appear during the Three.js animation.
 export const CANONICAL_QUATERNIONS: Record<FaceId, THREE.Quaternion> = {
-  // Front face (+Z) - identity, no rotation needed
-  front: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0),
-  // Back face (-Z) - 180° around Y
-  back: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI),
-  // Right face (+X) - 90° around Y
-  community: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2),
-  // Left face (-X) - -90° around Y
-  music: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2),
-  // Top face (+Y) - -90° around X
-  thinking: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2),
-  // Bottom face (-Y) - 90° around X
-  building: new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2),
+  front: new THREE.Quaternion(),
+  back: new THREE.Quaternion(),
+  community: new THREE.Quaternion(),
+  music: new THREE.Quaternion(),
+  thinking: new THREE.Quaternion(),
+  building: new THREE.Quaternion(),
 };
 
 // Camera configuration
@@ -103,8 +101,8 @@ export const AUTO_ROTATE_SPEED = 0.001;
 export const IDLE_TIMEOUT = 3000; // ms before auto-rotation starts
 
 // Drag configuration
-export const DRAG_SENSITIVITY = 0.006;
-export const MOMENTUM_FRICTION = 0.95;
+export const DRAG_SENSITIVITY = 0.003;
+export const MOMENTUM_FRICTION = 0.97;
 
 // Double-click configuration
 export const DOUBLE_CLICK_THRESHOLD = 300; // ms between clicks

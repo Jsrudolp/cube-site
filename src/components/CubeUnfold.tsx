@@ -122,14 +122,11 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             ? dark
               ? "2.5px solid rgba(255,255,255,0.5)"
               : "2.5px solid rgba(0,0,0,0.2)"
-            : "none",
-          outlineOffset: "-2.5px",
-          transition: "transform 200ms ease",
+            : "1px solid rgba(150,150,150,0.4)",
+          outlineOffset: active ? "-2.5px" : "-1px",
           ...extraStyle,
         }}
         title={f.label}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = ((extraStyle as { transform?: string })?.transform ?? "") + " scale(1.06)"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = (extraStyle as { transform?: string })?.transform ?? ""; }}
       >
         {/* Face icon — centered, not full-bleed */}
         <Image
@@ -137,7 +134,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
           alt={f.label}
           width={Math.round(SIZE * 0.46)}
           height={Math.round(SIZE * 0.46)}
-          className="object-contain"
+          className="object-contain transition-transform duration-200 ease-out group-hover:scale-[1.18]"
         />
         {/* Active dot */}
         {active && (
@@ -173,7 +170,6 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       {/* Perspective wrapper */}
       <div
         className="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none"
-        style={{ perspective: `${SIZE * 10}px` }}
       >
         {/* 3D scene */}
         <div
@@ -182,8 +178,10 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             width: CELL * 4,
             height: CELL * 3,
             transformStyle: "preserve-3d",
-            transformOrigin: `${CELL + SIZE / 2}px ${CELL + SIZE / 2}px`,
-            transform: closing ? `${sceneTransform} scale(0.94)` : sceneTransform,
+            transformOrigin: `${CELL + SIZE / 2}px ${CELL + SIZE / 2}px ${-SIZE / 2}px`,
+            transform: closing
+              ? `perspective(${SIZE * 10}px) ${sceneTransform} scale(0.94)`
+              : `perspective(${SIZE * 10}px) ${sceneTransform}`,
             opacity: closing ? 0 : 1,
             transition: closing
               ? "transform 350ms ease, opacity 350ms ease"
@@ -203,7 +201,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             left: CELL,
             top: 0,
             transformOrigin: `center ${SIZE}px`,
-            transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
+            transform: flat ? "rotateX(0deg)" : "rotateX(90deg)",
             transition: `transform ${ease} ${stagger(150)}`,
           })}
 
@@ -212,7 +210,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             left: CELL,
             top: 2 * CELL,
             transformOrigin: "center 0px",
-            transform: flat ? "rotateX(0deg)" : "rotateX(90deg)",
+            transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
             transition: `transform ${ease} ${stagger(150)}`,
           })}
 
@@ -221,7 +219,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             left: 0,
             top: CELL,
             transformOrigin: `${SIZE}px center`,
-            transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
+            transform: flat ? "rotateY(0deg)" : "rotateY(-90deg)",
             transition: `transform ${ease} ${stagger(250)}`,
           })}
 
@@ -235,7 +233,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
               height: SIZE,
               transformStyle: "preserve-3d",
               transformOrigin: "0px center",
-              transform: flat ? "rotateY(0deg)" : "rotateY(-90deg)",
+              transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
               transition: `transform ${ease} ${stagger(250)}`,
             }}
           >
@@ -245,7 +243,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
               left: CELL,
               top: 0,
               transformOrigin: "0px center",
-              transform: flat ? "rotateY(0deg)" : "rotateY(-90deg)",
+              transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
               transition: `transform ${ease} ${stagger(380)}`,
             })}
           </div>

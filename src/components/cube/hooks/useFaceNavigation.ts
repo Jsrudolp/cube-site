@@ -6,21 +6,10 @@ import { FaceId, FACE_MAP } from "@/lib/faces";
 import {
   FACE_INDEX_TO_ID,
   FACE_CENTERS,
+  FACE_NORMALS,
   CAMERA_POSITION,
-  CANONICAL_QUATERNIONS,
-  SQUARED_CAMERA_POSITIONS,
-  CAMERA_UP_VECTORS,
 } from "@/lib/cube-config";
 import { easeInOutQuint } from "@/lib/animation-modes";
-
-export interface CubeHandoffState {
-  faceId: FaceId;
-  rotationX: number;
-  rotationY: number;
-  rotationZ: number;
-  cameraDistance: number;
-  cubeScreenSize: number;
-}
 
 interface UseFaceNavigationOptions {
   meshRef: React.RefObject<THREE.Mesh | null>;
@@ -28,13 +17,16 @@ interface UseFaceNavigationOptions {
   onZoomStart?: (faceId: FaceId) => void;
   onRotateComplete?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onHandoff?: (state: CubeHandoffState) => void;
   enabled?: boolean;
   animationDuration?: number;
 }
 
-// Animation phases
-type AnimationPhase = "rotate" | "square" | "zoom";
+// Direction from origin toward the default camera — computed once, never changes
+const CAMERA_VEC = new THREE.Vector3(...CAMERA_POSITION);
+const CAMERA_DIR = CAMERA_VEC.clone().normalize();
+
+// Animation phases: rotate face toward camera, then zoom straight in
+type AnimationPhase = "rotate" | "zoom";
 
 export function useFaceNavigation({
   meshRef,
@@ -42,7 +34,6 @@ export function useFaceNavigation({
   onZoomStart,
   onRotateComplete,
   onZoomComplete,
-  onHandoff,
   enabled = true,
   animationDuration = 1800,
 }: UseFaceNavigationOptions) {
@@ -54,23 +45,7 @@ export function useFaceNavigation({
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
 
-  // Calculate current cube screen size based on camera distance
-  const calculateCubeScreenSize = useCallback(() => {
-    const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
-    const distance = camera.position.length();
-    const cubeWorldSize = 2; // Cube is 2 units
-    const verticalFovSize = 2 * Math.tan(fov / 2) * distance;
-    return (cubeWorldSize / verticalFovSize) * size.height;
-  }, [camera, size]);
-
-  // Get current rotation as Euler angles for CSS
-  const getCurrentRotation = useCallback(() => {
-    if (!meshRef.current) return { x: 0, y: 0, z: 0 };
-    const euler = new THREE.Euler().setFromQuaternion(meshRef.current.quaternion, "XYZ");
-    return { x: euler.x, y: euler.y, z: euler.z };
-  }, [meshRef]);
-
-  // Calculate zoom distance needed to fill screen with face
+  // Distance at which the face exactly fills the viewport
   const calculateFillDistance = useCallback(() => {
     const faceSize = 2;
     const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
@@ -83,9 +58,9 @@ export function useFaceNavigation({
   const getFaceFromClick = useCallback((e: ThreeEvent<MouseEvent>): FaceId | null => {
     if (!meshRef.current) return null;
 
-    // Transform the world-space intersection point to the mesh's local space.
-    // This is more reliable than e.face.normal for RoundedBoxGeometry, whose
-    // rounded edges have non-axis-aligned normals that can confuse normal-based detection.
+    // Transform world-space hit point to mesh local space.
+    // More reliable than e.face.normal for RoundedBoxGeometry (rounded edges
+    // produce non-axis-aligned normals that can mis-identify faces).
     const localPoint = e.point.clone();
     meshRef.current.worldToLocal(localPoint);
 
@@ -112,44 +87,29 @@ export function useFaceNavigation({
       isAnimating.current = true;
       onZoomStart?.(faceId);
 
-      // If we have a handoff callback, trigger CSS 3D transition immediately
-      if (onHandoff) {
-        const rotation = getCurrentRotation();
-        const cubeScreenSize = calculateCubeScreenSize();
-        const cameraDistance = camera.position.length();
-
-        onHandoff({
-          faceId,
-          rotationX: rotation.x,
-          rotationY: rotation.y,
-          rotationZ: rotation.z,
-          cameraDistance,
-          cubeScreenSize,
-        });
-        return;
-      }
-
-      // Fallback to original WebGL animation if no handoff callback
       const mesh = meshRef.current;
-      const defaultCameraPos = new THREE.Vector3(...CAMERA_POSITION);
+      const cameraUp = new THREE.Vector3(0, 1, 0);
 
-      // Get target configurations
-      const targetQuaternion = CANONICAL_QUATERNIONS[faceId].clone();
-      const squaredCameraPos = SQUARED_CAMERA_POSITIONS[faceId].clone();
-      const faceCenter = FACE_CENTERS[faceId].clone();
-      const cameraUp = CAMERA_UP_VECTORS[faceId].clone();
+      // Rotate the clicked face's local normal to point directly at the camera.
+      // Camera stays fixed at CAMERA_POSITION throughout the rotate phase.
+      const targetQuat = new THREE.Quaternion().setFromUnitVectors(
+        FACE_NORMALS[faceId].clone(),
+        CAMERA_DIR
+      );
 
-      // Store initial states
-      const startQuaternion = mesh.quaternion.clone();
-      const startCameraPos = defaultCameraPos.clone();
-      const startCameraUp = new THREE.Vector3(0, 1, 0);
+      // After rotation, the face center sits along CAMERA_DIR at distance 1 from origin
+      const worldFaceCenter = FACE_CENTERS[faceId].clone().applyQuaternion(targetQuat);
 
-      // Phase timing (as fractions of total duration)
-      const rotateDuration = 0.4;  // 40% for rotation
-      const squareDuration = 0.3;  // 30% for squaring
-      const zoomDuration = 0.3;    // 30% for zoom
+      // Zoom target: fillDistance past the face center along CAMERA_DIR
+      const fillDistance = calculateFillDistance();
+      const zoomTarget = worldFaceCenter.clone().add(CAMERA_DIR.clone().multiplyScalar(fillDistance));
 
-      // Animation state
+      const startQuat = mesh.quaternion.clone();
+
+      // Phase timing
+      const rotateDuration = 0.4; // 40% — cube spins face toward camera
+      const zoomDuration = 0.6;   // 60% — camera zooms straight in
+
       let phase: AnimationPhase = "rotate";
       let phaseStartTime = performance.now();
 
@@ -158,71 +118,46 @@ export function useFaceNavigation({
         const totalDuration = animDurationRef.current;
 
         if (phase === "rotate") {
-          // Phase 1: Rotate cube to canonical orientation
           const phaseDuration = totalDuration * rotateDuration;
           const elapsed = now - phaseStartTime;
           const progress = Math.min(elapsed / phaseDuration, 1);
           const eased = easeInOutQuint(progress);
 
-          // Rotate cube
-          mesh.quaternion.slerpQuaternions(startQuaternion, targetQuaternion, eased);
+          mesh.quaternion.slerpQuaternions(startQuat, targetQuat, eased);
 
-          // Camera stays at default position, looking at origin
-          camera.position.copy(defaultCameraPos);
-          camera.up.copy(startCameraUp);
+          // Camera fixed, looking at cube center
+          camera.position.copy(CAMERA_VEC);
+          camera.up.copy(cameraUp);
           camera.lookAt(0, 0, 0);
 
           if (progress >= 1) {
             onRotateComplete?.(faceId);
-            phase = "square";
-            phaseStartTime = now;
-          }
-        } else if (phase === "square") {
-          // Phase 2: Move camera to squared position
-          const phaseDuration = totalDuration * squareDuration;
-          const elapsed = now - phaseStartTime;
-          const progress = Math.min(elapsed / phaseDuration, 1);
-          const eased = easeInOutQuint(progress);
-
-          // Move camera from default to squared position
-          camera.position.lerpVectors(defaultCameraPos, squaredCameraPos, eased);
-
-          // Interpolate up vector
-          camera.up.lerpVectors(startCameraUp, cameraUp, eased);
-
-          // Shift look-at from origin to face center
-          const lookAt = new THREE.Vector3(0, 0, 0).lerp(faceCenter, eased);
-          camera.lookAt(lookAt);
-
-          if (progress >= 1) {
             phase = "zoom";
             phaseStartTime = now;
           }
         } else if (phase === "zoom") {
-          // Phase 3: Zoom in until face fills screen
           const phaseDuration = totalDuration * zoomDuration;
           const elapsed = now - phaseStartTime;
           const progress = Math.min(elapsed / phaseDuration, 1);
           const eased = easeInOutQuint(progress);
 
-          // Calculate final zoom position
-          const fillDistance = calculateFillDistance();
-          const faceNormal = faceCenter.clone().normalize();
-          const zoomTargetPos = faceCenter.clone().add(faceNormal.clone().multiplyScalar(fillDistance));
-
-          // Move camera toward face
-          camera.position.lerpVectors(squaredCameraPos, zoomTargetPos, eased);
+          // Camera moves straight in along CAMERA_DIR toward the face
+          camera.position.lerpVectors(CAMERA_VEC, zoomTarget, eased);
           camera.up.copy(cameraUp);
-          camera.lookAt(faceCenter);
+          camera.lookAt(worldFaceCenter);
 
           if (progress >= 1) {
             isAnimating.current = false;
             onZoomComplete?.(faceId);
 
-            // Navigate to face route
             const face = FACE_MAP[faceId];
             if (face) {
-              router.push(face.route);
+              if (typeof document !== "undefined" && "startViewTransition" in document) {
+                (document as Document & { startViewTransition: (cb: () => void) => void })
+                  .startViewTransition(() => router.push(face.route));
+              } else {
+                router.push(face.route);
+              }
             }
             return;
           }
@@ -233,13 +168,12 @@ export function useFaceNavigation({
 
       animationRef.current = requestAnimationFrame(animate);
     },
-    [camera, enabled, meshRef, onZoomStart, onRotateComplete, onZoomComplete, onHandoff, router, calculateFillDistance, getCurrentRotation, calculateCubeScreenSize]
+    [camera, enabled, meshRef, onZoomStart, onRotateComplete, onZoomComplete, router, calculateFillDistance]
   );
 
   const onClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
       if (!enabled || isAnimating.current) return;
-      // Don't navigate if the user dragged (vs. clicked)
       if (hasDragged?.current) return;
       e.stopPropagation();
 

@@ -63,13 +63,9 @@ export async function loadTexturesWithFallback(
 }
 
 // Create materials from textures
-export function createMaterials(textures: THREE.Texture[]): THREE.MeshStandardMaterial[] {
+export function createMaterials(textures: THREE.Texture[]): THREE.MeshBasicMaterial[] {
   return textures.map(
     (texture) =>
-      new THREE.MeshStandardMaterial({
-        map: texture,
-        roughness: 0.3,
-        metalness: 0.1,
-      })
+      new THREE.MeshBasicMaterial({ map: texture })
   );
 }
