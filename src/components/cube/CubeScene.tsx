@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
 import { CAMERA_POSITION, CAMERA_FOV } from "@/lib/cube-config";
 import { InteractiveCube } from "./InteractiveCube";
@@ -12,13 +13,14 @@ interface CubeSceneProps {
   onZoomComplete?: (faceId: FaceId) => void;
   animationDuration?: number;
   initialFace?: FaceId;
+  dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
 
 function LoadingFallback() {
   return (
     <mesh>
       <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#e5e5e0" wireframe />
+      <meshStandardMaterial color="#EDEDED" wireframe />
     </mesh>
   );
 }
@@ -28,6 +30,7 @@ export function CubeScene({
   onZoomComplete,
   animationDuration = 1800,
   initialFace,
+  dynamicTextures,
 }: CubeSceneProps) {
   const [isZooming, setIsZooming] = useState(false);
 
@@ -52,7 +55,7 @@ export function CubeScene({
           near: 0.1,
           far: 100,
         }}
-        gl={{ antialias: true, alpha: true }}
+        gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: "transparent" }}
       >
         {/* Cube */}
@@ -63,6 +66,7 @@ export function CubeScene({
             disabled={isZooming}
             animationDuration={animationDuration}
             initialFace={initialFace}
+            dynamicTextures={dynamicTextures}
           />
         </Suspense>
 

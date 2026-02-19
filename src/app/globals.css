@@ -25,22 +25,8 @@ body {
   display: none;
 }
 
-/* View Transitions — cube face zoom into page */
-::view-transition-old(root) {
-  animation: 350ms ease-in both vt-zoom-out;
-}
+/* View Transitions — fast cross-fade to minimize gap while CubeOverlay mounts */
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: 350ms ease-out both vt-zoom-in;
-}
-@keyframes vt-zoom-out {
-  to {
-    transform: scale(1.08);
-    opacity: 0;
-  }
-}
-@keyframes vt-zoom-in {
-  from {
-    transform: scale(0.96);
-    opacity: 0;
-  }
+  animation-duration: 50ms;
 }

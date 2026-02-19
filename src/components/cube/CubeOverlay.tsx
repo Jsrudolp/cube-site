@@ -3,14 +3,14 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three-stdlib";
 import { useRouter } from "next/navigation";
 import { FaceId, FACE_MAP } from "@/lib/faces";
 import {
   CAMERA_POSITION,
   CAMERA_FOV,
   FACE_CENTERS,
-  FACE_NORMALS,
+  FACE_COLORS,
+  computeUprightQuat,
 } from "@/lib/cube-config";
 import { CubeShadow } from "./CubeShadow";
 import {
@@ -38,7 +38,7 @@ function disposeMaterials(materials: THREE.MeshBasicMaterial[]) {
 
 // Cube mesh with textures
 function TexturedCube({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null> }) {
-  const geometry = useMemo(() => new RoundedBoxGeometry(2, 2, 2, 4, 0.07), []);
+  const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
   const [materials, setMaterials] = useState<THREE.MeshBasicMaterial[]>([]);
   const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
 
@@ -94,7 +94,7 @@ function ZoomOutAnimation({
   transitionMode: "zoom-out" | "switch-face";
   animationDuration: number;
 }) {
-  const { camera, size } = useThree();
+  const { camera } = useThree();
   const meshRef = useRef<THREE.Mesh>(null);
   const initialized = useRef(false);
   const router = useRouter();
@@ -114,15 +114,6 @@ function ZoomOutAnimation({
   const targetWorldFaceCenter = useRef<THREE.Vector3 | null>(null);
   const targetZoomTarget = useRef<THREE.Vector3 | null>(null);
 
-  const calculateFillDistance = useCallback(() => {
-    const faceSize = 2;
-    const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
-    const aspect = size.width / size.height;
-    const verticalFit = faceSize / (2 * Math.tan(fov / 2));
-    const horizontalFit = faceSize / (2 * Math.tan(fov / 2) * aspect);
-    return Math.min(verticalFit, horizontalFit) * 0.9;
-  }, [camera, size]);
-
   useFrame(() => {
     if (!meshRef.current) return;
 
@@ -131,14 +122,13 @@ function ZoomOutAnimation({
     if (!initialized.current) {
       initialized.current = true;
 
-      const fillDistance = calculateFillDistance();
+      const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+      const verticalFit = 2 / (2 * Math.tan(fov / 2));
+      const fillDistance = verticalFit * 0.9;
       const dir = CAMERA_DIR;
 
-      // Cube: current face's local normal rotated to point toward the camera
-      const cq = new THREE.Quaternion().setFromUnitVectors(
-        FACE_NORMALS[currentFace].clone(),
-        dir
-      );
+      // Cube: current face aligned with camera AND roll-corrected to be upright
+      const cq = computeUprightQuat(currentFace);
       currentFaceQuat.current = cq;
       meshRef.current.quaternion.copy(cq);
 
@@ -146,7 +136,7 @@ function ZoomOutAnimation({
       const wfc = FACE_CENTERS[currentFace].clone().applyQuaternion(cq);
       currentWorldFaceCenter.current = wfc;
 
-      // Camera starts at zoom target: fillDistance past the face center along CAMERA_DIR
+      // Camera starts at zoom target: verticalFit distance from face center
       const zt = wfc.clone().add(dir.clone().multiplyScalar(fillDistance));
       currentZoomTarget.current = zt;
 
@@ -156,10 +146,7 @@ function ZoomOutAnimation({
 
       // Set up target face if switching
       if (targetFace) {
-        const tq = new THREE.Quaternion().setFromUnitVectors(
-          FACE_NORMALS[targetFace].clone(),
-          dir
-        );
+        const tq = computeUprightQuat(targetFace);
         targetFaceQuat.current = tq;
         const twfc = FACE_CENTERS[targetFace].clone().applyQuaternion(tq);
         targetWorldFaceCenter.current = twfc;
@@ -183,7 +170,6 @@ function ZoomOutAnimation({
         if (currentZoomTarget.current && currentWorldFaceCenter.current) {
           camera.position.lerpVectors(currentZoomTarget.current, CAMERA_VEC, eased);
           camera.up.copy(cameraUp.current);
-          // lookAt drifts from face center toward cube center as we pull back
           const lookAt = currentWorldFaceCenter.current.clone().lerp(new THREE.Vector3(0, 0, 0), eased);
           camera.lookAt(lookAt);
         }
@@ -288,7 +274,10 @@ export function CubeOverlay({
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#e5e5e0]">
+    <div
+      className="fixed inset-0 z-[200]"
+      style={{ backgroundColor: FACE_COLORS[currentFace] }}
+    >
       <Canvas
         camera={{
           position: CAMERA_POSITION,

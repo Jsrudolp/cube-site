@@ -31,6 +31,16 @@ export function easeInOutQuint(t: number): number {
     : 1 - Math.pow(-2 * t + 2, 5) / 2;
 }
 
+// Cubic ease-in (accelerates, no deceleration at end)
+export function easeInCubic(t: number): number {
+  return t * t * t;
+}
+
+// Cubic ease-out (starts fast, decelerates to stop)
+export function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
 // Sine-based smooth easing (even gentler)
 export function easeInOutSine(t: number): number {
   return -(Math.cos(Math.PI * t) - 1) / 2;

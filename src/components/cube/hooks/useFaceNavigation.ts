@@ -1,13 +1,13 @@
 import { useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { ThreeEvent, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { FaceId, FACE_MAP } from "@/lib/faces";
+import { FaceId } from "@/lib/faces";
 import {
   FACE_INDEX_TO_ID,
   FACE_CENTERS,
-  FACE_NORMALS,
+  FACE_LOCAL_UP,
   CAMERA_POSITION,
+  computeUprightQuat,
 } from "@/lib/cube-config";
 import { easeInOutQuint } from "@/lib/animation-modes";
 
@@ -15,7 +15,6 @@ interface UseFaceNavigationOptions {
   meshRef: React.RefObject<THREE.Mesh | null>;
   hasDragged?: React.RefObject<boolean>;
   onZoomStart?: (faceId: FaceId) => void;
-  onRotateComplete?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
   enabled?: boolean;
   animationDuration?: number;
@@ -25,42 +24,24 @@ interface UseFaceNavigationOptions {
 const CAMERA_VEC = new THREE.Vector3(...CAMERA_POSITION);
 const CAMERA_DIR = CAMERA_VEC.clone().normalize();
 
-// Animation phases: rotate face toward camera, then zoom straight in
-type AnimationPhase = "rotate" | "zoom";
-
 export function useFaceNavigation({
   meshRef,
   hasDragged,
   onZoomStart,
-  onRotateComplete,
   onZoomComplete,
   enabled = true,
   animationDuration = 1800,
 }: UseFaceNavigationOptions) {
-  const router = useRouter();
-  const { camera, size } = useThree();
+  const { camera } = useThree();
   const isAnimating = useRef(false);
   const animationRef = useRef<number | null>(null);
 
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
 
-  // Distance at which the face exactly fills the viewport
-  const calculateFillDistance = useCallback(() => {
-    const faceSize = 2;
-    const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
-    const aspect = size.width / size.height;
-    const verticalFit = faceSize / (2 * Math.tan(fov / 2));
-    const horizontalFit = faceSize / (2 * Math.tan(fov / 2) * aspect);
-    return Math.min(verticalFit, horizontalFit) * 0.9;
-  }, [camera, size]);
-
   const getFaceFromClick = useCallback((e: ThreeEvent<MouseEvent>): FaceId | null => {
     if (!meshRef.current) return null;
 
-    // Transform world-space hit point to mesh local space.
-    // More reliable than e.face.normal for RoundedBoxGeometry (rounded edges
-    // produce non-axis-aligned normals that can mis-identify faces).
     const localPoint = e.point.clone();
     meshRef.current.worldToLocal(localPoint);
 
@@ -71,11 +52,11 @@ export function useFaceNavigation({
 
     let faceIndex: number;
     if (absX >= absY && absX >= absZ) {
-      faceIndex = x > 0 ? 0 : 1; // +X (community) or -X (music)
+      faceIndex = x > 0 ? 0 : 1;
     } else if (absY >= absX && absY >= absZ) {
-      faceIndex = y > 0 ? 2 : 3; // +Y (thinking) or -Y (building)
+      faceIndex = y > 0 ? 2 : 3;
     } else {
-      faceIndex = z > 0 ? 4 : 5; // +Z (front) or -Z (back)
+      faceIndex = z > 0 ? 4 : 5;
     }
 
     return FACE_INDEX_TO_ID[faceIndex] ?? null;
@@ -90,77 +71,50 @@ export function useFaceNavigation({
       const mesh = meshRef.current;
       const cameraUp = new THREE.Vector3(0, 1, 0);
 
-      // Rotate the clicked face's local normal to point directly at the camera.
-      // Camera stays fixed at CAMERA_POSITION throughout the rotate phase.
-      const targetQuat = new THREE.Quaternion().setFromUnitVectors(
-        FACE_NORMALS[faceId].clone(),
-        CAMERA_DIR
+      const uprightQuat = computeUprightQuat(faceId);
+      const worldFaceCenter = FACE_CENTERS[faceId].clone().applyQuaternion(uprightQuat);
+
+      const cam = camera as THREE.PerspectiveCamera;
+      const vfov = cam.fov * (Math.PI / 180);
+      const aspect = cam.aspect; // width / height
+
+      // Distance where face width (2 units) exactly fills viewport width
+      const horizontalFit = 1 / (Math.tan(vfov / 2) * aspect);
+
+      // Top-alignment offset: shift view upward in face-up direction so
+      // top edge of face aligns with top of viewport.
+      // At this distance, visible half-height = horizontalFit * tan(vfov/2) = 1/aspect
+      // Face half-height = 1. Offset = 1 - 1/aspect (positive = shift up)
+      const faceUpWorld = FACE_LOCAL_UP[faceId].clone().applyQuaternion(uprightQuat);
+      const topAlignOffset = Math.max(0, 1 - 1 / aspect); // 0 on tall screens
+      const offsetVec = faceUpWorld.multiplyScalar(topAlignOffset);
+
+      const zoomLookAt = worldFaceCenter.clone().add(offsetVec);
+      const zoomTarget = zoomLookAt.clone().add(
+        CAMERA_DIR.clone().multiplyScalar(horizontalFit)
       );
 
-      // After rotation, the face center sits along CAMERA_DIR at distance 1 from origin
-      const worldFaceCenter = FACE_CENTERS[faceId].clone().applyQuaternion(targetQuat);
-
-      // Zoom target: fillDistance past the face center along CAMERA_DIR
-      const fillDistance = calculateFillDistance();
-      const zoomTarget = worldFaceCenter.clone().add(CAMERA_DIR.clone().multiplyScalar(fillDistance));
-
       const startQuat = mesh.quaternion.clone();
-
-      // Phase timing
-      const rotateDuration = 0.4; // 40% — cube spins face toward camera
-      const zoomDuration = 0.6;   // 60% — camera zooms straight in
-
-      let phase: AnimationPhase = "rotate";
-      let phaseStartTime = performance.now();
+      const startTime = performance.now();
 
       const animate = () => {
         const now = performance.now();
         const totalDuration = animDurationRef.current;
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / totalDuration, 1);
+        const eased = easeInOutQuint(progress);
 
-        if (phase === "rotate") {
-          const phaseDuration = totalDuration * rotateDuration;
-          const elapsed = now - phaseStartTime;
-          const progress = Math.min(elapsed / phaseDuration, 1);
-          const eased = easeInOutQuint(progress);
+        // Rotation and zoom happen simultaneously
+        mesh.quaternion.slerpQuaternions(startQuat, uprightQuat, eased);
+        camera.position.lerpVectors(CAMERA_VEC, zoomTarget, eased);
+        camera.up.copy(cameraUp);
+        const lookAt = new THREE.Vector3(0, 0, 0).lerp(zoomLookAt, eased);
+        camera.lookAt(lookAt);
 
-          mesh.quaternion.slerpQuaternions(startQuat, targetQuat, eased);
-
-          // Camera fixed, looking at cube center
-          camera.position.copy(CAMERA_VEC);
-          camera.up.copy(cameraUp);
-          camera.lookAt(0, 0, 0);
-
-          if (progress >= 1) {
-            onRotateComplete?.(faceId);
-            phase = "zoom";
-            phaseStartTime = now;
-          }
-        } else if (phase === "zoom") {
-          const phaseDuration = totalDuration * zoomDuration;
-          const elapsed = now - phaseStartTime;
-          const progress = Math.min(elapsed / phaseDuration, 1);
-          const eased = easeInOutQuint(progress);
-
-          // Camera moves straight in along CAMERA_DIR toward the face
-          camera.position.lerpVectors(CAMERA_VEC, zoomTarget, eased);
-          camera.up.copy(cameraUp);
-          camera.lookAt(worldFaceCenter);
-
-          if (progress >= 1) {
-            isAnimating.current = false;
-            onZoomComplete?.(faceId);
-
-            const face = FACE_MAP[faceId];
-            if (face) {
-              if (typeof document !== "undefined" && "startViewTransition" in document) {
-                (document as Document & { startViewTransition: (cb: () => void) => void })
-                  .startViewTransition(() => router.push(face.route));
-              } else {
-                router.push(face.route);
-              }
-            }
-            return;
-          }
+        if (progress >= 1) {
+          isAnimating.current = false;
+          onZoomComplete?.(faceId);
+          return;
         }
 
         animationRef.current = requestAnimationFrame(animate);
@@ -168,7 +122,7 @@ export function useFaceNavigation({
 
       animationRef.current = requestAnimationFrame(animate);
     },
-    [camera, enabled, meshRef, onZoomStart, onRotateComplete, onZoomComplete, router, calculateFillDistance]
+    [camera, enabled, meshRef, onZoomStart, onZoomComplete]
   );
 
   const onClick = useCallback(

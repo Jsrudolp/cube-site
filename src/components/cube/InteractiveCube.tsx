@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { RoundedBoxGeometry } from "three-stdlib";
 import { FaceId } from "@/lib/faces";
 import { INITIAL_ROTATION, FACE_NORMALS, CAMERA_POSITION } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
@@ -20,6 +19,7 @@ interface InteractiveCubeProps {
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
+  dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
 
 // Helper to dispose materials and their textures
@@ -36,9 +36,10 @@ export function InteractiveCube({
   disabled = false,
   animationDuration = 1800,
   initialFace,
+  dynamicTextures,
 }: InteractiveCubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const geometry = useMemo(() => new RoundedBoxGeometry(2, 2, 2, 4, 0.07), []);
+  const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
   const [materials, setMaterials] = useState<THREE.MeshBasicMaterial[]>([]);
   const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
 
@@ -55,20 +56,41 @@ export function InteractiveCube({
     const placeholderMaterials = createMaterials(placeholders);
     setMaterials(placeholderMaterials);
 
-    // Load real textures
+    // Load real textures (PNG fallbacks)
     loadTexturesWithFallback(placeholders).then((textures) => {
       setMaterials((prevMaterials) => {
-        // Dispose previous materials before replacing
         disposeMaterials(prevMaterials);
         return createMaterials(textures);
       });
     });
 
-    // Cleanup on unmount
     return () => {
       disposeMaterials(materialsRef.current);
     };
   }, []);
+
+  // Update individual face materials when dynamic textures arrive
+  useEffect(() => {
+    if (!dynamicTextures || materialsRef.current.length === 0) return;
+
+    let updated = false;
+    const currentMats = materialsRef.current;
+    const newMaterials = [...currentMats];
+
+    for (let i = 0; i < dynamicTextures.length; i++) {
+      const dynTex = dynamicTextures[i];
+      if (dynTex && newMaterials[i]?.map !== dynTex) {
+        newMaterials[i].map?.dispose();
+        newMaterials[i].dispose();
+        newMaterials[i] = new THREE.MeshBasicMaterial({ map: dynTex });
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      setMaterials(newMaterials);
+    }
+  }, [dynamicTextures]);
 
   // Rotation hook
   const {

@@ -21,14 +21,14 @@ export const FACE_ID_TO_INDEX: Record<FaceId, number> = {
   back: 5,
 };
 
-// Colors for each face (used as placeholders/fallbacks)
+// Colors for each face (used as placeholders/fallbacks — match actual page backgrounds)
 export const FACE_COLORS: Record<FaceId, string> = {
   front: "#FFFFFF",     // white
-  music: "#1a1a2e",     // dark purple
+  music: "#100023",     // dark purple (matches music page)
   building: "#f5e6d3",  // warm beige
-  community: "#f5f5f0", // off-white
-  thinking: "#ececec",  // light gray
-  back: "#000000",      // black
+  community: "#FFFAE8", // off-white (matches community page)
+  thinking: "#F5F5F5",  // light gray (matches thinking page)
+  back: "#1a1a1a",      // near-black (matches back page)
 };
 
 // Face normal vectors (outward-pointing, in canonical orientation)
@@ -66,9 +66,51 @@ export const CANONICAL_QUATERNIONS: Record<FaceId, THREE.Quaternion> = {
   building: new THREE.Quaternion(),
 };
 
+// Local "up" direction for each face's content in the cube's canonical orientation.
+// Used to compute the roll correction so face content appears right-side-up.
+export const FACE_LOCAL_UP: Record<FaceId, THREE.Vector3> = {
+  front: new THREE.Vector3(0, 1, 0),
+  back: new THREE.Vector3(0, 1, 0),
+  community: new THREE.Vector3(0, 1, 0),
+  music: new THREE.Vector3(0, 1, 0),
+  thinking: new THREE.Vector3(0, 0, -1),
+  building: new THREE.Vector3(0, 0, 1),
+};
+
 // Camera configuration
 export const CAMERA_POSITION: [number, number, number] = [3, 2, 4];
 export const CAMERA_FOV = 50;
+
+// Direction from origin toward the default camera
+const CAMERA_VEC = new THREE.Vector3(...CAMERA_POSITION);
+const CAMERA_DIR = CAMERA_VEC.clone().normalize();
+
+/**
+ * Compute a quaternion that aligns a face's normal with the camera direction
+ * AND corrects roll so the face content appears right-side-up on screen.
+ */
+export function computeUprightQuat(faceId: FaceId): THREE.Quaternion {
+  // Step 1: align face normal with camera direction
+  const rotateQuat = new THREE.Quaternion().setFromUnitVectors(
+    FACE_NORMALS[faceId].clone(),
+    CAMERA_DIR
+  );
+
+  // Step 2: roll correction — project the face's local up (after rotation)
+  // and the screen up onto the plane perpendicular to CAMERA_DIR, then
+  // compute the rotation around CAMERA_DIR that aligns them.
+  const faceUpAfterRotate = FACE_LOCAL_UP[faceId].clone().applyQuaternion(rotateQuat);
+  const screenUp = new THREE.Vector3(0, 1, 0);
+  const desiredUp = screenUp.clone()
+    .sub(CAMERA_DIR.clone().multiplyScalar(screenUp.dot(CAMERA_DIR)))
+    .normalize();
+  const currentUp = faceUpAfterRotate.clone()
+    .sub(CAMERA_DIR.clone().multiplyScalar(faceUpAfterRotate.dot(CAMERA_DIR)))
+    .normalize();
+  const rollQuat = new THREE.Quaternion().setFromUnitVectors(currentUp, desiredUp);
+
+  return rollQuat.clone().multiply(rotateQuat);
+}
 
 // Distance from origin for squared camera positions
 const CAMERA_DISTANCE = Math.sqrt(3*3 + 2*2 + 4*4); // ~5.385

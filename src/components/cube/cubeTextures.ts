@@ -49,6 +49,20 @@ export async function loadTexturesWithFallback(
             path,
             (texture) => {
               texture.colorSpace = THREE.SRGBColorSpace;
+
+              // Center-crop to square (preserve aspect ratio, like object-fit: cover)
+              const img = texture.image as HTMLImageElement;
+              const aspect = img.width / img.height;
+              if (aspect > 1) {
+                // Wider than tall — crop sides (top-center)
+                texture.repeat.set(1 / aspect, 1);
+                texture.offset.set((1 - 1 / aspect) / 2, 0);
+              } else if (aspect < 1) {
+                // Taller than wide — crop bottom, keep top visible
+                texture.repeat.set(1, aspect);
+                texture.offset.set(0, 1 - aspect);
+              }
+
               resolve(texture);
             },
             undefined,
