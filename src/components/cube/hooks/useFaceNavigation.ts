@@ -22,6 +22,7 @@ interface UseFaceNavigationOptions {
   animationDuration?: number;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
+  zoomInToFace?: FaceId;
 }
 
 // Direction from origin toward the default camera — computed once, never changes
@@ -63,17 +64,25 @@ export function useFaceNavigation({
   animationDuration = 1800,
   initialZoomedFace,
   zoomOutFromFace,
+  zoomInToFace,
 }: UseFaceNavigationOptions) {
   const { camera } = useThree();
   const isAnimating = useRef(false);
   const animationRef = useRef<number | null>(null);
+  const lastClickTime = useRef(0);
 
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
 
-  // Store latest callback in ref to avoid stale closures
+  // Store latest callbacks in refs to avoid stale closures in rAF loops
+  const onZoomStartRef = useRef(onZoomStart);
+  onZoomStartRef.current = onZoomStart;
+  const onZoomCompleteRef = useRef(onZoomComplete);
+  onZoomCompleteRef.current = onZoomComplete;
   const onZoomOutCompleteRef = useRef(onZoomOutComplete);
   onZoomOutCompleteRef.current = onZoomOutComplete;
+  const enabledRef = useRef(enabled);
+  enabledRef.current = enabled;
 
   // Position camera at zoomed-in view when a face page becomes active.
   // Only runs on initial mount with an active face (direct navigation).
@@ -116,10 +125,12 @@ export function useFaceNavigation({
   }, [meshRef]);
 
   const animateToFace = useCallback(
-    (faceId: FaceId) => {
-      if (isAnimating.current || !enabled || !meshRef.current) return;
+    (faceId: FaceId, programmatic = false) => {
+      if (isAnimating.current || !meshRef.current) return;
+      // Only check enabled for user clicks, not programmatic calls
+      if (!programmatic && !enabledRef.current) return;
       isAnimating.current = true;
-      onZoomStart?.(faceId);
+      onZoomStartRef.current?.(faceId);
 
       const mesh = meshRef.current;
       const cameraUp = new THREE.Vector3(0, 1, 0);
@@ -144,8 +155,11 @@ export function useFaceNavigation({
         camera.lookAt(lookAt);
 
         if (progress >= 1) {
-          isAnimating.current = false;
-          onZoomComplete?.(faceId);
+          // Keep isAnimating true — the cube should stay frozen at the zoomed
+          // position until it becomes interactive again. Without this, auto-rotate
+          // or momentum from useCubeRotation can shift the cube before the face
+          // page mounts and sets disabled=true.
+          onZoomCompleteRef.current?.(faceId);
           return;
         }
 
@@ -154,13 +168,21 @@ export function useFaceNavigation({
 
       animationRef.current = requestAnimationFrame(animate);
     },
-    [camera, enabled, meshRef, onZoomStart, onZoomComplete]
+    [camera, meshRef]
   );
+
+  // Reset isAnimating when the cube becomes interactive again (e.g. after zoom-out
+  // completes, or if the user navigates back via browser history)
+  useEffect(() => {
+    if (enabled) {
+      isAnimating.current = false;
+    }
+  }, [enabled]);
 
   // Reverse animation: from zoomed-in face back to resting position
   const animateFromFace = useCallback(
     (faceId: FaceId) => {
-      if (isAnimating.current || !meshRef.current) return;
+      if (!meshRef.current) return;
       isAnimating.current = true;
 
       const mesh = meshRef.current;
@@ -209,10 +231,25 @@ export function useFaceNavigation({
     prevZoomOutFace.current = zoomOutFromFace;
   }, [zoomOutFromFace, animateFromFace]);
 
+  // Trigger zoom-in animation programmatically (used for face switching)
+  const prevZoomInFace = useRef<FaceId | undefined>(undefined);
+  useEffect(() => {
+    if (zoomInToFace && zoomInToFace !== prevZoomInFace.current) {
+      animateToFace(zoomInToFace, true);
+    }
+    prevZoomInFace.current = zoomInToFace;
+  }, [zoomInToFace, animateToFace]);
+
   const onClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
-      if (!enabled || isAnimating.current) return;
+      if (!enabledRef.current || isAnimating.current) return;
       if (hasDragged?.current) return;
+
+      // Debounce rapid clicks (300ms cooldown)
+      const now = performance.now();
+      if (now - lastClickTime.current < 300) return;
+      lastClickTime.current = now;
+
       e.stopPropagation();
 
       const faceId = getFaceFromClick(e);
@@ -220,7 +257,7 @@ export function useFaceNavigation({
 
       animateToFace(faceId);
     },
-    [enabled, hasDragged, getFaceFromClick, animateToFace]
+    [hasDragged, getFaceFromClick, animateToFace]
   );
 
   const cleanup = useCallback(() => {

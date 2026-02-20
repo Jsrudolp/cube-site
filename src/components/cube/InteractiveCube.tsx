@@ -21,6 +21,7 @@ interface InteractiveCubeProps {
   initialFace?: FaceId;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
+  zoomInToFace?: FaceId;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
 
@@ -41,6 +42,7 @@ export function InteractiveCube({
   initialFace,
   initialZoomedFace,
   zoomOutFromFace,
+  zoomInToFace,
   dynamicTextures,
 }: InteractiveCubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -112,6 +114,7 @@ export function InteractiveCube({
     animationDuration,
     initialZoomedFace,
     zoomOutFromFace,
+    zoomInToFace,
   });
 
   // Update rotation each frame
@@ -120,6 +123,7 @@ export function InteractiveCube({
       update();
     }
   });
+
 
   // Set initial rotation/orientation (only for home page cube without zoomed face)
   useEffect(() => {

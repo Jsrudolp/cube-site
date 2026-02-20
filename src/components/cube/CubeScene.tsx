@@ -16,6 +16,7 @@ interface CubeSceneProps {
   initialFace?: FaceId;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
+  zoomInToFace?: FaceId;
   disabled?: boolean;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
@@ -37,6 +38,7 @@ export function CubeScene({
   initialFace,
   initialZoomedFace,
   zoomOutFromFace,
+  zoomInToFace,
   disabled = false,
   dynamicTextures,
 }: CubeSceneProps) {
@@ -65,6 +67,7 @@ export function CubeScene({
             initialFace={initialFace}
             initialZoomedFace={initialZoomedFace}
             zoomOutFromFace={zoomOutFromFace}
+            zoomInToFace={zoomInToFace}
             dynamicTextures={dynamicTextures}
           />
         </Suspense>
