@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { FACES, FaceId } from "@/lib/faces";
 import { CubeIcon, ZoomOutIcon } from "@/components/icons/FaceIcons";
-import { useCubeNav } from "@/components/cube";
+import { usePersistentCube } from "@/components/cube";
 import CubeUnfold from "@/components/CubeUnfold";
 
 // Map face IDs to their icon files
@@ -21,7 +21,7 @@ export const FACE_ICONS: Record<FaceId, string> = {
 export default function FaceNav() {
   const pathname = usePathname();
   const [unfoldOpen, setUnfoldOpen] = useState(false);
-  const { zoomOut } = useCubeNav();
+  const { zoomOut } = usePersistentCube();
 
   // Don't render nav on the home/cube page
   if (pathname === "/") return null;

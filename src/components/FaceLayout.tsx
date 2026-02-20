@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { FaceId } from "@/lib/faces";
 import { markFaceVisited } from "@/lib/visited-faces";
-import { CubeNavProvider } from "@/components/cube";
+import { usePersistentCube } from "@/components/cube";
 import FaceNav from "./FaceNav";
 
 interface FaceLayoutProps {
@@ -14,16 +14,31 @@ interface FaceLayoutProps {
 }
 
 export default function FaceLayout({ faceId, children, className = "", style }: FaceLayoutProps) {
+  const { zoomingOut, faceContentHidden, setActiveFace } = usePersistentCube();
+
   useEffect(() => {
     markFaceVisited(faceId);
   }, [faceId]);
 
+  // Tell the persistent cube we're on this face
+  useEffect(() => {
+    setActiveFace(faceId);
+    return () => setActiveFace(null);
+  }, [faceId, setActiveFace]);
+
   return (
-    <CubeNavProvider currentFace={faceId}>
-      <div className={`min-h-screen pt-20 ${className}`} style={style}>
-        <FaceNav />
-        {children}
-      </div>
-    </CubeNavProvider>
+    <div
+      className={`min-h-screen pt-20 ${className}`}
+      style={{
+        ...style,
+        position: "relative",
+        opacity: zoomingOut || faceContentHidden ? 0 : 1,
+        transition: zoomingOut ? "opacity 0.4s ease-out" : undefined,
+        pointerEvents: zoomingOut || faceContentHidden ? "none" : "auto",
+      }}
+    >
+      <FaceNav />
+      {children}
+    </div>
   );
 }

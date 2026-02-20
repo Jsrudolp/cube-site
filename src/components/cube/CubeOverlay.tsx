@@ -10,21 +10,21 @@ import {
   CAMERA_FOV,
   FACE_CENTERS,
   FACE_COLORS,
+  FACE_LOCAL_UP,
+  INITIAL_ROTATION,
   computeUprightQuat,
 } from "@/lib/cube-config";
 import { CubeShadow } from "./CubeShadow";
 import {
   createAllPlaceholderTextures,
-  loadTexturesWithFallback,
   createMaterials,
 } from "./cubeTextures";
 import { easeInOutQuint } from "@/lib/animation-modes";
 
 interface CubeOverlayProps {
   currentFace: FaceId;
-  targetFace?: FaceId | null;
+  targetFace: FaceId;
   onTransitionComplete?: () => void;
-  mode: "zoom-out" | "switch-face";
   animationDuration?: number;
 }
 
@@ -52,13 +52,6 @@ function TexturedCube({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null>
     const placeholders = createAllPlaceholderTextures();
     setMaterials(createMaterials(placeholders));
 
-    loadTexturesWithFallback(placeholders).then((textures) => {
-      setMaterials((prevMaterials) => {
-        disposeMaterials(prevMaterials);
-        return createMaterials(textures);
-      });
-    });
-
     return () => {
       disposeMaterials(materialsRef.current);
       geometry.dispose();
@@ -73,25 +66,22 @@ function TexturedCube({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null>
   );
 }
 
-// Animation phases
-type ZoomOutPhase = "zoom-out" | "unsquare";
+// Animation phases for switch-face
 type SwitchPhase = "zoom-out" | "rotate" | "zoom-in";
 
-// Direction from origin toward the default camera — matches useFaceNavigation
+// Direction from origin toward the default camera
 const CAMERA_VEC = new THREE.Vector3(...CAMERA_POSITION);
 const CAMERA_DIR = CAMERA_VEC.clone().normalize();
 
-function ZoomOutAnimation({
+function SwitchFaceAnimation({
   currentFace,
   targetFace,
   onComplete,
-  transitionMode,
   animationDuration,
 }: {
   currentFace: FaceId;
-  targetFace?: FaceId | null;
+  targetFace: FaceId;
   onComplete: () => void;
-  transitionMode: "zoom-out" | "switch-face";
   animationDuration: number;
 }) {
   const { camera } = useThree();
@@ -99,59 +89,59 @@ function ZoomOutAnimation({
   const initialized = useRef(false);
   const router = useRouter();
 
-  const phaseRef = useRef<ZoomOutPhase | SwitchPhase>("zoom-out");
+  const phaseRef = useRef<SwitchPhase>("zoom-out");
   const phaseStartTime = useRef(0);
 
   const cameraUp = useRef(new THREE.Vector3(0, 1, 0));
 
   // Current face (computed on init)
   const currentFaceQuat = useRef<THREE.Quaternion | null>(null);
-  const currentWorldFaceCenter = useRef<THREE.Vector3 | null>(null);
   const currentZoomTarget = useRef<THREE.Vector3 | null>(null);
+  const currentZoomLookAt = useRef<THREE.Vector3 | null>(null);
 
-  // Target face for switch-face mode
+  // Target face
   const targetFaceQuat = useRef<THREE.Quaternion | null>(null);
-  const targetWorldFaceCenter = useRef<THREE.Vector3 | null>(null);
   const targetZoomTarget = useRef<THREE.Vector3 | null>(null);
+  const targetZoomLookAt = useRef<THREE.Vector3 | null>(null);
 
   useFrame(() => {
     if (!meshRef.current) return;
 
-    // First-frame init: runs before Three.js renders, avoiding any flash at the
-    // wrong camera position.
     if (!initialized.current) {
       initialized.current = true;
 
-      const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
-      const verticalFit = 2 / (2 * Math.tan(fov / 2));
-      const fillDistance = verticalFit * 0.9;
-      const dir = CAMERA_DIR;
+      const cam = camera as THREE.PerspectiveCamera;
+      const vfov = cam.fov * (Math.PI / 180);
+      const aspect = cam.aspect;
+      const horizontalFit = 1 / (Math.tan(vfov / 2) * aspect);
 
-      // Cube: current face aligned with camera AND roll-corrected to be upright
+      // Current face setup
       const cq = computeUprightQuat(currentFace);
       currentFaceQuat.current = cq;
       meshRef.current.quaternion.copy(cq);
 
-      // Face center in world space (lies along CAMERA_DIR at distance 1)
       const wfc = FACE_CENTERS[currentFace].clone().applyQuaternion(cq);
-      currentWorldFaceCenter.current = wfc;
+      const faceUpWorld = FACE_LOCAL_UP[currentFace].clone().applyQuaternion(cq);
+      const topAlignOffset = Math.max(0, 1 - 1 / aspect);
+      const offsetVec = faceUpWorld.multiplyScalar(topAlignOffset);
+      const zoomLookAt = wfc.clone().add(offsetVec);
+      currentZoomLookAt.current = zoomLookAt;
+      currentZoomTarget.current = zoomLookAt.clone().add(CAMERA_DIR.clone().multiplyScalar(horizontalFit));
 
-      // Camera starts at zoom target: verticalFit distance from face center
-      const zt = wfc.clone().add(dir.clone().multiplyScalar(fillDistance));
-      currentZoomTarget.current = zt;
-
-      camera.position.copy(zt);
+      camera.position.copy(currentZoomTarget.current);
       camera.up.copy(cameraUp.current);
-      camera.lookAt(wfc);
+      camera.lookAt(zoomLookAt);
 
-      // Set up target face if switching
-      if (targetFace) {
-        const tq = computeUprightQuat(targetFace);
-        targetFaceQuat.current = tq;
-        const twfc = FACE_CENTERS[targetFace].clone().applyQuaternion(tq);
-        targetWorldFaceCenter.current = twfc;
-        targetZoomTarget.current = twfc.clone().add(dir.clone().multiplyScalar(fillDistance));
-      }
+      // Target face setup
+      const tq = computeUprightQuat(targetFace);
+      targetFaceQuat.current = tq;
+      const twfc = FACE_CENTERS[targetFace].clone().applyQuaternion(tq);
+      const tFaceUpWorld = FACE_LOCAL_UP[targetFace].clone().applyQuaternion(tq);
+      const tTopAlignOffset = Math.max(0, 1 - 1 / aspect);
+      const tOffsetVec = tFaceUpWorld.multiplyScalar(tTopAlignOffset);
+      const tZoomLookAt = twfc.clone().add(tOffsetVec);
+      targetZoomLookAt.current = tZoomLookAt;
+      targetZoomTarget.current = tZoomLookAt.clone().add(CAMERA_DIR.clone().multiplyScalar(horizontalFit));
 
       phaseStartTime.current = performance.now();
       return;
@@ -160,94 +150,68 @@ function ZoomOutAnimation({
     const now = performance.now();
     const phase = phaseRef.current;
 
-    if (transitionMode === "zoom-out") {
-      // Camera pulls straight back from zoomTarget → CAMERA_VEC, then navigate
-      if (phase === "zoom-out") {
-        const elapsed = now - phaseStartTime.current;
-        const progress = Math.min(elapsed / animationDuration, 1);
-        const eased = easeInOutQuint(progress);
+    // SWITCH FACE: zoom-out → rotate → zoom-in
+    const zoomOutDur = 0.35;
+    const rotateDur = 0.30;
+    const zoomInDur = 0.35;
 
-        if (currentZoomTarget.current && currentWorldFaceCenter.current) {
-          camera.position.lerpVectors(currentZoomTarget.current, CAMERA_VEC, eased);
-          camera.up.copy(cameraUp.current);
-          const lookAt = currentWorldFaceCenter.current.clone().lerp(new THREE.Vector3(0, 0, 0), eased);
-          camera.lookAt(lookAt);
-        }
+    if (phase === "zoom-out") {
+      const phaseDuration = animationDuration * zoomOutDur;
+      const elapsed = now - phaseStartTime.current;
+      const progress = Math.min(elapsed / phaseDuration, 1);
+      const eased = easeInOutQuint(progress);
 
-        if (progress >= 1) {
-          const navigate = () => router.push(`/?from=${currentFace}`);
+      if (currentZoomTarget.current && currentZoomLookAt.current) {
+        camera.position.lerpVectors(currentZoomTarget.current, CAMERA_VEC, eased);
+        camera.up.copy(cameraUp.current);
+        const lookAt = currentZoomLookAt.current.clone().lerp(new THREE.Vector3(0, 0, 0), eased);
+        camera.lookAt(lookAt);
+      }
+
+      if (progress >= 1) {
+        phaseRef.current = "rotate";
+        phaseStartTime.current = now;
+      }
+    } else if (phase === "rotate" && currentFaceQuat.current && targetFaceQuat.current) {
+      const phaseDuration = animationDuration * rotateDur;
+      const elapsed = now - phaseStartTime.current;
+      const progress = Math.min(elapsed / phaseDuration, 1);
+      const eased = easeInOutQuint(progress);
+
+      meshRef.current.quaternion.slerpQuaternions(
+        currentFaceQuat.current,
+        targetFaceQuat.current,
+        eased
+      );
+
+      camera.position.copy(CAMERA_VEC);
+      camera.up.copy(cameraUp.current);
+      camera.lookAt(0, 0, 0);
+
+      if (progress >= 1) {
+        phaseRef.current = "zoom-in";
+        phaseStartTime.current = now;
+      }
+    } else if (phase === "zoom-in" && targetZoomTarget.current && targetZoomLookAt.current) {
+      const phaseDuration = animationDuration * zoomInDur;
+      const elapsed = now - phaseStartTime.current;
+      const progress = Math.min(elapsed / phaseDuration, 1);
+      const eased = easeInOutQuint(progress);
+
+      camera.position.lerpVectors(CAMERA_VEC, targetZoomTarget.current, eased);
+      camera.up.copy(cameraUp.current);
+      const lookAt = new THREE.Vector3(0, 0, 0).lerp(targetZoomLookAt.current, eased);
+      camera.lookAt(lookAt);
+
+      if (progress >= 1) {
+        const face = FACE_MAP[targetFace];
+        if (face) {
+          const navigate = () => router.push(face.route);
           if (typeof document !== "undefined" && "startViewTransition" in document) {
             (document as Document & { startViewTransition: (cb: () => void) => void })
               .startViewTransition(navigate);
           } else {
             navigate();
-          }
-        }
-      }
-    } else {
-      // SWITCH FACE: zoom-out → rotate → zoom-in
-      const zoomOutDur = 0.35;
-      const rotateDur = 0.30;
-      const zoomInDur = 0.35;
-
-      if (phase === "zoom-out") {
-        const phaseDuration = animationDuration * zoomOutDur;
-        const elapsed = now - phaseStartTime.current;
-        const progress = Math.min(elapsed / phaseDuration, 1);
-        const eased = easeInOutQuint(progress);
-
-        if (currentZoomTarget.current && currentWorldFaceCenter.current) {
-          camera.position.lerpVectors(currentZoomTarget.current, CAMERA_VEC, eased);
-          camera.up.copy(cameraUp.current);
-          const lookAt = currentWorldFaceCenter.current.clone().lerp(new THREE.Vector3(0, 0, 0), eased);
-          camera.lookAt(lookAt);
-        }
-
-        if (progress >= 1) {
-          phaseRef.current = "rotate";
-          phaseStartTime.current = now;
-        }
-      } else if (phase === "rotate" && currentFaceQuat.current && targetFaceQuat.current) {
-        const phaseDuration = animationDuration * rotateDur;
-        const elapsed = now - phaseStartTime.current;
-        const progress = Math.min(elapsed / phaseDuration, 1);
-        const eased = easeInOutQuint(progress);
-
-        meshRef.current.quaternion.slerpQuaternions(
-          currentFaceQuat.current,
-          targetFaceQuat.current,
-          eased
-        );
-
-        camera.position.copy(CAMERA_VEC);
-        camera.up.copy(cameraUp.current);
-        camera.lookAt(0, 0, 0);
-
-        if (progress >= 1) {
-          phaseRef.current = "zoom-in";
-          phaseStartTime.current = now;
-        }
-      } else if (phase === "zoom-in" && targetZoomTarget.current && targetWorldFaceCenter.current && targetFace) {
-        const phaseDuration = animationDuration * zoomInDur;
-        const elapsed = now - phaseStartTime.current;
-        const progress = Math.min(elapsed / phaseDuration, 1);
-        const eased = easeInOutQuint(progress);
-
-        camera.position.lerpVectors(CAMERA_VEC, targetZoomTarget.current, eased);
-        camera.up.copy(cameraUp.current);
-        const lookAt = new THREE.Vector3(0, 0, 0).lerp(targetWorldFaceCenter.current, eased);
-        camera.lookAt(lookAt);
-
-        if (progress >= 1) {
-          const face = FACE_MAP[targetFace];
-          if (face) {
-            const navigate = () => router.push(face.route);
-            if (typeof document !== "undefined" && "startViewTransition" in document) {
-              (document as Document & { startViewTransition: (cb: () => void) => void })
-                .startViewTransition(navigate);
-            } else {
-              navigate();
-            }
           }
         }
       }
@@ -261,7 +225,6 @@ export function CubeOverlay({
   currentFace,
   targetFace,
   onTransitionComplete,
-  mode,
   animationDuration = 1800,
 }: CubeOverlayProps) {
   const [visible, setVisible] = useState(true);
@@ -287,11 +250,10 @@ export function CubeOverlay({
         }}
         gl={{ antialias: true, alpha: true }}
       >
-        <ZoomOutAnimation
+        <SwitchFaceAnimation
           currentFace={currentFace}
           targetFace={targetFace}
           onComplete={handleComplete}
-          transitionMode={mode}
           animationDuration={animationDuration}
         />
 

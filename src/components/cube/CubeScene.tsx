@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
@@ -11,8 +11,12 @@ import { CubeShadow } from "./CubeShadow";
 interface CubeSceneProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
+  onZoomOutComplete?: () => void;
   animationDuration?: number;
   initialFace?: FaceId;
+  initialZoomedFace?: FaceId;
+  zoomOutFromFace?: FaceId;
+  disabled?: boolean;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
 
@@ -28,25 +32,18 @@ function LoadingFallback() {
 export function CubeScene({
   onZoomStart,
   onZoomComplete,
+  onZoomOutComplete,
   animationDuration = 1800,
   initialFace,
+  initialZoomedFace,
+  zoomOutFromFace,
+  disabled = false,
   dynamicTextures,
 }: CubeSceneProps) {
-  const [isZooming, setIsZooming] = useState(false);
-
-  const handleZoomStart = (faceId: FaceId) => {
-    setIsZooming(true);
-    onZoomStart?.(faceId);
-  };
-
-  const handleZoomComplete = (faceId: FaceId) => {
-    onZoomComplete?.(faceId);
-  };
-
   return (
     <div
       className="w-full h-full touch-none"
-      style={{ cursor: isZooming ? "default" : "grab" }}
+      style={{ cursor: disabled ? "default" : "grab" }}
     >
       <Canvas
         camera={{
@@ -58,19 +55,20 @@ export function CubeScene({
         gl={{ antialias: true, alpha: true, toneMapping: THREE.NoToneMapping }}
         style={{ background: "transparent" }}
       >
-        {/* Cube */}
         <Suspense fallback={<LoadingFallback />}>
           <InteractiveCube
-            onZoomStart={handleZoomStart}
-            onZoomComplete={handleZoomComplete}
-            disabled={isZooming}
+            onZoomStart={onZoomStart}
+            onZoomComplete={onZoomComplete}
+            onZoomOutComplete={onZoomOutComplete}
+            disabled={disabled}
             animationDuration={animationDuration}
             initialFace={initialFace}
+            initialZoomedFace={initialZoomedFace}
+            zoomOutFromFace={zoomOutFromFace}
             dynamicTextures={dynamicTextures}
           />
         </Suspense>
 
-        {/* Shadow */}
         <CubeShadow />
       </Canvas>
     </div>

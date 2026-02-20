@@ -139,12 +139,12 @@ export const CAMERA_UP_VECTORS: Record<FaceId, THREE.Vector3> = {
 export const INITIAL_ROTATION: [number, number, number] = [-0.4, 0.5, 0];
 
 // Auto-rotation configuration
-export const AUTO_ROTATE_SPEED = 0.001;
+export const AUTO_ROTATE_SPEED = 0.0007;
 export const IDLE_TIMEOUT = 3000; // ms before auto-rotation starts
 
 // Drag configuration
-export const DRAG_SENSITIVITY = 0.003;
-export const MOMENTUM_FRICTION = 0.97;
+export const DRAG_SENSITIVITY = 0.002;
+export const MOMENTUM_FRICTION = 0.95;
 
 // Double-click configuration
 export const DOUBLE_CLICK_THRESHOLD = 300; // ms between clicks

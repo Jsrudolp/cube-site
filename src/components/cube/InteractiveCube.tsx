@@ -4,21 +4,23 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
-import { INITIAL_ROTATION, FACE_NORMALS, CAMERA_POSITION } from "@/lib/cube-config";
+import { INITIAL_ROTATION } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
 import { useFaceNavigation } from "./hooks/useFaceNavigation";
 import {
   createAllPlaceholderTextures,
-  loadTexturesWithFallback,
   createMaterials,
 } from "./cubeTextures";
 
 interface InteractiveCubeProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
+  onZoomOutComplete?: () => void;
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
+  initialZoomedFace?: FaceId;
+  zoomOutFromFace?: FaceId;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
 
@@ -33,9 +35,12 @@ function disposeMaterials(materials: THREE.MeshBasicMaterial[]) {
 export function InteractiveCube({
   onZoomStart,
   onZoomComplete,
+  onZoomOutComplete,
   disabled = false,
   animationDuration = 1800,
   initialFace,
+  initialZoomedFace,
+  zoomOutFromFace,
   dynamicTextures,
 }: InteractiveCubeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -48,21 +53,12 @@ export function InteractiveCube({
     materialsRef.current = materials;
   }, [materials]);
 
-  // Load textures with proper cleanup
+  // Create solid-color placeholder materials (replaced by dynamic textures later)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const placeholders = createAllPlaceholderTextures();
-    const placeholderMaterials = createMaterials(placeholders);
-    setMaterials(placeholderMaterials);
-
-    // Load real textures (PNG fallbacks)
-    loadTexturesWithFallback(placeholders).then((textures) => {
-      setMaterials((prevMaterials) => {
-        disposeMaterials(prevMaterials);
-        return createMaterials(textures);
-      });
-    });
+    setMaterials(createMaterials(placeholders));
 
     return () => {
       disposeMaterials(materialsRef.current);
@@ -102,7 +98,7 @@ export function InteractiveCube({
     setEnabled: setRotationEnabled,
   } = useCubeRotation({ meshRef, enabled: !disabled });
 
-  // Navigation hook (now with meshRef)
+  // Navigation hook
   const { onClick, isAnimating, cleanup } = useFaceNavigation({
     meshRef,
     hasDragged,
@@ -111,8 +107,11 @@ export function InteractiveCube({
       onZoomStart?.(faceId);
     },
     onZoomComplete,
+    onZoomOutComplete,
     enabled: !disabled,
     animationDuration,
+    initialZoomedFace,
+    zoomOutFromFace,
   });
 
   // Update rotation each frame
@@ -122,24 +121,12 @@ export function InteractiveCube({
     }
   });
 
-  // Set initial rotation/orientation
+  // Set initial rotation/orientation (only for home page cube without zoomed face)
   useEffect(() => {
-    if (meshRef.current) {
-      if (initialFace) {
-        // Orient so the visited face points directly at the camera —
-        // matches the cube state at the end of the zoom-out animation.
-        const cameraDir = new THREE.Vector3(...CAMERA_POSITION).normalize();
-        const quaternion = new THREE.Quaternion().setFromUnitVectors(
-          FACE_NORMALS[initialFace].clone(),
-          cameraDir
-        );
-        meshRef.current.quaternion.copy(quaternion);
-      } else {
-        // Default tilted rotation showing 3 faces
-        meshRef.current.rotation.set(...INITIAL_ROTATION);
-      }
+    if (meshRef.current && !initialZoomedFace) {
+      meshRef.current.rotation.set(...INITIAL_ROTATION);
     }
-  }, [initialFace]);
+  }, [initialFace, initialZoomedFace]);
 
   // Cleanup animation frames on unmount (stable effect, no deps)
   useEffect(() => {

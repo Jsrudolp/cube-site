@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { PersistentCubeProvider } from "@/components/cube";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,7 +63,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} antialiased`}
       >
-        {children}
+        <PersistentCubeProvider>{children}</PersistentCubeProvider>
       </body>
     </html>
   );

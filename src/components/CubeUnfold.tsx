@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FACES, FaceId } from "@/lib/faces";
-import { useCubeNav } from "@/components/cube";
+import { usePersistentCube } from "@/components/cube";
 import { FACE_ICONS } from "@/components/FaceNav";
 
 interface CubeUnfoldProps {
@@ -48,7 +48,7 @@ const DARK_FACES = new Set<FaceId>(["music", "back"]);
 
 export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) {
   const [phase, setPhase] = useState<"cube" | "open" | "closing">("cube");
-  const { switchToFace } = useCubeNav();
+  const { switchToFace } = usePersistentCube();
 
   // SIZE = 1 cell = 50vh / 3 rows, clamped to a sensible range
   const [SIZE, setSIZE] = useState(() =>
