@@ -186,7 +186,7 @@ export default function ThinkingPage() {
         backgroundSize: "20px 20px",
       }}
     >
-      <div className="mx-auto px-6 pb-16" style={{ maxWidth: PAGE_MAX_WIDTH }}>
+      <div className="mx-auto px-4 sm:px-6 pb-16" style={{ maxWidth: PAGE_MAX_WIDTH }}>
         {/* Header */}
         <div className="text-center mb-8">
           <Image
@@ -194,9 +194,9 @@ export default function ThinkingPage() {
             alt="My Thinking Tools"
             width={480}
             height={96}
-            className="mx-auto"
+            className="mx-auto max-w-[280px] sm:max-w-[380px] md:max-w-[480px] h-auto"
           />
-          <p className="mt-3 text-[20px]">
+          <p className="mt-3 text-[16px] sm:text-[20px]">
             My favourite frameworks, philosophies and principles, in my favourite medium for thinking.
           </p>
         </div>

@@ -180,10 +180,10 @@ export default function CommunityPage() {
   return (
     <FaceLayout faceId="community" className="bg-[#FFFAE8]">
       {/* Header */}
-      <div className="max-w-5xl mx-auto mt-12 mb-24 px-6">
-        <div className="text-center mb-12 font-[family-name:var(--font-belanosima)]">
-          <h1 className="text-3xl font-semibold text-[#242424]">jake&apos;s hosting wall</h1>
-          <p className="text-[#242424] mt-3 text-[22px] max-w-[24rem] mx-auto leading-[1.15]">
+      <div className="max-w-5xl mx-auto mt-8 sm:mt-12 mb-16 sm:mb-24 px-4 sm:px-6">
+        <div className="text-center mb-8 sm:mb-12 font-[family-name:var(--font-belanosima)]">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-[#242424]">jake&apos;s hosting wall</h1>
+          <p className="text-[#242424] mt-3 text-[16px] sm:text-[22px] max-w-[24rem] mx-auto leading-[1.15]">
             a polaroid collection of the communities i&apos;ve built and lead
             over the past 7 years.
           </p>

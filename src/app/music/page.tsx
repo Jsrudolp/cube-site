@@ -80,15 +80,15 @@ export default function MusicPage() {
 
         {/* Hero content - positioned in lower third */}
         <div className="relative text-center z-10 pb-[calc(8vh+64px)]">
-          <p className="text-sm uppercase tracking-[0.1em] font-semibold text-white/90 mb-3">
+          <p className="text-xs sm:text-sm uppercase tracking-[0.1em] font-semibold text-white/90 mb-2 sm:mb-3">
             New Demo
           </p>
-          <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">
             Supermagnetic
           </h1>
           <button
             onClick={() => setActiveAlbum(ALBUMS.find((a) => a.id === "supermagnetic") || null)}
-            className="mt-6 px-8 py-3 bg-white text-[#100023] rounded-md text-sm uppercase tracking-wider font-semibold hover:bg-white/90 transition-colors"
+            className="mt-4 sm:mt-6 px-6 sm:px-8 py-2.5 sm:py-3 bg-white text-[#100023] rounded-md text-xs sm:text-sm uppercase tracking-wider font-semibold hover:bg-white/90 transition-colors"
           >
             Listen Now
           </button>
@@ -96,25 +96,28 @@ export default function MusicPage() {
       </div>
 
       {/* Album section */}
-      <div className="w-[90%] max-w-[1280px] mx-auto pb-32">
+      <div className="w-[92%] sm:w-[90%] max-w-[1280px] mx-auto pb-32">
         {/* Section header */}
-        <div className="mt-[80px] mb-6">
-          <h2 className="text-xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">Music</h2>
+        <div className="mt-12 sm:mt-[80px] mb-4 sm:mb-6">
+          <h2 className="text-base sm:text-xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">Music</h2>
         </div>
 
         {/* Description box with gradient border */}
         <div className="relative mb-6 md:mb-12">
-          <div className="border-t-[6px] border-l-2 border-r-2 border-b-2 border-[#584D65] bg-gradient-to-r from-[#1D0D30] to-[#332647] py-3 px-6 text-center">
-            <p className="text-base text-white/40 leading-snug">
+          <div className="border-t-[6px] border-l-2 border-r-2 border-b-2 border-[#584D65] bg-gradient-to-r from-[#1D0D30] to-[#332647] py-3 px-4 sm:px-6 text-center">
+            <p className="text-sm sm:text-base text-white/40 leading-snug">
               Raw demos of songs I&apos;ve written and recorded + album artwork and photography.
-              <br />
-              Click or press on an album cover to listen.
+              <br className="hidden sm:inline" />
+              <span className="sm:hidden"> </span>
+              <span className="hidden sm:inline">Click</span>
+              <span className="sm:hidden">Tap</span>
+              {" "}on an album cover to listen.
             </p>
           </div>
         </div>
 
         {/* Album grids */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-12">
           {ALBUMS.map((album) => (
             <button
               key={album.id}
@@ -131,7 +134,7 @@ export default function MusicPage() {
                   loading="lazy"
                 />
               </div>
-              <p className="mt-3 text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors font-[family-name:var(--font-druk-wide-bold)]">
+              <p className="mt-2 sm:mt-3 text-[10px] sm:text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors font-[family-name:var(--font-druk-wide-bold)]">
                 {album.title}
               </p>
             </button>

@@ -12,12 +12,12 @@ export default function BackPage() {
     >
       <Flashlight fullscreen>
         {/* z-50 keeps content above the z-40 dark overlay — always readable */}
-        <div className="relative mx-auto px-7 pb-12 max-w-[52rem] text-[18px] leading-[1.4]">
+        <div className="relative mx-auto px-5 sm:px-7 pb-12 max-w-[52rem] text-[15px] sm:text-[18px] leading-[1.4]">
 
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-[32px] tracking-tight leading-[1.1]">Jake Rudolph</h1>
-            <p className="mt-2 text-[17px] text-white/50 leading-[1.5]">To be honest, still figuring it out</p>
+          <div className="mb-8 sm:mb-12">
+            <h1 className="text-[24px] sm:text-[32px] tracking-tight leading-[1.1]">Jake Rudolph</h1>
+            <p className="mt-2 text-[14px] sm:text-[17px] text-white/50 leading-[1.5]">To be honest, still figuring it out</p>
           </div>
 
           {/* Right Now */}
@@ -99,12 +99,12 @@ export default function BackPage() {
 
           {/* Footer */}
           <footer className="pt-8 border-t border-white/10">
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-[15px]">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] sm:text-[15px]">
               <a href="https://instagram.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors">Instagram</a>
               <a href="https://substack.com/@jakerudolph" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors">Substack</a>
               <a href="mailto:jakesrudolph7@gmail.com" className="text-white/40 hover:text-white/80 transition-colors">jakesrudolph7@gmail.com</a>
             </div>
-            <p className="mt-6 text-[14px] leading-[1.6] italic text-white/35">
+            <p className="mt-6 text-[12px] sm:text-[14px] leading-[1.6] italic text-white/35">
               If you made it all the way here, let&apos;s be friends!
             </p>
           </footer>

@@ -6,13 +6,13 @@ const pill = { scale: 0.75, verticalOffset: 0, shineWhite: true, shineDuration: 
 export default function FrontPage() {
   return (
     <FaceLayout faceId="front" className="bg-[#FFFFFF] text-[#434343]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-      <div className="mx-auto px-7 pb-12 max-w-[52rem] text-[18px] leading-[1.4]">
+      <div className="mx-auto px-5 sm:px-7 pb-12 max-w-[52rem] text-[15px] sm:text-[18px] leading-[1.4]">
         {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-[32px] tracking-tight leading-[1.1]">
+        <div className="mb-8 sm:mb-12">
+          <h1 className="text-[24px] sm:text-[32px] tracking-tight leading-[1.1]">
             Jake Rudolph
           </h1>
-          <p className="mt-2 text-[17px] text-foreground/50 leading-[1.5]">
+          <p className="mt-2 text-[14px] sm:text-[17px] text-foreground/50 leading-[1.5]">
             Creating startups, software, communities, songs, and mental models
           </p>
         </div>
@@ -169,14 +169,14 @@ export default function FrontPage() {
 
         {/* Footer */}
         <footer className="pt-8 border-t border-foreground/10">
-          <div className="flex flex-wrap gap-x-5 gap-y-1 text-[15px]">
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] sm:text-[15px]">
             <a href="https://x.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">X</a>
             <a href="https://linkedin.com/in/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">LinkedIn</a>
             <a href="https://github.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">GitHub</a>
             <a href="mailto:jake.rudolph@uwaterloo.ca" className="text-foreground/40 hover:text-foreground/80 transition-colors">jake.rudolph@uwaterloo.ca</a>
           </div>
 
-          <p className="mt-6 text-[14px] leading-[1.6] italic text-foreground/35">
+          <p className="mt-6 text-[12px] sm:text-[14px] leading-[1.6] italic text-foreground/35">
             This page is what inspired my personal website concept. At face
             value, its resume-esque aesthetic is an accurate summary of my
             largest accomplishments and career milestones. But, it lacks depth

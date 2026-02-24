@@ -74,10 +74,10 @@ export default function BuildingPage() {
     <FaceLayout faceId="building" className="bg-[#f5e6d3]">
       {/* Hero */}
       <div className="text-center pb-8">
-        <p className="text-2xl md:text-3xl italic">
+        <p className="text-lg sm:text-2xl md:text-3xl italic">
           I figure out what&apos;s valuable, then build it
         </p>
-        <p className="text-2xl md:text-3xl italic">
+        <p className="text-lg sm:text-2xl md:text-3xl italic">
           <em>using whatever tools it takes.</em>
         </p>
 
@@ -88,7 +88,7 @@ export default function BuildingPage() {
       </div>
 
       {/* Capability sections */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <div className="divide-y divide-foreground/10">
           {CAPABILITIES.map((cap, index) => (
             <AlternatingSection

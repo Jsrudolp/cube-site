@@ -73,14 +73,17 @@ export default function AlternatingSection({
 
   const scaledWidth = imageWidth && ts?.imageScale ? imageWidth * (ts.imageScale / 100) : imageWidth;
 
-  // Always render image first in DOM so mobile is image → text.
-  // On desktop, use order utilities to achieve alternating layout.
+  // Mobile: title → image → text (three stacked items).
+  // Desktop: two-column alternating layout with title above text in the text column.
   return (
     <section
       id={id}
-      className="flex flex-col md:flex-row gap-8 md:gap-12 items-start py-12"
+      className="flex flex-col md:flex-row gap-6 md:gap-12 items-start py-8 md:py-12"
       style={{ ...(ts?.gap ? { gap: ts.gap } : {}), ...(ts?.sectionPadding ? { paddingTop: ts.sectionPadding, paddingBottom: ts.sectionPadding } : {}) }}
     >
+      {/* Title — visible on mobile only (above image) */}
+      <div className="md:hidden w-full">{titleElement}</div>
+
       <div className={`flex-1 min-w-0 flex items-center justify-center ${isOdd ? "md:order-last" : ""}`} style={ts?.imageOffsetY ? { transform: `translateY(${ts.imageOffsetY}px)` } : undefined}>
         {imageSrc ? (
           <img
@@ -100,7 +103,8 @@ export default function AlternatingSection({
         )}
       </div>
       <div className={`flex-1 min-w-0 ${isOdd ? "md:order-first" : ""}`} style={ts?.textWidth ? { flex: `0 0 ${ts.textWidth}%` } : undefined}>
-        {titleElement}
+        {/* Title — visible on desktop only (inside text column) */}
+        <div className="hidden md:block">{titleElement}</div>
         {metadata && (
           <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
         )}
