@@ -33,8 +33,12 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   const [faceContentHidden, setFaceContentHidden] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [switchTarget, setSwitchTarget] = useState<FaceId | null>(null);
-  // Face to zoom into (set after zoom-out completes during a switch)
-  const [pendingZoomIn, setPendingZoomIn] = useState<FaceId | null>(null);
+  // Saved cube state from zoom-out animation — persists across child remounts.
+  // Used to restore the cube orientation if the component re-initializes.
+  const savedCubeStateRef = useRef<{
+    quaternion: [number, number, number, number];
+    cameraPosition: [number, number, number];
+  } | null>(null);
 
   // Dynamic textures — loaded once, persist across navigations
   const [isIframe, setIsIframe] = useState(true); // default true to skip on SSR
@@ -45,24 +49,33 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
 
   const interactive = !activeFace && !zoomingOut && !isTransitioning;
 
-  // Handle zoom-in completion — navigate to face route
+  // Hide the cube when sitting on a face page (not animating).
+  // It only needs to be visible on the home page or during zoom animations.
+  const cubeVisible = !activeFace || zoomingOut || isTransitioning;
+
+  // Handle zoom-in completion — navigate to face route (normal zoom-in from home)
   const handleZoomComplete = useCallback(
     (faceId: FaceId) => {
       const face = FACE_MAP[faceId];
       if (!face) return;
-
-      if (isTransitioning) {
-        // Switch-face zoom-in finished — navigate and clean up
-        router.push(face.route);
-        setIsTransitioning(false);
-        setSwitchTarget(null);
-        setPendingZoomIn(null);
-      } else {
-        // Normal zoom-in from home
-        router.push(face.route);
-      }
+      savedCubeStateRef.current = null; // Clear stale restore state
+      router.push(face.route);
     },
-    [router, isTransitioning]
+    [router]
+  );
+
+  // Handle switch animation completion — navigate to target face and clean up state.
+  const handleSwitchComplete = useCallback(
+    (faceId: FaceId) => {
+      const face = FACE_MAP[faceId];
+      if (!face) return;
+      // Clean up transition state so the cube hides once the face page mounts.
+      // We keep isTransitioning true briefly so the cube stays visible during navigation.
+      setSwitchTarget(null);
+      setZoomingOut(false);
+      router.push(face.route);
+    },
+    [router]
   );
 
   // Handle zoom-out from a face page
@@ -70,27 +83,26 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
     setZoomingOut(true);
   }, []);
 
-  // Refs to read state inside callbacks without stale closures
-  const switchTargetRef = useRef(switchTarget);
-  switchTargetRef.current = switchTarget;
+  // Ref to read isTransitioning inside callbacks without stale closures
   const isTransitioningRef = useRef(isTransitioning);
   isTransitioningRef.current = isTransitioning;
 
-  // Zoom-out animation finished
-  const handleZoomOutComplete = useCallback(() => {
-    setZoomingOut(false);
-
-    const target = switchTargetRef.current;
-    if (target) {
-      // Switch-face: keep activeFace (don't clear it — avoids rotation reset).
-      // Chain into zoom-in to the target face.
-      setPendingZoomIn(target);
-    } else {
-      // Normal zoom-out: go home
-      setActiveFace(null);
-      setFaceContentHidden(true);
-      window.history.pushState(null, "", "/");
+  // Zoom-out animation finished (normal zoom-out only — switches use handleSwitchComplete)
+  const handleZoomOutComplete = useCallback((state?: {
+    quaternion: [number, number, number, number];
+    cameraPosition: [number, number, number];
+  }) => {
+    if (state) {
+      savedCubeStateRef.current = state;
     }
+    setZoomingOut(false);
+    setActiveFace(null);
+    setFaceContentHidden(true);
+    // Defer URL change so Next.js's pushState interception doesn't trigger
+    // synchronous React work that could disrupt the cube's final orientation.
+    requestAnimationFrame(() => {
+      window.history.pushState(null, "", "/");
+    });
   }, []);
 
   // When a face page mounts (zoom-in navigation lands), reset hidden flag.
@@ -100,6 +112,10 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
     setActiveFace(face);
     if (face !== null) {
       setFaceContentHidden(false);
+      // Final cleanup for switch transitions — cube can now hide
+      if (isTransitioningRef.current) {
+        setIsTransitioning(false);
+      }
     }
   }, []);
 
@@ -130,16 +146,22 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
       {!isIframe && (
         <div
           className="fixed inset-0"
-          style={{ zIndex: 0, background: "#EDEDED" }}
+          style={{
+            zIndex: 0,
+            background: "#EDEDED",
+            visibility: cubeVisible ? "visible" : "hidden",
+          }}
         >
           <CubeScene
             dynamicTextures={dynamicTextures}
             disabled={!interactive}
             onZoomComplete={handleZoomComplete}
+            onZoomOutComplete={handleZoomOutComplete}
+            onSwitchComplete={handleSwitchComplete}
             initialZoomedFace={activeFace ?? undefined}
             zoomOutFromFace={zoomingOut ? (activeFace ?? undefined) : undefined}
-            zoomInToFace={pendingZoomIn ?? undefined}
-            onZoomOutComplete={handleZoomOutComplete}
+            switchToFace={isTransitioning && zoomingOut ? (switchTarget ?? undefined) : undefined}
+            restoreState={savedCubeStateRef.current ?? undefined}
           />
         </div>
       )}

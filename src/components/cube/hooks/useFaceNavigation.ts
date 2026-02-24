@@ -1,5 +1,5 @@
 import { useRef, useCallback, useEffect } from "react";
-import { ThreeEvent, useThree } from "@react-three/fiber";
+import { ThreeEvent, useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
 import {
@@ -17,12 +17,17 @@ interface UseFaceNavigationOptions {
   hasDragged?: React.RefObject<boolean>;
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onZoomOutComplete?: () => void;
+  onZoomOutComplete?: (state?: {
+    quaternion: [number, number, number, number];
+    cameraPosition: [number, number, number];
+  }) => void;
+  onSwitchComplete?: (faceId: FaceId) => void;
   enabled?: boolean;
   animationDuration?: number;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
   zoomInToFace?: FaceId;
+  switchToFace?: FaceId;
 }
 
 // Direction from origin toward the default camera — computed once, never changes
@@ -54,45 +59,57 @@ function computeZoomedState(faceId: FaceId, camera: THREE.Camera) {
   return { uprightQuat, zoomTarget, zoomLookAt };
 }
 
+// Animation state stored in a ref, ticked by useFrame
+type AnimState =
+  | { type: "zoom-in"; faceId: FaceId; startQuat: THREE.Quaternion; uprightQuat: THREE.Quaternion; zoomTarget: THREE.Vector3; zoomLookAt: THREE.Vector3; startTime: number }
+  | { type: "zoom-out"; faceId: FaceId; restingQuat: THREE.Quaternion; uprightQuat: THREE.Quaternion; zoomTarget: THREE.Vector3; zoomLookAt: THREE.Vector3; startTime: number }
+  | { type: "switch"; targetFaceId: FaceId; fromUprightQuat: THREE.Quaternion; fromZoomTarget: THREE.Vector3; fromZoomLookAt: THREE.Vector3; midQuat: THREE.Quaternion; toUprightQuat: THREE.Quaternion; toZoomTarget: THREE.Vector3; toZoomLookAt: THREE.Vector3; startTime: number };
+
 export function useFaceNavigation({
   meshRef,
   hasDragged,
   onZoomStart,
   onZoomComplete,
   onZoomOutComplete,
+  onSwitchComplete,
   enabled = true,
   animationDuration = 1800,
   initialZoomedFace,
   zoomOutFromFace,
   zoomInToFace,
+  switchToFace,
 }: UseFaceNavigationOptions) {
   const { camera } = useThree();
   const isAnimating = useRef(false);
-  const animationRef = useRef<number | null>(null);
   const lastClickTime = useRef(0);
 
   const animDurationRef = useRef(animationDuration);
   animDurationRef.current = animationDuration;
 
-  // Store latest callbacks in refs to avoid stale closures in rAF loops
+  // Active animation state — processed each frame by useFrame
+  const animRef = useRef<AnimState | null>(null);
+
+  // Store latest callbacks in refs to avoid stale closures
   const onZoomStartRef = useRef(onZoomStart);
   onZoomStartRef.current = onZoomStart;
   const onZoomCompleteRef = useRef(onZoomComplete);
   onZoomCompleteRef.current = onZoomComplete;
   const onZoomOutCompleteRef = useRef(onZoomOutComplete);
   onZoomOutCompleteRef.current = onZoomOutComplete;
+  const onSwitchCompleteRef = useRef(onSwitchComplete);
+  onSwitchCompleteRef.current = onSwitchComplete;
   const enabledRef = useRef(enabled);
   enabledRef.current = enabled;
 
-  // Position camera at zoomed-in view when a face page becomes active.
-  // Only runs on initial mount with an active face (direct navigation).
-  // When arriving via zoom-in animation, the cube is already positioned.
-  const zoomedInitialized = useRef(false);
+  // Snap camera to zoomed-in view whenever the active face changes
+  // (e.g. direct navigation or face switch completing). Skipped during animations
+  // since those handle their own camera positioning.
+  const prevInitialFace = useRef<FaceId | undefined>(undefined);
   useEffect(() => {
     if (!initialZoomedFace || !meshRef.current) return;
-    // Only snap to zoomed position if we haven't already animated there
-    if (zoomedInitialized.current) return;
-    zoomedInitialized.current = true;
+    if (initialZoomedFace === prevInitialFace.current) return;
+    if (animRef.current) return; // animation in progress handles camera
+    prevInitialFace.current = initialZoomedFace;
 
     const { uprightQuat, zoomTarget, zoomLookAt } = computeZoomedState(initialZoomedFace, camera);
     meshRef.current.quaternion.copy(uprightQuat);
@@ -127,109 +144,196 @@ export function useFaceNavigation({
   const animateToFace = useCallback(
     (faceId: FaceId, programmatic = false) => {
       if (isAnimating.current || !meshRef.current) return;
-      // Only check enabled for user clicks, not programmatic calls
       if (!programmatic && !enabledRef.current) return;
       isAnimating.current = true;
       onZoomStartRef.current?.(faceId);
 
-      const mesh = meshRef.current;
-      const cameraUp = new THREE.Vector3(0, 1, 0);
-
       const { uprightQuat, zoomTarget, zoomLookAt } = computeZoomedState(faceId, camera);
 
-      const startQuat = mesh.quaternion.clone();
-      const startTime = performance.now();
-
-      const animate = () => {
-        const now = performance.now();
-        const totalDuration = animDurationRef.current;
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / totalDuration, 1);
-        const eased = easeInOutQuint(progress);
-
-        // Rotation and zoom happen simultaneously
-        mesh.quaternion.slerpQuaternions(startQuat, uprightQuat, eased);
-        camera.position.lerpVectors(CAMERA_VEC, zoomTarget, eased);
-        camera.up.copy(cameraUp);
-        const lookAt = new THREE.Vector3(0, 0, 0).lerp(zoomLookAt, eased);
-        camera.lookAt(lookAt);
-
-        if (progress >= 1) {
-          // Keep isAnimating true — the cube should stay frozen at the zoomed
-          // position until it becomes interactive again. Without this, auto-rotate
-          // or momentum from useCubeRotation can shift the cube before the face
-          // page mounts and sets disabled=true.
-          onZoomCompleteRef.current?.(faceId);
-          return;
-        }
-
-        animationRef.current = requestAnimationFrame(animate);
+      animRef.current = {
+        type: "zoom-in",
+        faceId,
+        startQuat: meshRef.current.quaternion.clone(),
+        uprightQuat,
+        zoomTarget,
+        zoomLookAt,
+        startTime: performance.now(),
       };
-
-      animationRef.current = requestAnimationFrame(animate);
     },
     [camera, meshRef]
   );
 
-  // Reset isAnimating when the cube becomes interactive again (e.g. after zoom-out
-  // completes, or if the user navigates back via browser history)
+  // Reset isAnimating when the cube becomes interactive again
   useEffect(() => {
     if (enabled) {
       isAnimating.current = false;
     }
   }, [enabled]);
 
-  // Reverse animation: from zoomed-in face back to resting position
   const animateFromFace = useCallback(
     (faceId: FaceId) => {
       if (!meshRef.current) return;
       isAnimating.current = true;
 
-      const mesh = meshRef.current;
-      const cameraUp = new THREE.Vector3(0, 1, 0);
-
       const { uprightQuat, zoomTarget, zoomLookAt } = computeZoomedState(faceId, camera);
-      const restingQuat = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(...INITIAL_ROTATION)
+
+      // Tilt slightly from the upright position so the zoomed face stays
+      // prominent but the cube looks 3D (similar to INITIAL_ROTATION effect)
+      const tilt = new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(-0.35, 0.4, 0)
       );
+      const restingQuat = tilt.multiply(uprightQuat);
 
-      const startTime = performance.now();
-
-      const animate = () => {
-        const now = performance.now();
-        const totalDuration = animDurationRef.current;
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / totalDuration, 1);
-        const t = 1 - easeInOutQuint(progress); // 1 → 0 (starts zoomed, ends at resting)
-
-        mesh.quaternion.slerpQuaternions(restingQuat, uprightQuat, t);
-        camera.position.lerpVectors(CAMERA_VEC, zoomTarget, t);
-        camera.up.copy(cameraUp);
-        const lookAt = new THREE.Vector3(0, 0, 0).lerp(zoomLookAt, t);
-        camera.lookAt(lookAt);
-
-        if (progress >= 1) {
-          isAnimating.current = false;
-          onZoomOutCompleteRef.current?.();
-          return;
-        }
-
-        animationRef.current = requestAnimationFrame(animate);
+      animRef.current = {
+        type: "zoom-out",
+        faceId,
+        restingQuat,
+        uprightQuat,
+        zoomTarget,
+        zoomLookAt,
+        startTime: performance.now(),
       };
-
-      animationRef.current = requestAnimationFrame(animate);
     },
     [camera, meshRef]
   );
 
-  // Trigger reverse animation when zoomOutFromFace is set
+  const animateSwitchFace = useCallback(
+    (fromFace: FaceId, toFace: FaceId) => {
+      if (!meshRef.current) return;
+      isAnimating.current = true;
+
+      const fromState = computeZoomedState(fromFace, camera);
+      const toState = computeZoomedState(toFace, camera);
+
+      // Neutral midpoint quaternion — tilt from the source upright orientation
+      const tilt = new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(-0.35, 0.4, 0)
+      );
+      const midQuat = tilt.multiply(fromState.uprightQuat);
+
+      animRef.current = {
+        type: "switch",
+        targetFaceId: toFace,
+        fromUprightQuat: fromState.uprightQuat,
+        fromZoomTarget: fromState.zoomTarget,
+        fromZoomLookAt: fromState.zoomLookAt,
+        midQuat,
+        toUprightQuat: toState.uprightQuat,
+        toZoomTarget: toState.zoomTarget,
+        toZoomLookAt: toState.zoomLookAt,
+        startTime: performance.now(),
+      };
+    },
+    [camera, meshRef]
+  );
+
+  // Process animation each R3F frame — synchronized with the render loop
+  useFrame(() => {
+    const anim = animRef.current;
+    if (!anim || !meshRef.current) return;
+
+    const mesh = meshRef.current;
+    const cameraUp = new THREE.Vector3(0, 1, 0);
+    const elapsed = performance.now() - anim.startTime;
+    const duration = anim.type === "switch" ? animDurationRef.current * 1.5 : animDurationRef.current;
+    const progress = Math.min(elapsed / duration, 1);
+
+    if (anim.type === "zoom-in") {
+      const eased = easeInOutQuint(progress);
+      mesh.quaternion.slerpQuaternions(anim.startQuat, anim.uprightQuat, eased);
+      camera.position.lerpVectors(CAMERA_VEC, anim.zoomTarget, eased);
+      camera.up.copy(cameraUp);
+      const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.zoomLookAt, eased);
+      camera.lookAt(lookAt);
+
+      if (progress >= 1) {
+        const faceId = anim.faceId;
+        animRef.current = null;
+        // Defer callback to avoid React state updates inside R3F render loop
+        requestAnimationFrame(() => onZoomCompleteRef.current?.(faceId));
+      }
+    } else if (anim.type === "zoom-out") {
+      const t = 1 - easeInOutQuint(progress);
+      mesh.quaternion.slerpQuaternions(anim.restingQuat, anim.uprightQuat, t);
+      camera.position.lerpVectors(CAMERA_VEC, anim.zoomTarget, t);
+      camera.up.copy(cameraUp);
+      const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.zoomLookAt, t);
+      camera.lookAt(lookAt);
+
+      if (progress >= 1) {
+        // Capture final state before clearing animation.
+        // Clone values since mesh/camera may be mutated before the deferred callback runs.
+        const finalState = {
+          quaternion: [mesh.quaternion.x, mesh.quaternion.y, mesh.quaternion.z, mesh.quaternion.w] as [number, number, number, number],
+          cameraPosition: [camera.position.x, camera.position.y, camera.position.z] as [number, number, number],
+        };
+        animRef.current = null;
+        isAnimating.current = false;
+        // Defer callback to avoid React state updates (and Next.js pushState interception)
+        // inside R3F's render loop, which can disrupt mesh/camera state.
+        requestAnimationFrame(() => onZoomOutCompleteRef.current?.(finalState));
+      }
+    } else if (anim.type === "switch") {
+      // 3-phase switch: zoom-out (0–0.35), rotate (0.35–0.65), zoom-in (0.65–1)
+      const PHASE1_END = 0.35;
+      const PHASE2_END = 0.65;
+
+      if (progress < PHASE1_END) {
+        // Phase 1: Zoom out from source face
+        const phaseT = progress / PHASE1_END;
+        const eased = easeInOutQuint(phaseT);
+        const camT = 1 - eased; // 1 → 0 (zoomed → home)
+        mesh.quaternion.slerpQuaternions(anim.fromUprightQuat, anim.midQuat, eased);
+        camera.position.lerpVectors(CAMERA_VEC, anim.fromZoomTarget, camT);
+        camera.up.copy(cameraUp);
+        const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.fromZoomLookAt, camT);
+        camera.lookAt(lookAt);
+      } else if (progress < PHASE2_END) {
+        // Phase 2: Rotate from source orientation to target orientation (camera at home)
+        const phaseT = (progress - PHASE1_END) / (PHASE2_END - PHASE1_END);
+        const eased = easeInOutQuint(phaseT);
+        mesh.quaternion.slerpQuaternions(anim.midQuat, anim.toUprightQuat, eased);
+        camera.position.copy(CAMERA_VEC);
+        camera.up.copy(cameraUp);
+        camera.lookAt(0, 0, 0);
+      } else {
+        // Phase 3: Zoom in to target face
+        const phaseT = (progress - PHASE2_END) / (1 - PHASE2_END);
+        const eased = easeInOutQuint(phaseT);
+        mesh.quaternion.slerpQuaternions(anim.toUprightQuat, anim.toUprightQuat, eased);
+        camera.position.lerpVectors(CAMERA_VEC, anim.toZoomTarget, eased);
+        camera.up.copy(cameraUp);
+        const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.toZoomLookAt, eased);
+        camera.lookAt(lookAt);
+      }
+
+      if (progress >= 1) {
+        const targetId = anim.targetFaceId;
+        animRef.current = null;
+        isAnimating.current = false;
+        // Defer callback to avoid React state updates inside R3F render loop
+        requestAnimationFrame(() => onSwitchCompleteRef.current?.(targetId));
+      }
+    }
+  });
+
+  // Trigger reverse animation when zoomOutFromFace is set (only for normal zoom-out, not switches)
   const prevZoomOutFace = useRef<FaceId | undefined>(undefined);
   useEffect(() => {
-    if (zoomOutFromFace && zoomOutFromFace !== prevZoomOutFace.current) {
+    if (zoomOutFromFace && zoomOutFromFace !== prevZoomOutFace.current && !switchToFace) {
       animateFromFace(zoomOutFromFace);
     }
     prevZoomOutFace.current = zoomOutFromFace;
-  }, [zoomOutFromFace, animateFromFace]);
+  }, [zoomOutFromFace, switchToFace, animateFromFace]);
+
+  // Trigger unified 3-phase switch animation
+  const prevSwitchFace = useRef<FaceId | undefined>(undefined);
+  useEffect(() => {
+    if (switchToFace && switchToFace !== prevSwitchFace.current && zoomOutFromFace) {
+      animateSwitchFace(zoomOutFromFace, switchToFace);
+    }
+    prevSwitchFace.current = switchToFace;
+  }, [switchToFace, zoomOutFromFace, animateSwitchFace]);
 
   // Trigger zoom-in animation programmatically (used for face switching)
   const prevZoomInFace = useRef<FaceId | undefined>(undefined);
@@ -260,17 +364,10 @@ export function useFaceNavigation({
     [hasDragged, getFaceFromClick, animateToFace]
   );
 
-  const cleanup = useCallback(() => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-    }
-  }, []);
-
   return {
     onClick,
     animateToFace,
     animateFromFace,
     isAnimating,
-    cleanup,
   };
 }

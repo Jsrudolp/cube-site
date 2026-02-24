@@ -19,6 +19,7 @@ import {
   createAllPlaceholderTextures,
   createMaterials,
 } from "./cubeTextures";
+import { createEdgeGeometry } from "./createEdgeGeometry";
 import { easeInOutQuint } from "@/lib/animation-modes";
 
 interface CubeOverlayProps {
@@ -39,6 +40,8 @@ function disposeMaterials(materials: THREE.MeshBasicMaterial[]) {
 // Cube mesh with textures
 function TexturedCube({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null> }) {
   const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
+  const edgeGeometry = useMemo(() => createEdgeGeometry(), []);
+  const edgeMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#EDEDED" }), []);
   const [materials, setMaterials] = useState<THREE.MeshBasicMaterial[]>([]);
   const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
 
@@ -62,6 +65,7 @@ function TexturedCube({ meshRef }: { meshRef: React.RefObject<THREE.Mesh | null>
   return (
     <mesh ref={meshRef} material={materials.length > 0 ? materials : undefined} geometry={geometry}>
       {materials.length === 0 && <meshStandardMaterial color="#888" />}
+      <mesh geometry={edgeGeometry} material={edgeMaterial} />
     </mesh>
   );
 }

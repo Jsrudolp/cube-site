@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef, useMemo } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
 import { INITIAL_ROTATION } from "@/lib/cube-config";
@@ -11,69 +11,62 @@ import {
   createAllPlaceholderTextures,
   createMaterials,
 } from "./cubeTextures";
+import { createEdgeGeometry } from "./createEdgeGeometry";
+import type { CubeRestoreState } from "./CubeScene";
 
 interface InteractiveCubeProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onZoomOutComplete?: () => void;
+  onZoomOutComplete?: (state?: CubeRestoreState) => void;
+  onSwitchComplete?: (faceId: FaceId) => void;
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
   zoomInToFace?: FaceId;
+  switchToFace?: FaceId;
+  restoreState?: CubeRestoreState;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
-}
-
-// Helper to dispose materials and their textures
-function disposeMaterials(materials: THREE.MeshBasicMaterial[]) {
-  materials.forEach((m) => {
-    m.map?.dispose();
-    m.dispose();
-  });
 }
 
 export function InteractiveCube({
   onZoomStart,
   onZoomComplete,
   onZoomOutComplete,
+  onSwitchComplete,
   disabled = false,
   animationDuration = 1800,
   initialFace,
   initialZoomedFace,
   zoomOutFromFace,
   zoomInToFace,
+  switchToFace,
+  restoreState,
   dynamicTextures,
 }: InteractiveCubeProps) {
+  const { camera } = useThree();
   const meshRef = useRef<THREE.Mesh>(null);
   const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
-  const [materials, setMaterials] = useState<THREE.MeshBasicMaterial[]>([]);
-  const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
+  const edgeGeometry = useMemo(() => createEdgeGeometry(), []);
+  const edgeMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#EDEDED" }), []);
 
-  // Keep ref in sync for cleanup
-  useEffect(() => {
-    materialsRef.current = materials;
-  }, [materials]);
-
-  // Create solid-color placeholder materials (replaced by dynamic textures later)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
+  // Create materials synchronously via useMemo — single render path, no fallback branch.
+  // This avoids R3F reconciliation issues where removing/adding the `rotation` prop
+  // between two different JSX trees would reset the mesh quaternion.
+  const initialMaterials = useMemo(() => {
+    if (typeof window === "undefined") return [];
     const placeholders = createAllPlaceholderTextures();
-    setMaterials(createMaterials(placeholders));
-
-    return () => {
-      disposeMaterials(materialsRef.current);
-    };
+    return createMaterials(placeholders);
   }, []);
+  const materialsRef = useRef<THREE.MeshBasicMaterial[]>(initialMaterials);
 
   // Update individual face materials when dynamic textures arrive
   useEffect(() => {
     if (!dynamicTextures || materialsRef.current.length === 0) return;
 
     let updated = false;
-    const currentMats = materialsRef.current;
-    const newMaterials = [...currentMats];
+    const newMaterials = [...materialsRef.current];
 
     for (let i = 0; i < dynamicTextures.length; i++) {
       const dynTex = dynamicTextures[i];
@@ -86,9 +79,23 @@ export function InteractiveCube({
     }
 
     if (updated) {
-      setMaterials(newMaterials);
+      materialsRef.current = newMaterials;
+      // Force R3F to pick up new materials by updating the mesh directly
+      if (meshRef.current) {
+        meshRef.current.material = newMaterials;
+      }
     }
   }, [dynamicTextures]);
+
+  // Cleanup materials on unmount
+  useEffect(() => {
+    return () => {
+      materialsRef.current.forEach((m) => {
+        m.map?.dispose();
+        m.dispose();
+      });
+    };
+  }, []);
 
   // Rotation hook
   const {
@@ -101,7 +108,7 @@ export function InteractiveCube({
   } = useCubeRotation({ meshRef, enabled: !disabled });
 
   // Navigation hook
-  const { onClick, isAnimating, cleanup } = useFaceNavigation({
+  const { onClick, isAnimating } = useFaceNavigation({
     meshRef,
     hasDragged,
     onZoomStart: (faceId) => {
@@ -110,52 +117,57 @@ export function InteractiveCube({
     },
     onZoomComplete,
     onZoomOutComplete,
+    onSwitchComplete,
     enabled: !disabled,
     animationDuration,
     initialZoomedFace,
     zoomOutFromFace,
     zoomInToFace,
+    switchToFace,
   });
 
-  // Update rotation each frame
+  // Update rotation each frame (skipped while zoom animation is running)
   useFrame(() => {
     if (!isAnimating.current) {
       update();
     }
   });
 
-
-  // Set initial rotation/orientation (only for home page cube without zoomed face)
+  // Set initial cube orientation on mount.
+  // If restoreState exists (saved from a previous zoom-out), apply that quaternion
+  // and camera position so the cube appears exactly where the animation left it.
+  // Otherwise, use INITIAL_ROTATION for a fresh home-page load.
+  const hasInitialized = useRef(false);
   useEffect(() => {
-    if (meshRef.current && !initialZoomedFace) {
+    if (!meshRef.current || hasInitialized.current || initialZoomedFace) return;
+    hasInitialized.current = true;
+
+    if (restoreState) {
+      const [qx, qy, qz, qw] = restoreState.quaternion;
+      meshRef.current.quaternion.set(qx, qy, qz, qw);
+      camera.position.set(...restoreState.cameraPosition);
+      camera.lookAt(0, 0, 0);
+    } else {
       meshRef.current.rotation.set(...INITIAL_ROTATION);
     }
-  }, [initialFace, initialZoomedFace]);
-
-  // Cleanup animation frames on unmount (stable effect, no deps)
-  useEffect(() => {
-    return cleanup;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  if (materials.length === 0) {
-    return (
-      <mesh ref={meshRef} rotation={INITIAL_ROTATION} geometry={geometry}>
-        <meshStandardMaterial color="#888" wireframe />
-      </mesh>
-    );
-  }
 
   return (
     <mesh
       ref={meshRef}
-      material={materials}
+      material={initialMaterials.length > 0 ? materialsRef.current : undefined}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
       onClick={onClick}
       geometry={geometry}
-    />
+    >
+      {initialMaterials.length === 0 && (
+        <meshBasicMaterial color="#888" />
+      )}
+      <mesh geometry={edgeGeometry} material={edgeMaterial} />
+    </mesh>
   );
 }

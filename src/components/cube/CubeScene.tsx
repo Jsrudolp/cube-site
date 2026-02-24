@@ -8,15 +8,23 @@ import { CAMERA_POSITION, CAMERA_FOV } from "@/lib/cube-config";
 import { InteractiveCube } from "./InteractiveCube";
 import { CubeShadow } from "./CubeShadow";
 
+export interface CubeRestoreState {
+  quaternion: [number, number, number, number];
+  cameraPosition: [number, number, number];
+}
+
 interface CubeSceneProps {
   onZoomStart?: (faceId: FaceId) => void;
   onZoomComplete?: (faceId: FaceId) => void;
-  onZoomOutComplete?: () => void;
+  onZoomOutComplete?: (state?: CubeRestoreState) => void;
+  onSwitchComplete?: (faceId: FaceId) => void;
   animationDuration?: number;
   initialFace?: FaceId;
   initialZoomedFace?: FaceId;
   zoomOutFromFace?: FaceId;
   zoomInToFace?: FaceId;
+  switchToFace?: FaceId;
+  restoreState?: CubeRestoreState;
   disabled?: boolean;
   dynamicTextures?: (THREE.CanvasTexture | null)[];
 }
@@ -25,7 +33,7 @@ function LoadingFallback() {
   return (
     <mesh>
       <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color="#EDEDED" wireframe />
+      <meshStandardMaterial color="#EDEDED" />
     </mesh>
   );
 }
@@ -34,11 +42,14 @@ export function CubeScene({
   onZoomStart,
   onZoomComplete,
   onZoomOutComplete,
+  onSwitchComplete,
   animationDuration = 1800,
   initialFace,
   initialZoomedFace,
   zoomOutFromFace,
   zoomInToFace,
+  switchToFace,
+  restoreState,
   disabled = false,
   dynamicTextures,
 }: CubeSceneProps) {
@@ -62,12 +73,15 @@ export function CubeScene({
             onZoomStart={onZoomStart}
             onZoomComplete={onZoomComplete}
             onZoomOutComplete={onZoomOutComplete}
+            onSwitchComplete={onSwitchComplete}
             disabled={disabled}
             animationDuration={animationDuration}
             initialFace={initialFace}
             initialZoomedFace={initialZoomedFace}
             zoomOutFromFace={zoomOutFromFace}
             zoomInToFace={zoomInToFace}
+            switchToFace={switchToFace}
+            restoreState={restoreState}
             dynamicTextures={dynamicTextures}
           />
         </Suspense>

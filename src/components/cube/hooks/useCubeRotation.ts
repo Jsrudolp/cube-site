@@ -8,6 +8,10 @@ import {
   MOMENTUM_FRICTION,
 } from "@/lib/cube-config";
 
+// Reusable world-space axis vectors for quaternion rotations
+const _worldY = new THREE.Vector3(0, 1, 0);
+const _worldX = new THREE.Vector3(1, 0, 0);
+
 interface UseCubeRotationOptions {
   meshRef: React.RefObject<THREE.Mesh | null>;
   enabled?: boolean;
@@ -73,9 +77,11 @@ export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOpti
         y: deltaY * DRAG_SENSITIVITY,
       };
 
-      // Apply rotation based on drag
-      meshRef.current.rotation.y += deltaX * DRAG_SENSITIVITY;
-      meshRef.current.rotation.x += deltaY * DRAG_SENSITIVITY;
+      // Rotate around world-space axes so drag direction is always consistent
+      // regardless of the cube's current orientation
+      const quatY = new THREE.Quaternion().setFromAxisAngle(_worldY, deltaX * DRAG_SENSITIVITY);
+      const quatX = new THREE.Quaternion().setFromAxisAngle(_worldX, deltaY * DRAG_SENSITIVITY);
+      meshRef.current.quaternion.premultiply(quatY.multiply(quatX));
 
       lastPointer.current = { x: e.clientX, y: e.clientY };
       resetIdleTimer();
@@ -98,16 +104,18 @@ export function useCubeRotation({ meshRef, enabled = true }: UseCubeRotationOpti
     if (!meshRef.current || !isEnabled.current) return;
 
     if (!isDragging.current) {
-      // Apply momentum
+      // Apply momentum (world-space)
       if (Math.abs(velocity.current.x) > 0.0001 || Math.abs(velocity.current.y) > 0.0001) {
-        meshRef.current.rotation.y += velocity.current.x;
-        meshRef.current.rotation.x += velocity.current.y;
+        const quatY = new THREE.Quaternion().setFromAxisAngle(_worldY, velocity.current.x);
+        const quatX = new THREE.Quaternion().setFromAxisAngle(_worldX, velocity.current.y);
+        meshRef.current.quaternion.premultiply(quatY.multiply(quatX));
         velocity.current.x *= MOMENTUM_FRICTION;
         velocity.current.y *= MOMENTUM_FRICTION;
       }
-      // Auto-rotate when idle
+      // Auto-rotate when idle (world-space)
       else if (isIdle.current) {
-        meshRef.current.rotation.y += AUTO_ROTATE_SPEED;
+        const quatY = new THREE.Quaternion().setFromAxisAngle(_worldY, AUTO_ROTATE_SPEED);
+        meshRef.current.quaternion.premultiply(quatY);
       }
     }
   }, [meshRef]);
