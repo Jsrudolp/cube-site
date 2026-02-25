@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { FaceId } from "@/lib/faces";
 import { markFaceVisited } from "@/lib/visited-faces";
 import { usePersistentCube } from "@/components/cube";
+import { setFavicon } from "@/lib/favicon";
 import FaceNav from "./FaceNav";
 
 interface FaceLayoutProps {
@@ -18,6 +19,7 @@ export default function FaceLayout({ faceId, children, className = "", style }: 
 
   useEffect(() => {
     markFaceVisited(faceId);
+    setFavicon(faceId);
   }, [faceId]);
 
   // Tell the persistent cube we're on this face

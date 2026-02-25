@@ -18,6 +18,7 @@ interface PersistentCubeContextValue {
   zoomOut: () => void;
   switchToFace: (faceId: FaceId) => void;
   isTransitioning: boolean;
+  zoomingIn: boolean;
   zoomingOut: boolean;
   faceContentHidden: boolean;
   setActiveFace: (faceId: FaceId | null) => void;
@@ -31,6 +32,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   const [activeFace, setActiveFace] = useState<FaceId | null>(null);
   const [zoomingOut, setZoomingOut] = useState(false);
   const [faceContentHidden, setFaceContentHidden] = useState(false);
+  const [zoomingIn, setZoomingIn] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [switchTarget, setSwitchTarget] = useState<FaceId | null>(null);
   // Saved cube state from zoom-out animation — persists across child remounts.
@@ -52,6 +54,10 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   // Hide the cube when sitting on a face page (not animating).
   // It only needs to be visible on the home page or during zoom animations.
   const cubeVisible = !activeFace || zoomingOut || isTransitioning;
+
+  const handleZoomStart = useCallback(() => {
+    setZoomingIn(true);
+  }, []);
 
   // Handle zoom-in completion — navigate to face route (normal zoom-in from home)
   const handleZoomComplete = useCallback(
@@ -78,9 +84,21 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
     [router]
   );
 
-  // Handle zoom-out from a face page
+  // Handle zoom-out from a face page — scroll to top first, then animate
   const zoomOut = useCallback(() => {
-    setZoomingOut(true);
+    if (window.scrollY === 0) {
+      setZoomingOut(true);
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    const waitForTop = () => {
+      if (window.scrollY === 0) {
+        setZoomingOut(true);
+      } else {
+        requestAnimationFrame(waitForTop);
+      }
+    };
+    requestAnimationFrame(waitForTop);
   }, []);
 
   // Ref to read isTransitioning inside callbacks without stale closures
@@ -95,15 +113,16 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
     if (state) {
       savedCubeStateRef.current = state;
     }
+    setZoomingIn(false);
     setZoomingOut(false);
     setActiveFace(null);
     setFaceContentHidden(true);
-    // Defer URL change so Next.js's pushState interception doesn't trigger
-    // synchronous React work that could disrupt the cube's final orientation.
+    // Defer navigation so the cube's final orientation is settled before
+    // Next.js triggers React work for the home page.
     requestAnimationFrame(() => {
-      window.history.pushState(null, "", "/");
+      router.push("/");
     });
-  }, []);
+  }, [router]);
 
   // When a face page mounts (zoom-in navigation lands), reset hidden flag.
   // Ignores cleanup null calls during face switches to prevent brief rotation resets.
@@ -119,14 +138,29 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Switch face: zoom out from current, then zoom in to target (on persistent cube)
+  // Switch face: scroll to top first, then zoom out from current and zoom in to target
   const switchToFace = useCallback(
     (faceId: FaceId) => {
       if (faceId === activeFace) return;
-      setSwitchTarget(faceId);
-      setIsTransitioning(true);
-      setFaceContentHidden(true);
-      setZoomingOut(true);
+      const startSwitch = () => {
+        setSwitchTarget(faceId);
+        setIsTransitioning(true);
+        setFaceContentHidden(true);
+        setZoomingOut(true);
+      };
+      if (window.scrollY === 0) {
+        startSwitch();
+        return;
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      const waitForTop = () => {
+        if (window.scrollY === 0) {
+          startSwitch();
+        } else {
+          requestAnimationFrame(waitForTop);
+        }
+      };
+      requestAnimationFrame(waitForTop);
     },
     [activeFace]
   );
@@ -137,6 +171,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
         zoomOut,
         switchToFace,
         isTransitioning,
+        zoomingIn,
         zoomingOut,
         faceContentHidden,
         setActiveFace: handleSetActiveFace,
@@ -155,6 +190,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
           <CubeScene
             dynamicTextures={dynamicTextures}
             disabled={!interactive}
+            onZoomStart={handleZoomStart}
             onZoomComplete={handleZoomComplete}
             onZoomOutComplete={handleZoomOutComplete}
             onSwitchComplete={handleSwitchComplete}

@@ -63,7 +63,7 @@ function computeZoomedState(faceId: FaceId, camera: THREE.Camera) {
 type AnimState =
   | { type: "zoom-in"; faceId: FaceId; startQuat: THREE.Quaternion; uprightQuat: THREE.Quaternion; zoomTarget: THREE.Vector3; zoomLookAt: THREE.Vector3; startTime: number }
   | { type: "zoom-out"; faceId: FaceId; restingQuat: THREE.Quaternion; uprightQuat: THREE.Quaternion; zoomTarget: THREE.Vector3; zoomLookAt: THREE.Vector3; startTime: number }
-  | { type: "switch"; targetFaceId: FaceId; fromUprightQuat: THREE.Quaternion; fromZoomTarget: THREE.Vector3; fromZoomLookAt: THREE.Vector3; midQuat: THREE.Quaternion; toUprightQuat: THREE.Quaternion; toZoomTarget: THREE.Vector3; toZoomLookAt: THREE.Vector3; startTime: number };
+  | { type: "switch"; targetFaceId: FaceId; fromUprightQuat: THREE.Quaternion; fromZoomTarget: THREE.Vector3; fromZoomLookAt: THREE.Vector3; toUprightQuat: THREE.Quaternion; toZoomTarget: THREE.Vector3; toZoomLookAt: THREE.Vector3; controlPos: THREE.Vector3; controlLookAt: THREE.Vector3; startTime: number };
 
 export function useFaceNavigation({
   meshRef,
@@ -205,11 +205,13 @@ export function useFaceNavigation({
       const fromState = computeZoomedState(fromFace, camera);
       const toState = computeZoomedState(toFace, camera);
 
-      // Neutral midpoint quaternion — tilt from the source upright orientation
-      const tilt = new THREE.Quaternion().setFromEuler(
-        new THREE.Euler(-0.35, 0.4, 0)
-      );
-      const midQuat = tilt.multiply(fromState.uprightQuat);
+      // Bezier control point for camera: pull back toward CAMERA_VEC from the midpoint
+      const pullback = 0.6;
+      const midPos = fromState.zoomTarget.clone().add(toState.zoomTarget).multiplyScalar(0.5);
+      const controlPos = midPos.clone().lerp(CAMERA_VEC, pullback);
+
+      // Bezier control point for lookAt: origin (cube center)
+      const controlLookAt = new THREE.Vector3(0, 0, 0);
 
       animRef.current = {
         type: "switch",
@@ -217,10 +219,11 @@ export function useFaceNavigation({
         fromUprightQuat: fromState.uprightQuat,
         fromZoomTarget: fromState.zoomTarget,
         fromZoomLookAt: fromState.zoomLookAt,
-        midQuat,
         toUprightQuat: toState.uprightQuat,
         toZoomTarget: toState.zoomTarget,
         toZoomLookAt: toState.zoomLookAt,
+        controlPos,
+        controlLookAt,
         startTime: performance.now(),
       };
     },
@@ -235,7 +238,7 @@ export function useFaceNavigation({
     const mesh = meshRef.current;
     const cameraUp = new THREE.Vector3(0, 1, 0);
     const elapsed = performance.now() - anim.startTime;
-    const duration = anim.type === "switch" ? animDurationRef.current * 1.5 : animDurationRef.current;
+    const duration = animDurationRef.current;
     const progress = Math.min(elapsed / duration, 1);
 
     if (anim.type === "zoom-in") {
@@ -274,44 +277,30 @@ export function useFaceNavigation({
         requestAnimationFrame(() => onZoomOutCompleteRef.current?.(finalState));
       }
     } else if (anim.type === "switch") {
-      // 3-phase switch: zoom-out (0–0.35), rotate (0.35–0.65), zoom-in (0.65–1)
-      const PHASE1_END = 0.35;
-      const PHASE2_END = 0.65;
+      const t = easeInOutQuint(progress);
+      const omt = 1 - t;
 
-      if (progress < PHASE1_END) {
-        // Phase 1: Zoom out from source face
-        const phaseT = progress / PHASE1_END;
-        const eased = easeInOutQuint(phaseT);
-        const camT = 1 - eased; // 1 → 0 (zoomed → home)
-        mesh.quaternion.slerpQuaternions(anim.fromUprightQuat, anim.midQuat, eased);
-        camera.position.lerpVectors(CAMERA_VEC, anim.fromZoomTarget, camT);
-        camera.up.copy(cameraUp);
-        const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.fromZoomLookAt, camT);
-        camera.lookAt(lookAt);
-      } else if (progress < PHASE2_END) {
-        // Phase 2: Rotate from source orientation to target orientation (camera at home)
-        const phaseT = (progress - PHASE1_END) / (PHASE2_END - PHASE1_END);
-        const eased = easeInOutQuint(phaseT);
-        mesh.quaternion.slerpQuaternions(anim.midQuat, anim.toUprightQuat, eased);
-        camera.position.copy(CAMERA_VEC);
-        camera.up.copy(cameraUp);
-        camera.lookAt(0, 0, 0);
-      } else {
-        // Phase 3: Zoom in to target face
-        const phaseT = (progress - PHASE2_END) / (1 - PHASE2_END);
-        const eased = easeInOutQuint(phaseT);
-        mesh.quaternion.slerpQuaternions(anim.toUprightQuat, anim.toUprightQuat, eased);
-        camera.position.lerpVectors(CAMERA_VEC, anim.toZoomTarget, eased);
-        camera.up.copy(cameraUp);
-        const lookAt = new THREE.Vector3(0, 0, 0).lerp(anim.toZoomLookAt, eased);
-        camera.lookAt(lookAt);
-      }
+      // Rotation: direct slerp (middle-weighted via easeInOutQuint)
+      mesh.quaternion.slerpQuaternions(anim.fromUprightQuat, anim.toUprightQuat, t);
+
+      // Camera: quadratic Bezier arc
+      camera.position.set(0, 0, 0)
+        .addScaledVector(anim.fromZoomTarget, omt * omt)
+        .addScaledVector(anim.controlPos, 2 * omt * t)
+        .addScaledVector(anim.toZoomTarget, t * t);
+      camera.up.copy(cameraUp);
+
+      // LookAt: Bezier from source lookAt through origin to target lookAt
+      const lookAt = new THREE.Vector3(0, 0, 0)
+        .addScaledVector(anim.fromZoomLookAt, omt * omt)
+        .addScaledVector(anim.controlLookAt, 2 * omt * t)
+        .addScaledVector(anim.toZoomLookAt, t * t);
+      camera.lookAt(lookAt);
 
       if (progress >= 1) {
         const targetId = anim.targetFaceId;
         animRef.current = null;
         isAnimating.current = false;
-        // Defer callback to avoid React state updates inside R3F render loop
         requestAnimationFrame(() => onSwitchCompleteRef.current?.(targetId));
       }
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getVisitedCount } from "@/lib/visited-faces";
+import { usePersistentCube } from "./PersistentCubeProvider";
 
 function formatTimestamp(): string {
   const now = new Date();
@@ -16,6 +17,7 @@ function formatTimestamp(): string {
 }
 
 export function CubeHud() {
+  const { zoomingIn } = usePersistentCube();
   const [timestamp, setTimestamp] = useState("");
   const [visitedCount, setVisitedCount] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -34,7 +36,7 @@ export function CubeHud() {
     return () => clearInterval(interval);
   }, []);
 
-  if (!mounted) {
+  if (!mounted || zoomingIn) {
     return null;
   }
 

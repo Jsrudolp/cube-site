@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans, Fanwood_Text, Metal } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { PersistentCubeProvider } from "@/components/cube";
@@ -47,6 +47,18 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
 });
 
+const fanwoodText = Fanwood_Text({
+  variable: "--font-fanwood-text",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const metal = Metal({
+  variable: "--font-metal",
+  weight: "400",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Jake Rudolph",
   description:
@@ -61,7 +73,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} antialiased`}
       >
         <PersistentCubeProvider>{children}</PersistentCubeProvider>
       </body>

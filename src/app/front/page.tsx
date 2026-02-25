@@ -6,7 +6,7 @@ const pill = { scale: 0.75, verticalOffset: 0, shineWhite: true, shineDuration: 
 export default function FrontPage() {
   return (
     <FaceLayout faceId="front" className="bg-[#FFFFFF] text-[#434343]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-      <div className="mx-auto px-5 sm:px-7 pb-12 max-w-[52rem] text-[15px] sm:text-[18px] leading-[1.4]">
+      <div className="mx-auto px-5 sm:px-7 pt-16 pb-12 max-w-[52rem] text-[15px] sm:text-[18px] leading-[1.4]">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
           <h1 className="text-[24px] sm:text-[32px] tracking-tight leading-[1.1]">
