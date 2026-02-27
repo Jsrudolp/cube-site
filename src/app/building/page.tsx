@@ -37,7 +37,7 @@ interface SectionData {
   title: string;
   subtitle: string;
   description: string;
-  projects: { name: string; description: string }[];
+  projects: { name: string; company?: string; description: string; icon?: string }[];
   bgColor: string;
   layout: "text-left" | "text-right";
   cursor: string; // path to cursor SVG
@@ -70,10 +70,10 @@ const SECTIONS: SectionData[] = [
     title: "Discovery",
     subtitle: "The secret weapon of doing great work",
     description:
-      "Discovery is about understanding the world and choosing to solve problems that matter. Sometimes that means talking to hundreds of users to understand their burning priorities. Other times I\u2019m embedded into a team as a forward-deployed engineer, ethnographically observing workflow friction, or building and testing in the field right away to validate risky assumptions. The goal in all cases is identifying the small set of problems that drive most of the impact.",
+      "Discovery is about understanding the world and choosing to solve problems that matter. Sometimes that means talking to hundreds of users to understand their top-of-list priorities. Other times I\u2019m embedded into a team as a forward-deployed engineer, ethnographically observing workflow friction, or building and testing in the field right away to validate risky assumptions. The goal in all cases is identifying the small set of problems that drive most of the impact.",
     projects: [
-      { name: "Wygo", description: "Mapped the core friction points for community builders before a single feature was scoped." },
-      { name: "Alma Care", description: "Embedded with the team, shadowing workflows while building, so the product reflected what I observed rather than what was simply requested." },
+      { name: "Finding a unique proposition with PMF interviews", company: "Wygo", description: "Interviewed dozens of indie, revenue-generating community builders to understand barriers to their growth and profitability.", icon: "/building-cursors/magnify-icon.svg" },
+      { name: "Forward-deploying to build a system for scale", company: "Alma Care", description: "Migrated operations-intensive team from Google Sheets to a comprehensive data model by building domain expertise and identifying time-sink workflows.", icon: "/building-cursors/clipboard-icon.svg" },
     ],
     bgColor: "#F2B188",
     layout: "text-left",
@@ -86,8 +86,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My first foray into visual design started with urgently needing a poster for an event I was running, so I made one myself. I started with an idea in my head, but learned that without a crisp font, good textures, and a coherent colour palette, it fell flat. To me, design is about making small decisions that iteratively compound, whether that\u2019s for poster design, digital product, physical prototypes or IRL experiences. Good design means good judgement.",
     projects: [
-      { name: "Kindred Care Plan", description: "Short description of what was designed and why it mattered." },
-      { name: "Event Posters", description: "Short description of what was designed and why it mattered." },
+      { name: "Kindred Care Plan", description: "Short description of what was designed and why it mattered.", icon: "/building-cursors/caliper-icon.svg" },
+      { name: "Event Posters", description: "Short description of what was designed and why it mattered.", icon: "/building-cursors/compass-icon.svg" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -100,8 +100,8 @@ const SECTIONS: SectionData[] = [
     description:
       "I\u2019ve always been drawn to \u2018building\u2019 over \u2018syntax\u2019 and adopted a slew of low/no-code tools like Bubble, Zapier and Airtable. As agentic development has improved, I started building better and faster, directly in code instead. This site was built with Claude Code. I\u2019ve shipped real products too, building the end-to-end product for a Simple Ventures startup that signed and piloted with 5 enterprise customers.",
     projects: [
-      { name: "Kindred MVP", description: "Short description of what was built and the scope of the work." },
-      { name: "Zero Collective Handbags", description: "Short description of what was built and the scope of the work." },
+      { name: "Kindred MVP", description: "Short description of what was built and the scope of the work.", icon: "/building-cursors/saw-icon.png" },
+      { name: "Zero Collective Handbags", description: "Short description of what was built and the scope of the work.", icon: "/building-cursors/wrench-icon.png" },
     ],
     bgColor: "#D7D9DC",
     layout: "text-left",
@@ -114,8 +114,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My favourite thing about business and products is that shipping is just the beginning, not the end. I strongly believe in combining qualitative and quantitative signals, talking to real users, root-causing support tickets, tracking product analytics, to measure AND understand what could be better. For me, feedback data has been a springboard for my most impactful ideas. I\u2019m also not afraid of cutting low-impact, low-performing work to remove bloat and sharpen focus.",
     projects: [
-      { name: "Outschool Sunsetting", description: "Short description of how feedback shaped the product direction." },
-      { name: "Socratica Surveys", description: "Short description of how feedback shaped the product direction." },
+      { name: "Outschool Sunsetting", description: "Short description of how feedback shaped the product direction.", icon: "/building-cursors/pliers-icon.png" },
+      { name: "Socratica Surveys", description: "Short description of how feedback shaped the product direction.", icon: "/building-cursors/measuring-icon.png" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -128,8 +128,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My first priority when joining a new company is always to figure out \u201chow do they make money?\u201d I\u2019ve spent time in business metric meetings I wasn\u2019t required to attend, followed the threads of CEO and manager Slack messages to understand their priorities, and learned deeply about unit economics and go-to-market wedges. I care about building something that actually works as a business, sustainably. That means thinking about path to profitability, defensibility, and how the product reaches people.",
     projects: [
-      { name: "Simple Ventures Memos", description: "Short description of the business context and what was at stake." },
-      { name: "Outschool Positioning", description: "Short description of the business context and what was at stake." },
+      { name: "Simple Ventures Memos", description: "Short description of the business context and what was at stake.", icon: "/building-cursors/printer-icon.svg" },
+      { name: "Outschool Positioning", description: "Short description of the business context and what was at stake.", icon: "/building-cursors/positioning-icon.svg" },
     ],
     bgColor: "#F2BDB4",
     layout: "text-left",
@@ -238,7 +238,7 @@ interface LayoutConfig {
 
 const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   hero: { height: 85, titleSize: 48, imgWidth: 500, imgHeight: 400, imgMarginTop: 90 },
-  section: { titleSize: 52, subtitleSize: 20, bodySize: 18, tagSize: 14, gapX: 64, maxWidth: 1332 },
+  section: { titleSize: 52, subtitleSize: 20, bodySize: 16, tagSize: 13, gapX: 64, maxWidth: 1300 },
 };
 
 interface DecorationConfig {
@@ -506,6 +506,110 @@ function SectionDecorationOverlay({
 }
 
 // ---------------------------------------------------------------------------
+// Wooden frame + discovery mosaic
+// ---------------------------------------------------------------------------
+
+function PinnedImage({ label, aspectRatio = "4/3", src, rotate = 0 }: { label: string; aspectRatio?: string; src?: string; rotate?: number }) {
+  return (
+    <div className="relative pt-5" style={{ transform: `rotate(${rotate}deg)` }}>
+      {/* Nail — sits on top of image */}
+      <div className="absolute left-1/2 z-10" style={{ top: 10, transform: "translateX(-50%)" }}>
+        <svg width="14" height="20" viewBox="0 0 14 20">
+          <circle cx="7" cy="5" r="4" fill="#888" stroke="#666" strokeWidth="1" />
+          <line x1="7" y1="9" x2="7" y2="19" stroke="#666" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
+      {/* Image */}
+      <div style={{ aspectRatio, filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+        {src
+          ? <img src={src} alt={label} className="w-full h-full object-cover" />
+          : <div className="w-full h-full bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
+              <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
+            </div>
+        }
+      </div>
+    </div>
+  );
+}
+
+
+function StapledImage({ label, src, staplePositions = [0.5] }: {
+  label: string;
+  src?: string;
+  staplePositions?: number[];
+}) {
+  return (
+    <div className="relative" style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+      {staplePositions.map((pos, i) => (
+        <div key={i} className="absolute z-10" style={{ top: 10, left: `${pos * 100}%`, transform: "translateX(-50%)" }}>
+          <svg width="32" height="3" viewBox="0 0 32 3">
+            <defs>
+              <linearGradient id={`stapleGradDM-${label}-${i}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#2B2B2B" />
+                <stop offset="53%" stopColor="#919191" />
+                <stop offset="100%" stopColor="#2B2B2B" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="32" height="3" rx="0.5" fill={`url(#stapleGradDM-${label}-${i})`} />
+          </svg>
+        </div>
+      ))}
+      {src
+        ? <img src={src} alt={label} className="w-full h-auto block" />
+        : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
+            <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
+          </div>
+      }
+    </div>
+  );
+}
+
+function DesignMosaic() {
+  return (
+    <div className="relative w-full flex flex-col gap-5 px-2">
+      {/* Top row: bottom-aligned — stagger comes naturally from height diff.
+          Shifted right ~10% so row 2 (full-width) extends further left. */}
+      <div className="flex gap-6 items-end" style={{ paddingLeft: "10%", paddingRight: "8%" }}>
+        <div style={{ flex: "0 0 65%" }}>
+          <StapledImage label="KindredCarePlan" src="/building-images/design-1.png" staplePositions={[0.28, 0.72]} />
+        </div>
+        <div style={{ flex: "1" }}>
+          <StapledImage label="EventPoster" src="/building-images/design-2.png" staplePositions={[0.5]} />
+        </div>
+      </div>
+      {/* Bottom row: top-aligned, full width — design-5 shifted up to extend past the top row */}
+      <div className="flex gap-5 items-start">
+        <div style={{ flex: "0 0 24%" }}>
+          <StapledImage label="DesignWork3" src="/building-images/design-3.png" staplePositions={[0.5]} />
+        </div>
+        <div style={{ flex: "0 0 30%" }}>
+          <StapledImage label="DesignWork4" src="/building-images/design-4.png" staplePositions={[0.5]} />
+        </div>
+        <div style={{ flex: "1" }}>
+          <StapledImage label="DesignWork5" src="/building-images/design-5.png" staplePositions={[0.28, 0.72]} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DiscoveryMosaic() {
+  return (
+    <div className="relative w-full flex gap-6 px-4">
+      {/* Left column */}
+      <div className="flex flex-col gap-8" style={{ flex: "0 0 55%" }}>
+        <PinnedImage label="Sun Life Interviews" aspectRatio="4/3" src="/building-images/discovery-1.png" rotate={-1.5} />
+        <PinnedImage label="Wygo interviews" aspectRatio="4/3" src="/building-images/discovery-3.png" rotate={1.2} />
+      </div>
+      {/* Right column — offset down */}
+      <div style={{ flex: "0 0 40%", paddingTop: "35%" }}>
+        <PinnedImage label="Alma Care workflows" aspectRatio="3/4" src="/building-images/discovery-4.png" rotate={-0.8} />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Section panel component
 // ---------------------------------------------------------------------------
 
@@ -516,12 +620,14 @@ function SectionPanel({
   stickyRef,
   addDecoration,
   layoutConfig,
+  imageContent,
 }: {
   section: SectionData;
   cursorOverride?: string;
   onAfterDecoration?: (tool: ToolType, x: number, y: number, result: "started" | "completed" | "placed") => void;
   stickyRef?: React.RefObject<HTMLDivElement | null>;
   addDecoration?: (tool: ToolType, x: number, y: number, sectionId: string) => "started" | "completed" | "placed";
+  imageContent?: React.ReactNode;
   layoutConfig?: LayoutConfig["section"];
 }) {
   const isTextLeft = section.layout === "text-left";
@@ -543,7 +649,7 @@ function SectionPanel({
 
   return (
     <div
-      className="h-full w-full flex flex-col justify-center px-6 sm:px-12 md:px-20"
+      className="h-full w-full flex flex-col justify-center px-8 sm:px-12 md:px-16"
       style={{
         backgroundColor: section.bgColor,
         cursor: `url('${cursorSvg}') 24 24, auto`,
@@ -578,17 +684,20 @@ function SectionPanel({
               {section.projects.map((project, i) => (
                 <div key={`${project.name}-${i}`} className="flex items-start gap-4 py-4 border-t border-foreground/10 first:border-t-0">
                   {/* Image */}
-                  <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 56, height: 56 }} />
+                  {project.icon
+                    ? <img src={project.icon} alt="" className="shrink-0 object-contain" style={{ width: 56, height: 56, filter: "drop-shadow(0px 2px 1px rgba(0,0,0,0.25))" }} />
+                    : <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 56, height: 56 }} />
+                  }
                   <div>
                     <p
-                      className="font-semibold font-[family-name:var(--font-fanwood-text)] mb-1"
+                      className="font-semibold font-[family-name:var(--font-lora)] mb-1"
                       style={{ fontSize: lc.bodySize }}
                     >
-                      {project.name}
+                      {project.name}{project.company && <span className="font-normal"> | {project.company}</span>}
                     </p>
                     <p
                       className="font-[family-name:var(--font-lora)] text-foreground/75 leading-snug"
-                      style={{ fontSize: lc.tagSize }}
+                      style={{ fontSize: lc.bodySize }}
                     >
                       {project.description}
                     </p>
@@ -600,10 +709,12 @@ function SectionPanel({
         </div>
 
         {/* Image */}
-        <div className="flex-1 min-w-0 flex items-center justify-center">
-          <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
-            <span className="text-sm text-foreground/30">Image / Collage</span>
-          </div>
+        <div className="flex-1 min-w-0 hidden md:flex items-center justify-center">
+          {imageContent ?? (
+            <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
+              <span className="text-sm text-foreground/30">Image / Collage</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -818,7 +929,7 @@ export default function BuildingPage() {
         >
           {/* Base layers (revealed underneath sliders) — only one visible at a time */}
           <div ref={designRef} className="absolute inset-0" style={{ zIndex: 10, visibility: "hidden" }}>
-            <SectionPanel section={SECTIONS[1]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} />
+            <SectionPanel section={SECTIONS[1]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<DesignMosaic />} />
             <SectionDecorationOverlay sectionId="design" decorations={decorations["design"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={feedbackRef} className="absolute inset-0" style={{ zIndex: 10, visibility: "hidden" }}>
@@ -839,7 +950,7 @@ export default function BuildingPage() {
 
           {/* Slider layers — animate over the base layers */}
           <div ref={discoveryRef} className="absolute inset-0" style={{ zIndex: 30 }}>
-            <SectionPanel section={SECTIONS[0]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} />
+            <SectionPanel section={SECTIONS[0]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<DiscoveryMosaic />} />
             <SectionDecorationOverlay sectionId="discovery" decorations={decorations["discovery"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={engineeringRef} className="absolute inset-0" style={{ zIndex: 20, transform: "translateX(-100%)" }}>
