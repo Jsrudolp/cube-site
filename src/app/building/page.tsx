@@ -37,7 +37,7 @@ interface SectionData {
   title: string;
   subtitle: string;
   description: string;
-  tags: { discipline: string; labels: string[] }[];
+  projects: { name: string; description: string }[];
   bgColor: string;
   layout: "text-left" | "text-right";
   cursor: string; // path to cursor SVG
@@ -68,13 +68,12 @@ const SECTIONS: SectionData[] = [
   {
     id: "discovery",
     title: "Discovery",
-    subtitle: "the secret weapon of doing great work",
+    subtitle: "The secret weapon of doing great work",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "Discovery is about understanding the world and choosing to solve problems that matter. Sometimes that means talking to hundreds of users to understand their burning priorities. Other times I\u2019m embedded into a team as a forward-deployed engineer, ethnographically observing workflow friction, or building and testing in the field right away to validate risky assumptions. The goal in all cases is identifying the small set of problems that drive most of the impact.",
+    projects: [
+      { name: "Wygo", description: "Mapped the core friction points for community builders before a single feature was scoped." },
+      { name: "Alma Care", description: "Embedded with the team, shadowing workflows while building, so the product reflected what I observed rather than what was simply requested." },
     ],
     bgColor: "#F2B188",
     layout: "text-left",
@@ -83,28 +82,26 @@ const SECTIONS: SectionData[] = [
   {
     id: "design",
     title: "Design",
-    subtitle: "the sum of hundreds of small decisions",
+    subtitle: "The sum of hundreds of small decisions",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "My first foray into visual design started with urgently needing a poster for an event I was running, so I made one myself. I started with an idea in my head, but learned that without a crisp font, good textures, and a coherent colour palette, it fell flat. To me, design is about making small decisions that iteratively compound, whether that\u2019s for poster design, digital product, physical prototypes or IRL experiences. Good design means good judgement.",
+    projects: [
+      { name: "Kindred Care Plan", description: "Short description of what was designed and why it mattered." },
+      { name: "Event Posters", description: "Short description of what was designed and why it mattered." },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
-    cursor: CURSORS.tapeRoll,
+    cursor: CURSORS.staples,
   },
   {
     id: "engineering",
     title: "Engineering",
     subtitle: "AI-native development from technical foundations",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "I\u2019ve always been drawn to \u2018building\u2019 over \u2018syntax\u2019 and adopted a slew of low/no-code tools like Bubble, Zapier and Airtable. As agentic development has improved, I started building better and faster, directly in code instead. This site was built with Claude Code. I\u2019ve shipped real products too, building the end-to-end product for a Simple Ventures startup that signed and piloted with 5 enterprise customers.",
+    projects: [
+      { name: "Kindred MVP", description: "Short description of what was built and the scope of the work." },
+      { name: "Zero Collective Handbags", description: "Short description of what was built and the scope of the work." },
     ],
     bgColor: "#D7D9DC",
     layout: "text-left",
@@ -113,28 +110,26 @@ const SECTIONS: SectionData[] = [
   {
     id: "feedback-systems",
     title: "Feedback Systems",
-    subtitle: "compounding what works, sunsetting what doesn\u2019t",
+    subtitle: "Compounding what works, sunsetting what doesn\u2019t",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "My favourite thing about business and products is that shipping is just the beginning, not the end. I strongly believe in combining qualitative and quantitative signals, talking to real users, root-causing support tickets, tracking product analytics, to measure AND understand what could be better. For me, feedback data has been a springboard for my most impactful ideas. I\u2019m also not afraid of cutting low-impact, low-performing work to remove bloat and sharpen focus.",
+    projects: [
+      { name: "Outschool Sunsetting", description: "Short description of how feedback shaped the product direction." },
+      { name: "Socratica Surveys", description: "Short description of how feedback shaped the product direction." },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
-    cursor: CURSORS.staples,
+    cursor: CURSORS.tapeRoll,
   },
   {
     id: "business-sense",
     title: "Business Sense",
-    subtitle: "creating value, not just products",
+    subtitle: "Creating value, not just products",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "My first priority when joining a new company is always to figure out \u201chow do they make money?\u201d I\u2019ve spent time in business metric meetings I wasn\u2019t required to attend, followed the threads of CEO and manager Slack messages to understand their priorities, and learned deeply about unit economics and go-to-market wedges. I care about building something that actually works as a business, sustainably. That means thinking about path to profitability, defensibility, and how the product reaches people.",
+    projects: [
+      { name: "Simple Ventures Memos", description: "Short description of the business context and what was at stake." },
+      { name: "Outschool Positioning", description: "Short description of the business context and what was at stake." },
     ],
     bgColor: "#F2BDB4",
     layout: "text-left",
@@ -143,13 +138,13 @@ const SECTIONS: SectionData[] = [
   {
     id: "scrappiness",
     title: "Scrappiness",
-    subtitle: "everything else that it takes",
+    subtitle: "Everything else that it takes",
     description:
-      "At Simple Ventures, we\u2019ve traditionally skewed towards stringing together low/no-code tools to build MVPs and validate quickly. But, with significant advancements in AI code generation, and a product with high security-compliance needs, we chose to build.",
-    tags: [
-      { discipline: "PRODUCT", labels: ["Long-Term Vision", "Long-Term Vision"] },
-      { discipline: "ENGINEERING", labels: ["Long-Term Vision"] },
-      { discipline: "DESIGN", labels: ["Long-Term Vision"] },
+      "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, driving two hours to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous.",
+    projects: [
+      { name: "Hustling for Customers", description: "Short description of the scrappy work that got it done." },
+      { name: "$90 Intermission", description: "Short description of the scrappy work that got it done." },
+      { name: "Cleaning Data", description: "Short description of the scrappy work that got it done." },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -422,6 +417,69 @@ function TapePreview({ anchor, stickyRef, decoConfig }: { anchor: { x: number; y
   return <TapeStrip x1={anchor.x} y1={anchor.y} x2={mouse.x} y2={mouse.y} config={decoConfig.tape} />;
 }
 
+function CardPin({ tool }: { tool: ToolType }) {
+  switch (tool) {
+    case "nail":
+      return (
+        <div className="absolute left-1/2 z-10" style={{ top: -18, transform: "translateX(-50%)" }}>
+          <svg width="14" height="20" viewBox="0 0 14 20">
+            <circle cx="7" cy="5" r="4" fill="#888" stroke="#666" strokeWidth="1" />
+            <line x1="7" y1="9" x2="7" y2="19" stroke="#666" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+      );
+    case "staple":
+      return (
+        <div className="absolute left-1/2 z-10" style={{ top: -2, transform: "translateX(-50%)" }}>
+          <svg width="32" height="3" viewBox="0 0 32 3">
+            <defs>
+              <linearGradient id="stapleGradPin" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#2B2B2B" />
+                <stop offset="53%" stopColor="#919191" />
+                <stop offset="100%" stopColor="#2B2B2B" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="32" height="3" rx="0.5" fill="url(#stapleGradPin)" />
+          </svg>
+        </div>
+      );
+    case "screw":
+      return (
+        <div className="absolute left-1/2 z-10" style={{ top: -12, transform: "translateX(-50%)" }}>
+          <svg width="18" height="18" viewBox="0 0 18 18">
+            <defs>
+              <radialGradient id="screwGradPin" cx="40%" cy="35%" r="55%">
+                <stop offset="0%" stopColor="#d0d0d0" />
+                <stop offset="60%" stopColor="#a0a0a0" />
+                <stop offset="100%" stopColor="#606060" />
+              </radialGradient>
+            </defs>
+            <circle cx="9" cy="9" r="8" fill="url(#screwGradPin)" />
+            <rect x="6.5" y="3" width="5" height="12" rx="1" fill="#101010" />
+            <rect x="3" y="6.5" width="12" height="5" rx="1" fill="#101010" />
+          </svg>
+        </div>
+      );
+    case "tape":
+      return (
+        <div className="absolute left-1/2 z-10" style={{ top: -10, transform: "translateX(-50%)", width: 52, height: 18, background: "rgba(210,198,175,0.55)", borderRadius: 2 }} />
+      );
+    case "stitch":
+      return (
+        <div className="absolute left-1/2 z-10" style={{ top: -14, transform: "translateX(-50%)" }}>
+          <svg width="16" height="16" viewBox="0 0 16 16">
+            <line x1="2" y1="2" x2="14" y2="14" stroke="#8b1a1a" strokeWidth="2" strokeLinecap="round" />
+            <line x1="14" y1="2" x2="2" y2="14" stroke="#8b1a1a" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="2" cy="2" r="1.5" fill="#3d0c0c" />
+            <circle cx="14" cy="2" r="1.5" fill="#3d0c0c" />
+            <circle cx="2" cy="14" r="1.5" fill="#3d0c0c" />
+            <circle cx="14" cy="14" r="1.5" fill="#3d0c0c" />
+          </svg>
+        </div>
+      );
+  }
+}
+
 function SectionDecorationOverlay({
   sectionId,
   decorations,
@@ -499,43 +557,49 @@ function SectionPanel({
         {/* Text column */}
         <div className="flex-1 min-w-0">
           <h2
-            className="font-normal mb-2 font-[family-name:var(--font-fanwood-text)]"
-            style={{ fontSize: lc.titleSize }}
+            className="font-normal mb-1 font-[family-name:var(--font-fanwood-text)]"
+            style={{ fontSize: lc.titleSize, lineHeight: 1.1 }}
           >
             {section.title}
           </h2>
           <p
-            className="italic text-foreground/60 mb-6 font-[family-name:var(--font-metal)]"
+            className="italic text-foreground/80 mb-8 font-[family-name:var(--font-fanwood-text)]"
             style={{ fontSize: lc.subtitleSize }}
           >
             {section.subtitle}
           </p>
-          <p className="leading-relaxed mb-6" style={{ fontSize: lc.bodySize }}>
+          <p className="leading-relaxed mb-6 font-[family-name:var(--font-lora)]" style={{ fontSize: lc.bodySize }}>
             {section.description}
           </p>
-          {section.tags.length > 0 && (
-            <div className="space-y-2">
-              {section.tags.map((group) => (
-                <div key={group.discipline} className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold uppercase tracking-wide" style={{ fontSize: lc.tagSize }}>
-                    {group.discipline}
-                  </span>
-                  {group.labels.map((label, i) => (
-                    <span
-                      key={`${label}-${i}`}
-                      className="px-2 py-0.5 rounded-full border border-foreground/20 bg-foreground/5"
+
+          {/* Project callouts */}
+          {section.projects.length > 0 && (
+            <div>
+              {section.projects.map((project, i) => (
+                <div key={`${project.name}-${i}`} className="flex items-start gap-4 py-4 border-t border-foreground/10 first:border-t-0">
+                  {/* Image */}
+                  <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 56, height: 56 }} />
+                  <div>
+                    <p
+                      className="font-semibold font-[family-name:var(--font-fanwood-text)] mb-1"
+                      style={{ fontSize: lc.bodySize }}
+                    >
+                      {project.name}
+                    </p>
+                    <p
+                      className="font-[family-name:var(--font-lora)] text-foreground/75 leading-snug"
                       style={{ fontSize: lc.tagSize }}
                     >
-                      {label}
-                    </span>
-                  ))}
+                      {project.description}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Image placeholder */}
+        {/* Image */}
         <div className="flex-1 min-w-0 flex items-center justify-center">
           <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
             <span className="text-sm text-foreground/30">Image / Collage</span>
@@ -711,7 +775,7 @@ export default function BuildingPage() {
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <polygon points="0,62 100,73 100,103 0,103" fill="#F2B188" />
+          <polygon points="0,58 100,78 100,103 0,103" fill="#F2B188" />
         </svg>
 
         {/* Content — centered over both backgrounds */}

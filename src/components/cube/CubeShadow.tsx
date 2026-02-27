@@ -6,7 +6,7 @@ export function CubeShadow() {
   return (
     <ContactShadows
       position={[0, -2.0, 0]}
-      opacity={0.3}
+      opacity={0.2}
       scale={8}
       blur={3}
       far={5}

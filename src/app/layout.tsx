@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans, Fanwood_Text, Metal } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans, Fanwood_Text, Metal, Lora } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { PersistentCubeProvider } from "@/components/cube";
@@ -50,12 +50,18 @@ const dmSans = DM_Sans({
 const fanwoodText = Fanwood_Text({
   variable: "--font-fanwood-text",
   weight: "400",
+  style: ["normal", "italic"],
   subsets: ["latin"],
 });
 
 const metal = Metal({
   variable: "--font-metal",
   weight: "400",
+  subsets: ["latin"],
+});
+
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
 });
 
@@ -73,7 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} ${lora.variable} antialiased`}
       >
         <PersistentCubeProvider>{children}</PersistentCubeProvider>
       </body>
