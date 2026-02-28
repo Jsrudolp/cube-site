@@ -140,11 +140,11 @@ const SECTIONS: SectionData[] = [
     title: "Scrappiness",
     subtitle: "Everything else that it takes",
     description:
-      "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, driving two hours to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous.",
+      "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, driving two hours to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous, but I do it anyways.",
     projects: [
-      { name: "Hustling for Customers", description: "Short description of the scrappy work that got it done." },
-      { name: "$90 Intermission", description: "Short description of the scrappy work that got it done." },
-      { name: "Cleaning Data", description: "Short description of the scrappy work that got it done." },
+      { name: "Hustling for Customers", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/gluegun-icon.svg" },
+      { name: "$90 Intermission", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/pylon-icon.svg" },
+      { name: "Cleaning Data", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/sponge-icon.svg" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -509,6 +509,106 @@ function SectionDecorationOverlay({
 // Wooden frame + discovery mosaic
 // ---------------------------------------------------------------------------
 
+function TapedImage({ label, src }: { label: string; src?: string }) {
+  const cfg = DEFAULT_TAPE_CONFIG; // height=28, fillColor="#e0e0e0", fillOpacity=0.5
+  const tapeW = 80;
+  const pad = (cfg.height - 16) / 2; // = 6
+  const svgH = cfg.height + 4; // = 32
+  const yTop = 2 - pad; // = -4 (matches TapeStrip exactly)
+  return (
+    <div className="relative">
+      {/* Tape — identical rendering to TapeStrip */}
+      <div className="absolute left-1/2 z-10" style={{ top: -(svgH / 2), transform: "translateX(-50%)", filter: `drop-shadow(${cfg.shadowX}px ${cfg.shadowY}px ${cfg.shadowBlur}px rgba(0,0,0,${cfg.shadowOpacity}))` }}>
+        <svg width={tapeW} height={svgH} viewBox={`0 0 ${tapeW} ${svgH}`}>
+          <path d={buildSerratedPath(tapeW, cfg.height, yTop, 3)} fill={cfg.fillColor} fillOpacity={cfg.fillOpacity} />
+        </svg>
+      </div>
+      <div style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.15)) drop-shadow(0px 1px 2px rgba(0,0,0,0.08))" }}>
+        {src
+          ? <img src={src} alt={label} className="w-full h-auto block" style={{ borderRadius: 6 }} />
+          : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3" style={{ borderRadius: 6 }}>
+              <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
+            </div>
+        }
+      </div>
+    </div>
+  );
+}
+
+function FeedbackMosaic() {
+  return (
+    <div className="relative w-full flex gap-8 px-12">
+      {/* Left column: wider (51%), offset down ~13% */}
+      <div className="flex flex-col gap-12" style={{ flex: "0 0 51%", paddingTop: "13%" }}>
+        <TapedImage label="OutschoolMetrics" src="/building-images/feedback-1.png" />
+        <div style={{ paddingLeft: "6%", paddingRight: "6%" }}>
+          <TapedImage label="QualFeedback" src="/building-images/feedback-3.png" />
+        </div>
+      </div>
+      {/* Right column: starts at top */}
+      <div className="flex flex-col gap-10" style={{ flex: "1" }}>
+        <TapedImage label="SocraticaSurvey" src="/building-images/feedback-2.png" />
+        <TapedImage label="QuantFeedback" src="/building-images/feedback-4.png" />
+      </div>
+    </div>
+  );
+}
+
+const SCREW_SIZE = 20;
+const SCREW_INSET = 26; // distance from edge to screw center
+
+function CornerScrew({ uid }: { uid: string }) {
+  const s = SCREW_SIZE;
+  const safeUid = uid.replace(/\s+/g, "-");
+  return (
+    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`}>
+      <defs>
+        <radialGradient id={`screwGradCorner-${safeUid}`} cx="40%" cy="35%" r="55%">
+          <stop offset="0%" stopColor="#d0d0d0" />
+          <stop offset="60%" stopColor="#a0a0a0" />
+          <stop offset="100%" stopColor="#606060" />
+        </radialGradient>
+      </defs>
+      <circle cx={s / 2} cy={s / 2} r={s / 2 - 0.5} fill={`url(#screwGradCorner-${safeUid})`} />
+      <rect x={(s - 4) / 2} y={(s - 10) / 2} width={4} height={10} rx={0.5} fill="#101010" />
+      <rect x={(s - 10) / 2} y={(s - 4) / 2} width={10} height={4} rx={0.5} fill="#101010" />
+    </svg>
+  );
+}
+
+function ScrewedImage({ label, src }: { label: string; src?: string }) {
+  const o = SCREW_INSET - SCREW_SIZE / 2; // positions screw center at SCREW_INSET from edge
+  return (
+    <div className="relative" style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+      <div style={{ borderRadius: 6, overflow: "hidden" }}>
+        {src
+          ? <img src={src} alt={label} className="w-full h-auto block" />
+          : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
+              <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
+            </div>
+        }
+      </div>
+      <div className="absolute z-10" style={{ top: o, left: o }}><CornerScrew uid={`${label}-tl`} /></div>
+      <div className="absolute z-10" style={{ top: o, right: o }}><CornerScrew uid={`${label}-tr`} /></div>
+      <div className="absolute z-10" style={{ bottom: o, left: o }}><CornerScrew uid={`${label}-bl`} /></div>
+      <div className="absolute z-10" style={{ bottom: o, right: o }}><CornerScrew uid={`${label}-br`} /></div>
+    </div>
+  );
+}
+
+function EngineeringMosaic() {
+  return (
+    <div className="relative w-full flex flex-col gap-8 px-10">
+      <div style={{ paddingRight: "25%" }}>
+        <ScrewedImage label="KindredMVP" src="/building-images/engineering-1.png" />
+      </div>
+      <div style={{ paddingLeft: "25%" }}>
+        <ScrewedImage label="ArchDiagram" src="/building-images/engineering-2.png" />
+      </div>
+    </div>
+  );
+}
+
 function PinnedImage({ label, aspectRatio = "4/3", src, rotate = 0 }: { label: string; aspectRatio?: string; src?: string; rotate?: number }) {
   return (
     <div className="relative pt-5" style={{ transform: `rotate(${rotate}deg)` }}>
@@ -520,10 +620,10 @@ function PinnedImage({ label, aspectRatio = "4/3", src, rotate = 0 }: { label: s
         </svg>
       </div>
       {/* Image */}
-      <div style={{ aspectRatio, filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+      <div style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
         {src
-          ? <img src={src} alt={label} className="w-full h-full object-cover" />
-          : <div className="w-full h-full bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
+          ? <img src={src} alt={label} className="w-full h-auto block" style={{ borderRadius: 6 }} />
+          : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
               <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
             </div>
         }
@@ -538,28 +638,31 @@ function StapledImage({ label, src, staplePositions = [0.5] }: {
   src?: string;
   staplePositions?: number[];
 }) {
+  const safeId = label.replace(/\s+/g, "-");
   return (
-    <div className="relative" style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+    <div className="relative">
       {staplePositions.map((pos, i) => (
         <div key={i} className="absolute z-10" style={{ top: 10, left: `${pos * 100}%`, transform: "translateX(-50%)" }}>
           <svg width="32" height="3" viewBox="0 0 32 3">
             <defs>
-              <linearGradient id={`stapleGradDM-${label}-${i}`} x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id={`stapleGradDM-${safeId}-${i}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#2B2B2B" />
                 <stop offset="53%" stopColor="#919191" />
                 <stop offset="100%" stopColor="#2B2B2B" />
               </linearGradient>
             </defs>
-            <rect x="0" y="0" width="32" height="3" rx="0.5" fill={`url(#stapleGradDM-${label}-${i})`} />
+            <rect x="0" y="0" width="32" height="3" rx="0.5" fill={`url(#stapleGradDM-${safeId}-${i})`} />
           </svg>
         </div>
       ))}
-      {src
-        ? <img src={src} alt={label} className="w-full h-auto block" />
-        : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
-            <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
-          </div>
-      }
+      <div style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
+        {src
+          ? <img src={src} alt={label} className="w-full h-auto block" style={{ borderRadius: 6 }} />
+          : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-end p-3">
+              <p className="italic font-[family-name:var(--font-fanwood-text)] text-foreground/40" style={{ fontSize: 12 }}>{label}</p>
+            </div>
+        }
+      </div>
     </div>
   );
 }
@@ -588,6 +691,30 @@ function DesignMosaic() {
         <div style={{ flex: "1" }}>
           <StapledImage label="DesignWork5" src="/building-images/design-5.png" staplePositions={[0.28, 0.72]} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ScrappinessMosaic() {
+  return (
+    <div className="relative w-full flex flex-col gap-6 px-4">
+      {/* Row 1: taped */}
+      <div style={{ paddingLeft: "8%", paddingRight: "8%" }}>
+        <TapedImage label="HudZah shoutout" src="/building-images/scrappy-1.png" />
+      </div>
+      {/* Row 2: pinned (left) + screwed (right) */}
+      <div className="flex gap-6 items-start">
+        <div style={{ flex: "0 0 58%", transform: "rotate(0.6deg)" }}>
+          <PinnedImage label="Socratica review" src="/building-images/scrappy-2.png" rotate={0} />
+        </div>
+        <div style={{ flex: "1", paddingTop: "8%", transform: "rotate(-1.2deg)" }}>
+          <ScrewedImage label="Rachel beast mode" src="/building-images/scrappy-3.png" />
+        </div>
+      </div>
+      {/* Row 3: stapled */}
+      <div style={{ paddingLeft: "8%", paddingRight: "8%" }}>
+        <StapledImage label="Farewell messages" src="/building-images/scrappy-4.png" staplePositions={[0.3, 0.7]} />
       </div>
     </div>
   );
@@ -933,7 +1060,7 @@ export default function BuildingPage() {
             <SectionDecorationOverlay sectionId="design" decorations={decorations["design"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={feedbackRef} className="absolute inset-0" style={{ zIndex: 10, visibility: "hidden" }}>
-            <SectionPanel section={SECTIONS[3]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} />
+            <SectionPanel section={SECTIONS[3]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<FeedbackMosaic />} />
             <SectionDecorationOverlay sectionId="feedback-systems" decorations={decorations["feedback-systems"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={scrappinessRef} className="absolute inset-0" style={{ zIndex: 10, visibility: "hidden" }}>
@@ -944,6 +1071,7 @@ export default function BuildingPage() {
               stickyRef={stickyRef}
               addDecoration={addDecoration}
               layoutConfig={layoutConfig.section}
+              imageContent={<ScrappinessMosaic />}
             />
             <SectionDecorationOverlay sectionId="scrappiness" decorations={decorations["scrappiness"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
@@ -954,7 +1082,7 @@ export default function BuildingPage() {
             <SectionDecorationOverlay sectionId="discovery" decorations={decorations["discovery"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={engineeringRef} className="absolute inset-0" style={{ zIndex: 20, transform: "translateX(-100%)" }}>
-            <SectionPanel section={SECTIONS[2]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} />
+            <SectionPanel section={SECTIONS[2]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<EngineeringMosaic />} />
             <SectionDecorationOverlay sectionId="engineering" decorations={decorations["engineering"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={businessRef} className="absolute inset-0" style={{ zIndex: 20, transform: "translateY(100%)" }}>
