@@ -6,7 +6,7 @@ import { setFavicon } from "@/lib/favicon";
 
 export default function Home() {
   useEffect(() => {
-    setFavicon("front");
+    void setFavicon("front");
   }, []);
 
   return (

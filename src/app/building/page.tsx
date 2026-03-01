@@ -86,8 +86,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My first foray into visual design started with urgently needing a poster for an event I was running, so I made one myself. I started with an idea in my head, but learned that without a crisp font, good textures, and a coherent colour palette, it fell flat. To me, design is about making small decisions that iteratively compound, whether that\u2019s for poster design, digital product, physical prototypes or IRL experiences. Good design means good judgement.",
     projects: [
-      { name: "Kindred Care Plan", description: "Short description of what was designed and why it mattered.", icon: "/building-cursors/caliper-icon.svg" },
-      { name: "Event Posters", description: "Short description of what was designed and why it mattered.", icon: "/building-cursors/compass-icon.svg" },
+      { name: "Designing for cognitive simplicity in healthcare", company: "Kindly", description: "Designed a care planner to reduce the cognitive load of healthcare management, with simplicity, flexibility and emergence as principles across employee and admin views.", icon: "/building-cursors/caliper-icon.svg" },
+      { name: "Turning around event visuals in under 24 hours to launch fast", company: "various", description: "Visual design for a range of community events, from 5-person workshops to 100-person gatherings. each poster built from scratch with a different creative brief.", icon: "/building-cursors/compass-icon.svg" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -100,8 +100,8 @@ const SECTIONS: SectionData[] = [
     description:
       "I\u2019ve always been drawn to \u2018building\u2019 over \u2018syntax\u2019 and adopted a slew of low/no-code tools like Bubble, Zapier and Airtable. As agentic development has improved, I started building better and faster, directly in code instead. This site was built with Claude Code. I\u2019ve shipped real products too, building the end-to-end product for a Simple Ventures startup that signed and piloted with 5 enterprise customers.",
     projects: [
-      { name: "Kindred MVP", description: "Short description of what was built and the scope of the work.", icon: "/building-cursors/saw-icon.png" },
-      { name: "Zero Collective Handbags", description: "Short description of what was built and the scope of the work.", icon: "/building-cursors/wrench-icon.png" },
+      { name: "Building an end-to-end MVP to pilot with enterprise customers", company: "Kindly", description: "As sole builder, shipped onboarding, authentication, landing pages, custom company configs, booking flows, transactional emails, a database with RLS, and internal ops tooling.", icon: "/building-cursors/saw-icon.png" },
+      { name: "Building a subscription management and checkout flow", company: "Zero Collective", description: "Architected a handbag selection and swap checkout, handling edge cases across subscription tiers, influencer accounts, paused and cancelled states, multiple subscriptions, and legacy pricing.", icon: "/building-cursors/wrench-icon.png" },
     ],
     bgColor: "#D7D9DC",
     layout: "text-left",
@@ -114,8 +114,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My favourite thing about business and products is that shipping is just the beginning, not the end. I strongly believe in combining qualitative and quantitative signals, talking to real users, root-causing support tickets, tracking product analytics, to measure AND understand what could be better. For me, feedback data has been a springboard for my most impactful ideas. I\u2019m also not afraid of cutting low-impact, low-performing work to remove bloat and sharpen focus.",
     projects: [
-      { name: "Outschool Sunsetting", description: "Short description of how feedback shaped the product direction.", icon: "/building-cursors/pliers-icon.png" },
-      { name: "Socratica Surveys", description: "Short description of how feedback shaped the product direction.", icon: "/building-cursors/measuring-icon.png" },
+      { name: "Pairing qual and quant to sunset a hyped feature", company: "Outschool", description: "User reactions to a new recommendations tool were lukewarm. Paired interview clips and quotes with conversion data to make the case for sunsetting it.", icon: "/building-cursors/pliers-icon.png" },
+      { name: "Designing feedback loops to run the world's best demo day", company: "Socratica", description: "Built a series of engaging surveys with org-value likerts for cross-event comparison, testimonial sourcing, and open-ended questions that shaped how we run Symposium.", icon: "/building-cursors/measuring-icon.png" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -128,8 +128,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My first priority when joining a new company is always to figure out \u201chow do they make money?\u201d I\u2019ve spent time in business metric meetings I wasn\u2019t required to attend, followed the threads of CEO and manager Slack messages to understand their priorities, and learned deeply about unit economics and go-to-market wedges. I care about building something that actually works as a business, sustainably. That means thinking about path to profitability, defensibility, and how the product reaches people.",
     projects: [
-      { name: "Simple Ventures Memos", description: "Short description of the business context and what was at stake.", icon: "/building-cursors/printer-icon.svg" },
-      { name: "Outschool Positioning", description: "Short description of the business context and what was at stake.", icon: "/building-cursors/positioning-icon.svg" },
+      { name: "Writing keep-or-kill investment memos", company: "Simple Ventures", description: "Evaluated concepts in FinTech and Healthcare against the Simple Ventures thesis of capital efficiency and sustainable profitability, writing memos to drive investment decisions.", icon: "/building-cursors/printer-icon.svg" },
+      { name: "Increasing marketplace premiumness through positioning", company: "Outschool", description: "Created a value perception test inspired by info foraging theory. parents compared Outschool and competitor classes across six axes, surfacing insights from syllabus density to a macro problem: the marketplace was flattening top teachers' unique value.", icon: "/building-cursors/positioning-icon.svg" },
     ],
     bgColor: "#F2BDB4",
     layout: "text-left",
@@ -140,11 +140,11 @@ const SECTIONS: SectionData[] = [
     title: "Scrappiness",
     subtitle: "Everything else that it takes",
     description:
-      "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, driving two hours to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous, but I do it anyways.",
+      "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, a 4 hour commute to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous, but I do it anyways.",
     projects: [
-      { name: "Hustling for Customers", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/gluegun-icon.svg" },
-      { name: "$90 Intermission", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/pylon-icon.svg" },
-      { name: "Cleaning Data", description: "Short description of the scrappy work that got it done.", icon: "/building-cursors/sponge-icon.svg" },
+      { name: "Commuting 4 hours to land pilot customers at niche events", description: "Travelled to the outskirts of Toronto to attend niche domain-specific events and land D2C pilot customers face to face.", icon: "/building-cursors/gluegun-icon.svg" },
+      { name: "$90 Intermission", company: "Socratica", description: "Threw a Shopify-sponsored fashion show for under $90 by sourcing everything from the dollar store. tablecloths, pylon hats, lightsabers, and whatever else maximized fun for minimum cost.", icon: "/building-cursors/pylon-icon.svg" },
+      { name: "Manually cleaning a legacy database to enable a system migration", company: "Alma Care", description: "When transitioning Alma Care to a new database, manually cleaned existing data. fixing incorrect columns, transforming open fields to proper data types, and filling missing values.", icon: "/building-cursors/sponge-icon.svg" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -238,7 +238,7 @@ interface LayoutConfig {
 
 const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   hero: { height: 85, titleSize: 48, imgWidth: 500, imgHeight: 400, imgMarginTop: 90 },
-  section: { titleSize: 52, subtitleSize: 20, bodySize: 16, tagSize: 13, gapX: 64, maxWidth: 1300 },
+  section: { titleSize: 44, subtitleSize: 20, bodySize: 16, tagSize: 13, gapX: 64, maxWidth: 1300 },
 };
 
 interface DecorationConfig {
@@ -517,7 +517,7 @@ function TapedImage({ label, src }: { label: string; src?: string }) {
   const yTop = 2 - pad; // = -4 (matches TapeStrip exactly)
   return (
     <div className="relative">
-      {/* Tape — identical rendering to TapeStrip */}
+      {/* Tape. identical rendering to TapeStrip */}
       <div className="absolute left-1/2 z-10" style={{ top: -(svgH / 2), transform: "translateX(-50%)", filter: `drop-shadow(${cfg.shadowX}px ${cfg.shadowY}px ${cfg.shadowBlur}px rgba(0,0,0,${cfg.shadowOpacity}))` }}>
         <svg width={tapeW} height={svgH} viewBox={`0 0 ${tapeW} ${svgH}`}>
           <path d={buildSerratedPath(tapeW, cfg.height, yTop, 3)} fill={cfg.fillColor} fillOpacity={cfg.fillOpacity} />
@@ -537,19 +537,24 @@ function TapedImage({ label, src }: { label: string; src?: string }) {
 
 function FeedbackMosaic() {
   return (
-    <div className="relative w-full flex gap-8 px-12">
-      {/* Left column: wider (51%), offset down ~13% */}
+    <div className="relative w-full flex flex-col gap-3">
+    <div className="flex px-12" style={{ gap: 32 }}>
+      {/* Left column */}
       <div className="flex flex-col gap-12" style={{ flex: "0 0 51%", paddingTop: "13%" }}>
         <TapedImage label="OutschoolMetrics" src="/building-images/feedback-1.png" />
         <div style={{ paddingLeft: "6%", paddingRight: "6%" }}>
           <TapedImage label="QualFeedback" src="/building-images/feedback-3.png" />
         </div>
       </div>
-      {/* Right column: starts at top */}
+      {/* Right column */}
       <div className="flex flex-col gap-10" style={{ flex: "1" }}>
         <TapedImage label="SocraticaSurvey" src="/building-images/feedback-2.png" />
         <TapedImage label="QuantFeedback" src="/building-images/feedback-4.png" />
       </div>
+    </div>
+    <p className="px-12 font-[family-name:var(--font-fanwood-text)]" style={{ fontSize: 11, opacity: 0.9, fontStyle: "italic" }}>
+      * all data was recreated with fake placeholders
+    </p>
     </div>
   );
 }
@@ -598,11 +603,11 @@ function ScrewedImage({ label, src }: { label: string; src?: string }) {
 
 function EngineeringMosaic() {
   return (
-    <div className="relative w-full flex flex-col gap-8 px-10">
+    <div className="relative w-full flex flex-col px-10" style={{ gap: 38 }}>
       <div style={{ paddingRight: "25%" }}>
         <ScrewedImage label="KindredMVP" src="/building-images/engineering-1.png" />
       </div>
-      <div style={{ paddingLeft: "25%" }}>
+      <div style={{ paddingLeft: "37%" }}>
         <ScrewedImage label="ArchDiagram" src="/building-images/engineering-2.png" />
       </div>
     </div>
@@ -612,7 +617,7 @@ function EngineeringMosaic() {
 function PinnedImage({ label, aspectRatio = "4/3", src, rotate = 0 }: { label: string; aspectRatio?: string; src?: string; rotate?: number }) {
   return (
     <div className="relative pt-5" style={{ transform: `rotate(${rotate}deg)` }}>
-      {/* Nail — sits on top of image */}
+      {/* Nail. sits on top of image */}
       <div className="absolute left-1/2 z-10" style={{ top: 10, transform: "translateX(-50%)" }}>
         <svg width="14" height="20" viewBox="0 0 14 20">
           <circle cx="7" cy="5" r="4" fill="#888" stroke="#666" strokeWidth="1" />
@@ -669,10 +674,9 @@ function StapledImage({ label, src, staplePositions = [0.5] }: {
 
 function DesignMosaic() {
   return (
-    <div className="relative w-full flex flex-col gap-5 px-2">
-      {/* Top row: bottom-aligned — stagger comes naturally from height diff.
-          Shifted right ~10% so row 2 (full-width) extends further left. */}
-      <div className="flex gap-6 items-end" style={{ paddingLeft: "10%", paddingRight: "8%" }}>
+    <div className="relative w-full flex flex-col px-2" style={{ gap: 30 }}>
+      {/* Top row */}
+      <div className="flex items-end" style={{ gap: 30, paddingLeft: "6%", paddingRight: "6%" }}>
         <div style={{ flex: "0 0 65%" }}>
           <StapledImage label="KindredCarePlan" src="/building-images/design-1.png" staplePositions={[0.28, 0.72]} />
         </div>
@@ -680,9 +684,9 @@ function DesignMosaic() {
           <StapledImage label="EventPoster" src="/building-images/design-2.png" staplePositions={[0.5]} />
         </div>
       </div>
-      {/* Bottom row: top-aligned, full width — design-5 shifted up to extend past the top row */}
-      <div className="flex gap-5 items-start">
-        <div style={{ flex: "0 0 24%" }}>
+      {/* Bottom row */}
+      <div className="flex items-start" style={{ gap: 30 }}>
+        <div style={{ flex: "0 0 21%" }}>
           <StapledImage label="DesignWork3" src="/building-images/design-3.png" staplePositions={[0.5]} />
         </div>
         <div style={{ flex: "0 0 30%" }}>
@@ -696,24 +700,102 @@ function DesignMosaic() {
   );
 }
 
+// Deterministic jitter. no random(), stays stable across renders
+function jitter(seed: number, amp: number) {
+  return (Math.sin(seed * 3.7 + 1.3) * 0.5 + Math.sin(seed * 1.1 + 0.7) * 0.5) * amp;
+}
+
+function buildBorderStitches(w: number, h: number, spacing: number, inset: number) {
+  const stitches: { x: number; y: number; rot: number }[] = [];
+  const hCount = Math.max(2, Math.round((w - 2 * inset) / spacing) + 1);
+  const vCount = Math.max(2, Math.round((h - 2 * inset) / spacing) + 1);
+  const hStep = (w - 2 * inset) / (hCount - 1);
+  const vStep = (h - 2 * inset) / (vCount - 1);
+  let idx = 0;
+  for (let i = 0; i < hCount; i++, idx++) stitches.push({ x: inset + i * hStep + jitter(idx, 1.5), y: inset + jitter(idx + 0.5, 1.5), rot: 0 });
+  for (let i = 1; i < vCount; i++, idx++) stitches.push({ x: w - inset + jitter(idx, 1.5), y: inset + i * vStep + jitter(idx + 0.5, 1.5), rot: 0 });
+  for (let i = hCount - 2; i >= 0; i--, idx++) stitches.push({ x: inset + i * hStep + jitter(idx, 1.5), y: h - inset + jitter(idx + 0.5, 1.5), rot: 0 });
+  for (let i = vCount - 2; i >= 1; i--, idx++) stitches.push({ x: inset + jitter(idx, 1.5), y: inset + i * vStep + jitter(idx + 0.5, 1.5), rot: 0 });
+  return stitches;
+}
+
+function StitchedImage({ label, src }: { label: string; src?: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setDims({ w: entry.contentRect.width, h: entry.contentRect.height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const STITCH_SIZE = 9;
+  const stitches = dims ? buildBorderStitches(dims.w, dims.h, 18, 0) : [];
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <div style={{ borderRadius: 6, overflow: "hidden" }}>
+        {src
+          ? <img src={src} alt={label} className="w-full h-auto block" />
+          : <div className="w-full aspect-[4/3] bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
+              <span className="text-sm text-foreground/30">Image / Collage</span>
+            </div>
+        }
+      </div>
+      {dims && (
+        <svg className="absolute inset-0 pointer-events-none" width={dims.w} height={dims.h} style={{ zIndex: 10, overflow: "visible" }}>
+          {stitches.map((pt, i) => {
+            const s = STITCH_SIZE / 2;
+            return (
+              <g key={i}>
+                <line x1={pt.x - s} y1={pt.y - s} x2={pt.x + s} y2={pt.y + s} stroke="#8b1a1a" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1={pt.x + s} y1={pt.y - s} x2={pt.x - s} y2={pt.y + s} stroke="#8b1a1a" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx={pt.x - s} cy={pt.y - s} r="1.2" fill="#3d0c0c" />
+                <circle cx={pt.x + s} cy={pt.y - s} r="1.2" fill="#3d0c0c" />
+                <circle cx={pt.x - s} cy={pt.y + s} r="1.2" fill="#3d0c0c" />
+                <circle cx={pt.x + s} cy={pt.y + s} r="1.2" fill="#3d0c0c" />
+              </g>
+            );
+          })}
+        </svg>
+      )}
+    </div>
+  );
+}
+
+function BusinessMosaic() {
+  return (
+    <div className="relative w-full flex flex-col gap-3" style={{ paddingLeft: 32, paddingRight: 32 }}>
+      <StitchedImage label="Outschool Positioning" src="/building-images/business-1.png" />
+      <p className="font-[family-name:var(--font-fanwood-text)]" style={{ fontSize: 11, opacity: 0.9, fontStyle: "italic", marginTop: 8 }}>
+        * all data was recreated with fake placeholders
+      </p>
+    </div>
+  );
+}
+
 function ScrappinessMosaic() {
   return (
     <div className="relative w-full flex flex-col gap-6 px-4">
       {/* Row 1: taped */}
-      <div style={{ paddingLeft: "8%", paddingRight: "8%" }}>
+      <div style={{ paddingLeft: "10%", paddingRight: "10%" }}>
         <TapedImage label="HudZah shoutout" src="/building-images/scrappy-1.png" />
       </div>
       {/* Row 2: pinned (left) + screwed (right) */}
       <div className="flex gap-6 items-start">
-        <div style={{ flex: "0 0 58%", transform: "rotate(0.6deg)" }}>
+        <div style={{ flex: "0 0 63%", transform: "rotate(-3.5deg)" }}>
           <PinnedImage label="Socratica review" src="/building-images/scrappy-2.png" rotate={0} />
         </div>
-        <div style={{ flex: "1", paddingTop: "8%", transform: "rotate(-1.2deg)" }}>
+        <div style={{ flex: "1", paddingTop: "8%", transform: "rotate(4deg)" }}>
           <ScrewedImage label="Rachel beast mode" src="/building-images/scrappy-3.png" />
         </div>
       </div>
       {/* Row 3: stapled */}
-      <div style={{ paddingLeft: "8%", paddingRight: "8%" }}>
+      <div style={{ paddingLeft: "11%", paddingRight: "11%" }}>
         <StapledImage label="Farewell messages" src="/building-images/scrappy-4.png" staplePositions={[0.3, 0.7]} />
       </div>
     </div>
@@ -722,16 +804,19 @@ function ScrappinessMosaic() {
 
 function DiscoveryMosaic() {
   return (
-    <div className="relative w-full flex gap-6 px-4">
-      {/* Left column */}
-      <div className="flex flex-col gap-8" style={{ flex: "0 0 55%" }}>
-        <PinnedImage label="Sun Life Interviews" aspectRatio="4/3" src="/building-images/discovery-1.png" rotate={-1.5} />
-        <PinnedImage label="Wygo interviews" aspectRatio="4/3" src="/building-images/discovery-3.png" rotate={1.2} />
+    <div className="relative w-full px-4" style={{ display: "grid", gridTemplateColumns: "59fr 41fr", columnGap: 36, rowGap: 20 }}>
+      {/* discovery-1: large anchor, top-left */}
+      <PinnedImage label="Sun Life Interviews" src="/building-images/discovery-1.png" rotate={0} />
+      {/* discovery-3: small, top-right. bottom-aligned */}
+      <div style={{ alignSelf: "end", width: "92%" }}>
+        <PinnedImage label="Wygo interviews" src="/building-images/discovery-3.png" rotate={0} />
       </div>
-      {/* Right column — offset down */}
-      <div style={{ flex: "0 0 40%", paddingTop: "35%" }}>
-        <PinnedImage label="Alma Care workflows" aspectRatio="3/4" src="/building-images/discovery-4.png" rotate={-0.8} />
+      {/* discovery-2: small, bottom-left. right-justified */}
+      <div style={{ alignSelf: "start", width: "87%", marginLeft: "auto" }}>
+        <PinnedImage label="Outschool research" src="/building-images/discovery-2.png" rotate={0} />
       </div>
+      {/* discovery-4: large anchor, bottom-right */}
+      <PinnedImage label="Alma Care workflows" src="/building-images/discovery-4.png" rotate={0} />
     </div>
   );
 }
@@ -863,7 +948,7 @@ export default function BuildingPage() {
   const decoConfig = DEFAULT_DECO_CONFIG;
   const layoutConfig = DEFAULT_LAYOUT_CONFIG;
 
-  // Decoration state — keyed by section ID so decorations stay with their section
+  // Decoration state. keyed by section ID so decorations stay with their section
   const [decorations, setDecorations] = useState<Record<string, Decoration[]>>({});
   const [pendingTape, setPendingTape] = useState<{ x: number; y: number; sectionId: string } | null>(null);
   // Ref so addDecoration can read current pendingTape synchronously and return a result
@@ -901,7 +986,7 @@ export default function BuildingPage() {
   }, []);
 
   const handleAfterDecoration = useCallback((_tool: ToolType, _x: number, _y: number, _result: "started" | "completed" | "placed") => {
-    // no-op — placeholder for per-tool callbacks
+    // no-op. placeholder for per-tool callbacks
   }, []);
 
   const handleScrappyAfterDecoration = useCallback((tool: ToolType, x: number, y: number, result: "started" | "completed" | "placed") => {
@@ -920,7 +1005,7 @@ export default function BuildingPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  // Store transforms in refs to avoid re-renders — apply directly to DOM
+  // Store transforms in refs to avoid re-renders. apply directly to DOM
   const discoveryRef = useRef<HTMLDivElement>(null);
   const engineeringRef = useRef<HTMLDivElement>(null);
   const businessRef = useRef<HTMLDivElement>(null);
@@ -1006,7 +1091,7 @@ export default function BuildingPage() {
         className="relative overflow-hidden"
         style={{ height: `calc(var(--real-vh, 1vh) * ${layoutConfig.hero.height})`, marginBottom: -3 }}
       >
-        {/* Slanted background — full-hero SVG so height is inherited from parent, not recalculated */}
+        {/* Slanted background. full-hero SVG so height is inherited from parent, not recalculated */}
         <svg
           className="absolute inset-0 w-full h-full"
           viewBox="0 0 100 100"
@@ -1016,7 +1101,7 @@ export default function BuildingPage() {
           <polygon points="0,58 100,78 100,103 0,103" fill="#F2B188" />
         </svg>
 
-        {/* Content — centered over both backgrounds */}
+        {/* Content. centered over both backgrounds */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4" style={{ lineHeight: 1.15 }}>
           <p
             className="font-[family-name:var(--font-fanwood-text)]"
@@ -1031,7 +1116,7 @@ export default function BuildingPage() {
             using whatever tools it takes.
           </p>
 
-          {/* Toolbox — straddles the slant boundary */}
+          {/* Toolbox. straddles the slant boundary */}
           <img
             src="/building-hero.svg"
             alt="Toolbox"
@@ -1054,7 +1139,7 @@ export default function BuildingPage() {
           ref={stickyRef}
           className="sticky top-0 h-screen overflow-hidden"
         >
-          {/* Base layers (revealed underneath sliders) — only one visible at a time */}
+          {/* Base layers (revealed underneath sliders). only one visible at a time */}
           <div ref={designRef} className="absolute inset-0" style={{ zIndex: 10, visibility: "hidden" }}>
             <SectionPanel section={SECTIONS[1]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<DesignMosaic />} />
             <SectionDecorationOverlay sectionId="design" decorations={decorations["design"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
@@ -1076,7 +1161,7 @@ export default function BuildingPage() {
             <SectionDecorationOverlay sectionId="scrappiness" decorations={decorations["scrappiness"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
 
-          {/* Slider layers — animate over the base layers */}
+          {/* Slider layers. animate over the base layers */}
           <div ref={discoveryRef} className="absolute inset-0" style={{ zIndex: 30 }}>
             <SectionPanel section={SECTIONS[0]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<DiscoveryMosaic />} />
             <SectionDecorationOverlay sectionId="discovery" decorations={decorations["discovery"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
@@ -1086,12 +1171,13 @@ export default function BuildingPage() {
             <SectionDecorationOverlay sectionId="engineering" decorations={decorations["engineering"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
           <div ref={businessRef} className="absolute inset-0" style={{ zIndex: 20, transform: "translateY(100%)" }}>
-            <SectionPanel section={SECTIONS[4]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} />
+            <SectionPanel section={SECTIONS[4]} onAfterDecoration={handleAfterDecoration} stickyRef={stickyRef} addDecoration={addDecoration} layoutConfig={layoutConfig.section} imageContent={<BusinessMosaic />} />
             <SectionDecorationOverlay sectionId="business-sense" decorations={decorations["business-sense"] ?? []} pendingTape={pendingTape} stickyRef={stickyRef} decoConfig={decoConfig} />
           </div>
 
         </div>
       </div>
+
     </FaceLayout>
   );
 }

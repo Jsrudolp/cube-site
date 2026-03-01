@@ -19,7 +19,7 @@ export default function FaceLayout({ faceId, children, className = "", style }: 
 
   useEffect(() => {
     markFaceVisited(faceId);
-    setFavicon(faceId);
+    void setFavicon(faceId);
   }, [faceId]);
 
   // Tell the persistent cube we're on this face
