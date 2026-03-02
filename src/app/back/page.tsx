@@ -22,10 +22,6 @@ export default function BackPage() {
 
           {/* Right Now */}
           <section className="mb-14">
-            <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-white/35 mb-6">
-              Right Now
-            </h2>
-
             <div className="space-y-8">
               <div>
                 <p>My biggest fears are:</p>
@@ -65,7 +61,7 @@ export default function BackPage() {
           {/* Previously */}
           <section className="mb-14">
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-white/35 mb-6">
-              Previously
+              Growing Up
             </h2>
 
             <div className="space-y-8">
@@ -92,7 +88,7 @@ export default function BackPage() {
               </div>
 
               <div>
-                <p>My inflection point to becoming a leadership kid was during my 8th grade student council, in which I was the VP of Eco-Friendliness for the school. I also think this predisposed me to enjoy irregular, ambiguous and hard-to-explain roles.</p>
+                <p>My inflection point to becoming a leadership kid was during my 8th grade student council, in which I was the VP of Eco-Friendliness for the school (but de facto leading the council). I also think this predisposed me to enjoy irregular, ambiguous and hard-to-explain roles.</p>
               </div>
             </div>
           </section>

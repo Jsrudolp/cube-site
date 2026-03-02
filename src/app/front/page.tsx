@@ -19,10 +19,6 @@ export default function FrontPage() {
 
         {/* Now */}
         <section className="mb-14">
-          <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-foreground/35 mb-6">
-            Now
-          </h2>
-
           <div className="space-y-8">
             {/* Kindly */}
             <div>
