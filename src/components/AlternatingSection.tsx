@@ -48,7 +48,7 @@ export default function AlternatingSection({
   const isOdd = index % 2 === 0; // 0-indexed: first item has text on left
 
   const titleElement = (
-    <h2 className="text-2xl font-normal mb-7 font-[family-name:var(--font-merriweather)]" style={ts?.titleSize ? { fontSize: ts.titleSize } : undefined}>
+    <h2 className="text-[22px] md:text-[28px] font-normal mb-7 font-[family-name:var(--font-merriweather)]">
       {titleHighlight === "yellow" ? (
         <span className="relative inline-block ml-3">
           <span
@@ -73,6 +73,23 @@ export default function AlternatingSection({
 
   const scaledWidth = imageWidth && ts?.imageScale ? imageWidth * (ts.imageScale / 100) : imageWidth;
 
+  const imageContent = imageSrc ? (
+    <img
+      src={imageSrc}
+      alt={imageAlt || title}
+      width={scaledWidth}
+      height={imageHeight}
+      className="max-w-full h-auto"
+      style={scaledWidth ? { width: scaledWidth, maxWidth: "100%" } : undefined}
+    />
+  ) : children ? (
+    children
+  ) : (
+    <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
+      <span className="text-sm text-foreground/30">Diagram / Image</span>
+    </div>
+  );
+
   // Mobile: title → image → text (three stacked items).
   // Desktop: two-column alternating layout with title above text in the text column.
   return (
@@ -84,31 +101,26 @@ export default function AlternatingSection({
       {/* Title — visible on mobile only (above image) */}
       <div className="md:hidden w-full">{titleElement}</div>
 
-      <div className={`flex-1 min-w-0 flex items-center justify-center ${isOdd ? "md:order-last" : ""}`} style={ts?.imageOffsetY ? { transform: `translateY(${ts.imageOffsetY}px)` } : undefined}>
-        {imageSrc ? (
-          <img
-            src={imageSrc}
-            alt={imageAlt || title}
-            width={scaledWidth}
-            height={imageHeight}
-            className="max-w-full h-auto"
-            style={scaledWidth ? { width: scaledWidth, maxWidth: "100%" } : undefined}
-          />
-        ) : children ? (
-          children
-        ) : (
-          <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
-            <span className="text-sm text-foreground/30">Diagram / Image</span>
-          </div>
-        )}
+      {/* Desktop image: with vertical offset for two-column visual alignment */}
+      <div
+        className={`hidden md:flex flex-1 min-w-0 items-center justify-center ${isOdd ? "order-last" : ""}`}
+        style={ts?.imageOffsetY ? { transform: `translateY(${ts.imageOffsetY}px)` } : undefined}
+      >
+        {imageContent}
       </div>
+
+      {/* Mobile image: stacked, no vertical offset */}
+      <div className="md:hidden flex-1 min-w-0 flex items-center justify-center">
+        {imageContent}
+      </div>
+
       <div className={`flex-1 min-w-0 ${isOdd ? "md:order-first" : ""}`} style={ts?.textWidth ? { flex: `0 0 ${ts.textWidth}%` } : undefined}>
         {/* Title — visible on desktop only (inside text column) */}
         <div className="hidden md:block">{titleElement}</div>
         {metadata && (
           <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
         )}
-        <div className="leading-relaxed space-y-3" style={{ ...(ts?.textSize ? { fontSize: ts.textSize } : {}), ...(ts?.lineHeight ? { lineHeight: ts.lineHeight } : {}) }}>
+        <div className="leading-relaxed space-y-3 text-[16px] md:text-[20px]" style={ts?.lineHeight ? { lineHeight: ts.lineHeight } : undefined}>
           {description.split("\n\n").map((paragraph, i) => (
             <p key={i}>{renderInline(paragraph)}</p>
           ))}

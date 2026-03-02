@@ -214,7 +214,7 @@ export default function ThinkingPage() {
                   id={tool.id}
                   style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
                 >
-                  <h2 className="text-2xl font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]" style={{ fontSize: TITLE_SIZE }}>
+                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -241,7 +241,7 @@ export default function ThinkingPage() {
                         <div key={col.title || colIndex} className="text-center" style={{ gap: colGap, display: "flex", flexDirection: "column", alignItems: "center" }}>
                           {/* Title above image */}
                           {col.title && (
-                            <h3 className="font-semibold italic mb-2 font-[family-name:var(--font-merriweather)]" style={{ fontSize: TEXT_SIZE }}>{col.title}</h3>
+                            <h3 className="font-semibold italic mb-2 text-[16px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
                           )}
                           {/* Image */}
                           {col.imageSrc && (
@@ -256,7 +256,7 @@ export default function ThinkingPage() {
                             />
                           )}
                           {/* Description */}
-                          <div className="leading-relaxed space-y-2" style={{ fontSize: TEXT_SIZE, lineHeight: LINE_HEIGHT }}>
+                          <div className="leading-relaxed space-y-2 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                             {col.description.split("\n\n").map((p, i) => (
                               <p key={i}>{p}</p>
                             ))}
@@ -277,7 +277,7 @@ export default function ThinkingPage() {
                   id={tool.id}
                   style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
                 >
-                  <h2 className="text-2xl font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]" style={{ fontSize: TITLE_SIZE }}>
+                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -296,7 +296,7 @@ export default function ThinkingPage() {
                   </h2>
 
                   {tool.introText && (
-                    <p className="text-center mb-8" style={{ fontSize: TEXT_SIZE, lineHeight: LINE_HEIGHT }}>{tool.introText}</p>
+                    <p className="text-center mb-8 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.introText}</p>
                   )}
 
                   {/* Three columns with arrows between them */}
@@ -321,7 +321,7 @@ export default function ThinkingPage() {
                                 />
                               </div>
                             )}
-                            <div className="leading-relaxed" style={{ fontSize: TEXT_SIZE, lineHeight: LINE_HEIGHT }}>
+                            <div className="leading-relaxed text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                               {col.description}
                             </div>
                           </div>
@@ -342,7 +342,7 @@ export default function ThinkingPage() {
                   </div>
 
                   {tool.outroText && (
-                    <p className="text-center" style={{ fontSize: TEXT_SIZE, lineHeight: LINE_HEIGHT }}>{tool.outroText}</p>
+                    <p className="text-center text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.outroText}</p>
                   )}
                 </section>
               );
@@ -356,7 +356,7 @@ export default function ThinkingPage() {
                   id={tool.id}
                   style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
                 >
-                  <h2 className="text-2xl font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]" style={{ fontSize: TITLE_SIZE }}>
+                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -390,9 +390,9 @@ export default function ThinkingPage() {
                           </div>
                         )}
                         {col.title && (
-                          <h3 className="font-semibold italic mb-2 font-[family-name:var(--font-merriweather)]" style={{ fontSize: TEXT_SIZE }}>{col.title}</h3>
+                          <h3 className="font-semibold italic mb-2 text-[16px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
                         )}
-                        <div className="leading-relaxed space-y-2" style={{ fontSize: TEXT_SIZE, lineHeight: LINE_HEIGHT }}>
+                        <div className="leading-relaxed space-y-2 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                           {col.description.split("\n\n").map((p, i) => (
                             <p key={i}>{p}</p>
                           ))}

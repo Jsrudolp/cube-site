@@ -43,15 +43,15 @@ export function CubeHud() {
   return (
     <>
       {/* Bottom-left: timestamp + visited count */}
-      <div className="fixed bottom-16 left-16 text-sm text-foreground/80 uppercase tracking-wide font-[family-name:var(--font-geist-mono)]">
+      <div className="fixed bottom-6 left-6 sm:bottom-16 sm:left-16 text-[11px] sm:text-sm text-foreground/80 uppercase tracking-wide font-[family-name:var(--font-geist-mono)]">
         <p>{timestamp}</p>
         <p>{visitedCount}/6 FACES VISITED</p>
       </div>
 
       {/* Bottom-right: name + tagline */}
-      <div className="fixed bottom-16 right-16 text-sm text-foreground/80 text-right uppercase tracking-wide font-[family-name:var(--font-geist-mono)]">
+      <div className="fixed bottom-6 right-6 sm:bottom-16 sm:right-16 text-[11px] sm:text-sm text-foreground/80 text-right uppercase tracking-wide font-[family-name:var(--font-geist-mono)]">
         <p className="font-semibold">JAKE RUDOLPH</p>
-        <div className="mt-2">
+        <div className="hidden sm:block mt-2">
           <p>A MULTI-DIMENSIONAL WEBSITE, MADE</p>
           <p>BY A MULTIDIMENSIONAL PERSON</p>
         </div>

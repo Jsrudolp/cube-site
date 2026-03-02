@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans
 import localFont from "next/font/local";
 import "./globals.css";
 import { PersistentCubeProvider } from "@/components/cube";
+import { PostHogProvider } from "@/components/PostHogProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -81,7 +82,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} ${lora.variable} antialiased`}
       >
-        <PersistentCubeProvider>{children}</PersistentCubeProvider>
+        <PostHogProvider>
+          <PersistentCubeProvider>{children}</PersistentCubeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

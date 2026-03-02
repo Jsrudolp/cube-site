@@ -16,6 +16,7 @@
     "@react-three/fiber": "^9.5.0",
     "html2canvas-pro": "^1.6.7",
     "next": "16.1.6",
+    "posthog-js": "^1.357.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "three": "^0.182.0"

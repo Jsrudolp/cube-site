@@ -1,93 +1,70 @@
-# Responsive Design Review Skill
+# Responsive Design Review — cube-site
 
-Review UI designs for responsive behavior across breakpoints. Focus on usability at every screen size.
+You are reviewing and fixing responsive design for Jake Rudolph's cube site.
 
-## Breakpoint Checklist
+## Stack
+- **Next.js** with Tailwind CSS v4
+- **Tailwind breakpoints**: `sm` = 640px, `md` = 768px, `lg` = 1024px, `xl` = 1280px
+- Existing convention: `sm:` prefix used for desktop-up, base styles are mobile-first
 
-Standard breakpoints to test:
-- **Mobile**: 320px, 375px, 414px (small phones, iPhone, large phones)
-- **Tablet**: 768px, 1024px (portrait, landscape)
-- **Desktop**: 1280px, 1440px, 1920px (laptop, desktop, large monitor)
+## Site context
+- The 3D cube is desktop-only (hidden in iframes, works on touch but designed for mouse)
+- Face pages are full-screen content pages that need to work on mobile
+- The building page (`/building`) has complex interactive sections — treat carefully
+- Max content width is typically `max-w-[52rem]` on face pages
 
-For each breakpoint, verify:
-- Layout doesn't break or overflow
-- Text remains readable (not too small, not too large)
-- Interactive elements are accessible
-- Images/media scale appropriately
+## Workflow
 
-## Mobile-First Checklist
+When asked to review or fix responsiveness:
 
-- **Touch targets**: Minimum 44x44px for tappable elements
-- **Thumb zones**: Primary actions reachable by thumb (bottom of screen preferred)
-- **Text size**: Minimum 16px for body text to prevent iOS zoom on focus
-- **Spacing**: Adequate padding for fat-finger tolerance (8px+ between targets)
-- **Scrolling**: Prefer vertical scroll; horizontal scroll only when intentional (carousels)
-- **Forms**: Input fields large enough, appropriate keyboard types
+1. **Read the target file(s)** in full before suggesting anything
+2. **Mentally render at three sizes**: 375px (iPhone), 768px (iPad), 1440px (MacBook)
+3. **Identify issues** across these categories:
+   - Text too large or too small at any size
+   - Padding/margin that collapses or overwhelms on mobile
+   - Fixed widths that break layout
+   - Images or media overflowing their containers
+   - Horizontal scroll caused by wide elements
+   - Touch targets smaller than 44px on interactive elements
+   - Content hidden on mobile that matters
+   - Two-column layouts that need to stack on mobile
+4. **Fix with Tailwind**, using mobile-first base + `sm:`/`md:`/`lg:` overrides
+5. **Preserve existing responsive classes** — don't remove `sm:` overrides already in place
 
-## Layout Patterns
+## Tailwind responsive patterns for this codebase
 
-Common responsive patterns to consider:
-- **Stack → Side-by-side**: Columns stack on mobile, sit side-by-side on desktop
-- **Off-canvas**: Navigation hidden in drawer/menu on mobile
-- **Priority+**: Show most important items, hide rest behind "more" on mobile
-- **Truncation**: Shorten text/titles on smaller screens
-- **Reflow**: Content reflows to fit container (CSS Grid/Flexbox)
+```
+// Text scaling
+text-[14px] sm:text-[18px]
 
-## Typography Scaling
+// Padding
+px-5 sm:px-7
 
-- **Fluid typography**: Consider `clamp()` for smooth scaling
-- **Line length**: 45-75 characters ideal; constrain max-width on wide screens
-- **Heading scale**: May need smaller ratio on mobile (1.2x vs 1.333x)
-- **Line height**: May need adjustment at different sizes
+// Two-col → stacked
+flex flex-col md:flex-row
 
-## Images & Media
+// Show/hide
+hidden md:flex   (desktop only)
+md:hidden        (mobile only)
 
-- **Responsive images**: Use `srcset` or Next.js Image for appropriate sizes
-- **Aspect ratios**: Maintain or intentionally change at breakpoints
-- **Art direction**: Different crops for different screen sizes when needed
-- **Loading**: Lazy load below-fold images
-- **Max dimensions**: Prevent images from exceeding container
+// Clamped max-width with centering
+mx-auto max-w-[52rem]
+```
 
-## Navigation Patterns
+## Common issues to check on this site
 
-- **Desktop**: Full horizontal nav, dropdowns acceptable
-- **Tablet**: Consider condensed nav or early hamburger
-- **Mobile**: Hamburger menu, bottom nav, or slide-out drawer
-- **Current state**: Clear indication of active page at all sizes
+1. **Section padding** — does it feel cramped on 375px or excessive on 1440px?
+2. **Font sizes** — face pages use `text-[15px] sm:text-[18px]`, check headings too
+3. **Image widths** — `building` page has many images, verify they don't overflow
+4. **Line length** — long text lines on wide screens (should stay under ~75 chars)
+5. **The FaceNav bar** — fixed top bar, verify it doesn't overlap content on small screens
+6. **Mosaic/collage components** — rotated/positioned images may overflow on narrow screens
 
-## Common Issues to Flag
+## Output format
 
-1. **Horizontal overflow** causing unwanted horizontal scroll
-2. **Fixed widths** that don't adapt (use max-width, %, or viewport units)
-3. **Tiny touch targets** that are hard to tap accurately
-4. **Text too small** on mobile (below 14px)
-5. **Too much content density** on small screens
-6. **Hidden content** that's critical but only visible on desktop
-7. **Hover-only interactions** that don't work on touch devices
-8. **Fixed position elements** that cover content or controls on mobile
-9. **Viewport issues** (missing meta viewport tag, improper scaling)
-10. **Keyboard overlap** covering inputs on mobile
+For each issue found:
+- **Where**: file + approximate line
+- **Problem**: what breaks and at what width
+- **Fix**: exact Tailwind class change
 
-## Interactive Elements
-
-- **Hover states**: Must have touch/focus equivalent
-- **Tooltips**: Need tap-to-show alternative on mobile
-- **Drag interactions**: Need touch-drag support or alternative
-- **Complex gestures**: Provide simpler alternatives
-
-## Testing Approach
-
-1. **Start mobile**: Design/review mobile first, then scale up
-2. **Real devices**: Simulators miss touch feel; test on actual phones/tablets
-3. **Orientation**: Test both portrait and landscape
-4. **Browser DevTools**: Use responsive mode to quickly scan breakpoints
-5. **Throttling**: Test with slow network/CPU to catch performance issues
-
-## Review Output Format
-
-When reviewing, provide:
-1. **Breakpoints tested** (list which sizes you checked)
-2. **Critical issues** (breaks functionality or unusable)
-3. **Usability issues** (works but awkward)
-4. **Enhancement opportunities** (could be better)
-5. **Specific fixes** (CSS/component changes with values)
+Then apply the fixes directly unless told otherwise.

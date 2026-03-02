@@ -9,7 +9,7 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FaceId, FACE_MAP } from "@/lib/faces";
 import { CubeScene } from "./CubeScene";
 import { useDynamicTextures } from "./hooks/useDynamicTextures";
@@ -28,6 +28,19 @@ const PersistentCubeContext = createContext<PersistentCubeContextValue | null>(n
 
 export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
+  useEffect(() => { pathnameRef.current = pathname; }, [pathname]);
+
+  // When navigating to a face page, clear the zoomingIn flag.
+  // Without this, pressing the browser back button to return to "/" leaves
+  // zoomingIn=true (set at zoom-start, only cleared in handleZoomOutComplete),
+  // which causes CubeHud to permanently return null on the home page.
+  useEffect(() => {
+    if (pathname !== "/") {
+      setZoomingIn(false);
+    }
+  }, [pathname]);
 
   const [activeFace, setActiveFace] = useState<FaceId | null>(null);
   const [zoomingOut, setZoomingOut] = useState(false);
@@ -114,7 +127,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   const isTransitioningRef = useRef(isTransitioning);
   isTransitioningRef.current = isTransitioning;
 
-  // Zoom-out animation finished (normal zoom-out only — switches use handleSwitchComplete)
+// Zoom-out animation finished (normal zoom-out only — switches use handleSwitchComplete)
   const handleZoomOutComplete = useCallback((state?: {
     quaternion: [number, number, number, number];
     cameraPosition: [number, number, number];
