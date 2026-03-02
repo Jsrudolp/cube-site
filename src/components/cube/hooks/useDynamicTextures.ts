@@ -52,7 +52,7 @@ export function useDynamicTextures(skip = false) {
 
   const captureIframe = useCallback(
     async (faceId: FaceId, iframe: HTMLIFrameElement, token: number) => {
-      console.log(`[tex] ${faceId}: onload fired, token=${token}`);
+      // console.log(`[tex] ${faceId}: onload fired, token=${token}`);
       if (mountToken.current !== token) return;
 
       try {
@@ -113,7 +113,7 @@ export function useDynamicTextures(skip = false) {
         if (size === 0) return;
 
         // Pass 1: low-res (scale=1, no DPR) — fast, appears immediately
-        console.log(`[tex] ${faceId}: low-res capture...`);
+        // console.log(`[tex] ${faceId}: low-res capture...`);
         const lowResCanvas = await Promise.race([
           html2canvas(iframeDoc.body, {
             width: size,
@@ -128,14 +128,14 @@ export function useDynamicTextures(skip = false) {
           ),
         ]);
         if (mountToken.current !== token) return;
-        console.log(`[tex] ${faceId}: low-res done ${lowResCanvas.width}x${lowResCanvas.height}`);
+        // console.log(`[tex] ${faceId}: low-res done ${lowResCanvas.width}x${lowResCanvas.height}`);
         setTexture(faceId, lowResCanvas);
 
         // Pass 2: hi-res (full DPR) — only worth it above 1x
         const dpr = window.devicePixelRatio || 1;
         if (dpr <= 1) return;
 
-        console.log(`[tex] ${faceId}: hi-res capture at ${dpr}x...`);
+        // console.log(`[tex] ${faceId}: hi-res capture at ${dpr}x...`);
         const hiResCanvas = await Promise.race([
           html2canvas(iframeDoc.body, {
             width: size,
@@ -150,7 +150,7 @@ export function useDynamicTextures(skip = false) {
           ),
         ]);
         if (mountToken.current !== token) return;
-        console.log(`[tex] ${faceId}: hi-res done ${hiResCanvas.width}x${hiResCanvas.height}`);
+        // console.log(`[tex] ${faceId}: hi-res done ${hiResCanvas.width}x${hiResCanvas.height}`);
         setTexture(faceId, hiResCanvas);
       } catch (err) {
         console.warn(`[dynamic-texture] Failed to capture ${faceId}:`, err);
@@ -163,7 +163,7 @@ export function useDynamicTextures(skip = false) {
   useEffect(() => {
     if (skip) return;
     const token = ++mountToken.current;
-    console.log(`[tex] effect mount, token=${token}`);
+    // console.log(`[tex] effect mount, token=${token}`);
 
     const size = window.innerWidth;
     const sizePx = `${size}px`;
@@ -175,7 +175,7 @@ export function useDynamicTextures(skip = false) {
     containerRef.current = container;
 
     return () => {
-      console.log(`[tex] effect cleanup, invalidating token=${token}`);
+      // console.log(`[tex] effect cleanup, invalidating token=${token}`);
       mountToken.current = token + 1;
       texturesRef.current.forEach((t) => t?.dispose());
       texturesRef.current = FACE_INDEX_TO_ID.map(() => null);
@@ -211,7 +211,7 @@ export function useDynamicTextures(skip = false) {
 
       container.appendChild(iframe);
       iframesRef.current.set(faceId, iframe);
-      console.log(`[tex] ${faceId}: iframe created (lazy)`);
+      // console.log(`[tex] ${faceId}: iframe created (lazy)`);
     },
     [skip, captureIframe]
   );

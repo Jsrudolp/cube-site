@@ -24,7 +24,7 @@ export default function FrontPage() {
           </h2>
 
           <div className="space-y-8">
-            {/* Kindred */}
+            {/* Kindly */}
             <div>
               <p>
                 Led product, engineering, and design for{" "}
@@ -179,7 +179,7 @@ export default function FrontPage() {
           </div>
 
           <p className="mt-6 text-[12px] sm:text-[14px] leading-[1.6] italic text-foreground/35">
-            You&apos;ve reached the end of Face 1 (Career Milestones). Check out Faces 2–5 to learn about the other dimensions that are important to me (Music, Community, Building, Thinking, and The Dark Side Of The Cube).
+            You&apos;ve reached the end of Face 1 (Career Milestones). Check out Faces 2–6 to learn about the other dimensions that are important to me (Music, Community, Building, Thinking, and The Dark Side Of The Cube).
           </p>
         </footer>
       </div>
