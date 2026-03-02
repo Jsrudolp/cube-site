@@ -18,6 +18,7 @@ export default function FaceLayout({ faceId, children, className = "", style }: 
   const { zoomingOut, faceContentHidden, setActiveFace } = usePersistentCube();
 
   useEffect(() => {
+    if (window.self !== window.top) return; // skip in texture-capture iframes
     markFaceVisited(faceId);
     void setFavicon(faceId);
   }, [faceId]);

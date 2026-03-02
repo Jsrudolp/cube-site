@@ -27,7 +27,6 @@ export function CubeHud() {
     setTimestamp(formatTimestamp());
     setVisitedCount(getVisitedCount());
 
-    // Update timestamp every minute
     const interval = setInterval(() => {
       setTimestamp(formatTimestamp());
       setVisitedCount(getVisitedCount());

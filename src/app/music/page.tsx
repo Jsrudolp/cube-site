@@ -96,7 +96,7 @@ export default function MusicPage() {
       </div>
 
       {/* Album section */}
-      <div className="w-[92%] sm:w-[90%] max-w-[1280px] mx-auto pb-32">
+      <div className="w-[92%] sm:w-[90%] lg:w-[82%] max-w-[1280px] mx-auto pb-32">
         {/* Section header */}
         <div className="mt-12 sm:mt-[80px] mb-4 sm:mb-6">
           <h2 className="text-base sm:text-xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">Music</h2>

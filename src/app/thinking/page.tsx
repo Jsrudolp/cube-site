@@ -186,7 +186,7 @@ export default function ThinkingPage() {
         backgroundSize: "20px 20px",
       }}
     >
-      <div className="mx-auto px-4 sm:px-6 pb-16" style={{ maxWidth: PAGE_MAX_WIDTH }}>
+      <div className="mx-auto px-4 sm:px-6 lg:px-16 pb-16" style={{ maxWidth: PAGE_MAX_WIDTH }}>
         {/* Header */}
         <div className="text-center mb-8">
           <Image
