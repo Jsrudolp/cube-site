@@ -87,7 +87,7 @@ const SECTIONS: SectionData[] = [
       "My first foray into visual design started with urgently needing a poster for an event I was running, so I made one myself. I started with an idea in my head, but learned that without a crisp font, good textures, and a coherent colour palette, it fell flat. To me, design is about making small decisions that iteratively compound, whether that\u2019s for poster design, digital product, physical prototypes or IRL experiences. Good design means good judgement.",
     projects: [
       { name: "Designing for cognitive simplicity in healthcare", company: "Kindly", description: "Designed a care planner to reduce the cognitive load of healthcare management, with simplicity, flexibility and emergence as principles across employee and admin views.", icon: "/building-cursors/caliper-icon.svg" },
-      { name: "Turning around event visuals in under 24 hours to launch fast", company: "various", description: "Visual design for a range of community events, from 5-person workshops to 100-person gatherings. each poster built from scratch with a different creative brief.", icon: "/building-cursors/compass-icon.svg" },
+      { name: "Turning around event visuals in <24h", company: "Various Events", description: "I'm not a 'visual designer', but that doesn't stop me from hopping into Figma when no one else is free to make event posters. If it's a blocker, I'll do it (and get better over time).", icon: "/building-cursors/compass-icon.svg" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -114,8 +114,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My favourite thing about business and products is that shipping is just the beginning, not the end. I strongly believe in combining qualitative and quantitative signals, talking to real users, root-causing support tickets, tracking product analytics, to measure AND understand what could be better. For me, feedback data has been a springboard for my most impactful ideas. I\u2019m also not afraid of cutting low-impact, low-performing work to remove bloat and sharpen focus.",
     projects: [
-      { name: "Pairing qual and quant to sunset a hyped feature", company: "Outschool", description: "User reactions to a new recommendations tool were lukewarm. Paired interview clips and quotes with conversion data to make the case for sunsetting it.", icon: "/building-cursors/pliers-icon.png" },
-      { name: "Designing feedback loops to run the world's best demo day", company: "Socratica", description: "Built a series of engaging surveys with org-value likerts for cross-event comparison, testimonial sourcing, and open-ended questions that shaped how we run Symposium.", icon: "/building-cursors/measuring-icon.png" },
+      { name: "When curiosity leads to impact", company: "Outschool", description: "Noticed lukewarm reactions to a new recommendations tool. Paired qualitative interview clips with bookings data to make the case for sunsetting it, leading to a revamp of how class recommendations are structured and surfaced.", icon: "/building-cursors/pliers-icon.png" },
+      { name: "Designing feedback loops for the world's greatest demo day", company: "Socratica", description: "Built a series of engaging surveys with org-value likerts for cross-event comparison, testimonial sourcing, and open-ended questions that shaped how we run Symposium.", icon: "/building-cursors/measuring-icon.png" },
     ],
     bgColor: "#F8FAFF",
     layout: "text-right",
@@ -128,8 +128,8 @@ const SECTIONS: SectionData[] = [
     description:
       "My first priority when joining a new company is always to figure out \u201chow do they make money?\u201d I\u2019ve spent time in business metric meetings I wasn\u2019t required to attend, followed the threads of CEO and manager Slack messages to understand their priorities, and learned deeply about unit economics and go-to-market wedges. I care about building something that actually works as a business, sustainably. That means thinking about path to profitability, defensibility, and how the product reaches people.",
     projects: [
-      { name: "Writing keep-or-kill investment memos", company: "Simple Ventures", description: "Evaluated concepts in FinTech and Healthcare against the Simple Ventures thesis of capital efficiency and sustainable profitability, writing memos to drive investment decisions.", icon: "/building-cursors/printer-icon.svg" },
-      { name: "Increasing marketplace premiumness through positioning", company: "Outschool", description: "Created a value perception test inspired by info foraging theory. parents compared Outschool and competitor classes across six axes, surfacing insights from syllabus density to a macro problem: the marketplace was flattening top teachers' unique value.", icon: "/building-cursors/positioning-icon.svg" },
+      { name: "Writing keep-or-kill investment memos", company: "Simple Ventures", description: "Evaluated concepts in FinTech and Healthcare against the Simple Ventures thesis of capital efficiency and sustainable profitability, writing memos to drive incubation decisions.", icon: "/building-cursors/printer-icon.svg" },
+      { name: "Increasing marketplace premiumness through positioning", company: "Outschool", description: "Created a positioning test focused on value perception. Parents compared Outschool and competitor classes across six axes. Surfaced UI-level changes to increase value perception and a strategy deck synthesizing high-level insights on pricing and marketplace dynamics.", icon: "/building-cursors/positioning-icon.svg" },
     ],
     bgColor: "#F2BDB4",
     layout: "text-left",
@@ -143,7 +143,7 @@ const SECTIONS: SectionData[] = [
       "For the past two years, I\u2019ve deliberately avoided a job title. I don\u2019t think of myself as a software developer, a designer, a growth marketer, or a product manager, because the work I do rarely fits neatly into one box. I\u2019ll do what needs doing: directly messaging prospective customers one by one, learning to be genuinely silly on social media, a 4 hour commute to in-person events in the Ontario suburbs to recruit our first users, or manually cleaning sensitive business data in a spreadsheet. The work that needs to be done is often unglamorous, but I do it anyways.",
     projects: [
       { name: "Commuting 4 hours to land pilot customers at niche events", description: "Travelled to the outskirts of Toronto to attend niche domain-specific events and land D2C pilot customers face to face.", icon: "/building-cursors/gluegun-icon.svg" },
-      { name: "$90 Intermission", company: "Socratica", description: "Threw a Shopify-sponsored fashion show for under $90 by sourcing everything from the dollar store. tablecloths, pylon hats, lightsabers, and whatever else maximized fun for minimum cost.", icon: "/building-cursors/pylon-icon.svg" },
+      { name: "$90 Intermission", company: "Socratica", description: "Threw a Shopify-sponsored fashion show for under $90 by sourcing everything from the dollar store. Tablecloths, pylon hats, lightsabers, and whatever else maximized fun for minimum cost.", icon: "/building-cursors/pylon-icon.svg" },
       { name: "Manually cleaning a legacy database to enable a system migration", company: "Alma Care", description: "When transitioning Alma Care to a new database, manually cleaned existing data. fixing incorrect columns, transforming open fields to proper data types, and filling missing values.", icon: "/building-cursors/sponge-icon.svg" },
     ],
     bgColor: "#F8FAFF",

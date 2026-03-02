@@ -18,6 +18,7 @@ interface CubeSceneProps {
   onZoomComplete?: (faceId: FaceId) => void;
   onZoomOutComplete?: (state?: CubeRestoreState) => void;
   onSwitchComplete?: (faceId: FaceId) => void;
+  onFirstInteraction?: () => void;
   animationDuration?: number;
   initialFace?: FaceId;
   initialZoomedFace?: FaceId;
@@ -43,6 +44,7 @@ export function CubeScene({
   onZoomComplete,
   onZoomOutComplete,
   onSwitchComplete,
+  onFirstInteraction,
   animationDuration = 1800,
   initialFace,
   initialZoomedFace,
@@ -74,6 +76,7 @@ export function CubeScene({
             onZoomComplete={onZoomComplete}
             onZoomOutComplete={onZoomOutComplete}
             onSwitchComplete={onSwitchComplete}
+            onFirstInteraction={onFirstInteraction}
             disabled={disabled}
             animationDuration={animationDuration}
             initialFace={initialFace}

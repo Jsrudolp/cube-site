@@ -13,7 +13,9 @@ interface DynamicTextureState {
 }
 
 export function useDynamicTextures(skip = false) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const iframesRef = useRef<Map<FaceId, HTMLIFrameElement>>(new Map());
+  const captureStarted = useRef<Set<FaceId>>(new Set());
   const [state, setState] = useState<DynamicTextureState>({
     textures: FACE_INDEX_TO_ID.map(() => null),
     canvases: new Map(),
@@ -23,20 +25,38 @@ export function useDynamicTextures(skip = false) {
     FACE_INDEX_TO_ID.map(() => null)
   );
   const canvasesRef = useRef<Map<FaceId, HTMLCanvasElement>>(new Map());
-
-  // Use a numeric token instead of a boolean so each mount cycle gets its own
-  // identity. The cleanup increments the token, instantly invalidating any
-  // in-flight async work from the previous mount.
   const mountToken = useRef(0);
+
+  const setTexture = useCallback((faceId: FaceId, canvas: HTMLCanvasElement) => {
+    canvasesRef.current.set(faceId, canvas);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.anisotropy = 16;
+    texture.generateMipmaps = true;
+    texture.needsUpdate = true;
+
+    const idx = FACE_INDEX_TO_ID.indexOf(faceId);
+    if (idx !== -1) {
+      texturesRef.current[idx]?.dispose();
+      texturesRef.current[idx] = texture;
+      setState({
+        textures: [...texturesRef.current],
+        canvases: new Map(canvasesRef.current),
+        ready: texturesRef.current.every((t) => t !== null),
+      });
+    }
+  }, []);
 
   const captureIframe = useCallback(
     async (faceId: FaceId, iframe: HTMLIFrameElement, token: number) => {
-      console.log(`[tex] ${faceId}: onload fired, token=${token}, current=${mountToken.current}`);
-      if (mountToken.current !== token) { console.log(`[tex] ${faceId}: stale token, skipping`); return; }
+      console.log(`[tex] ${faceId}: onload fired, token=${token}`);
+      if (mountToken.current !== token) return;
 
       try {
-        // Wait for Next.js to hydrate — poll until the iframe has meaningful
-        // content (at least one child element beyond empty wrappers).
+        // Wait for Next.js hydration
         const maxWait = 10_000;
         const pollInterval = 200;
         const start = Date.now();
@@ -53,16 +73,14 @@ export function useDynamicTextures(skip = false) {
           };
           check();
         });
-        if (mountToken.current !== token) { console.log(`[tex] ${faceId}: stale after poll`); return; }
+        if (mountToken.current !== token) return;
 
         const iframeDoc = iframe.contentDocument;
-        if (!iframeDoc?.body) { console.log(`[tex] ${faceId}: no contentDocument`); return; }
-        console.log(`[tex] ${faceId}: content ready, capturing...`);
+        if (!iframeDoc?.body) return;
 
-        // Inject real viewport height so vh units match the actual browser
-        // viewport, not the square iframe dimensions
+        // Inject real viewport height so vh units match the browser viewport
         const realVh = window.innerHeight;
-        const style = iframeDoc.createElement('style');
+        const style = iframeDoc.createElement("style");
         const realVhUnit = realVh / 100;
         style.textContent = `
           .h-screen { height: ${realVh}px !important; }
@@ -71,79 +89,77 @@ export function useDynamicTextures(skip = false) {
         `;
         iframeDoc.head.appendChild(style);
 
-        // Force all lazy images to load eagerly (offscreen iframes won't
-        // trigger lazy loading) and wait for them to complete.
+        // Force lazy images to load
         const images = Array.from(iframeDoc.querySelectorAll("img"));
         for (const img of images) {
           if (img.loading === "lazy") img.loading = "eager";
         }
         await Promise.all(
-          images.map(
-            (img) =>
-              img.complete
-                ? Promise.resolve()
-                : new Promise<void>((resolve) => {
-                    img.onload = () => resolve();
-                    img.onerror = () => resolve();
-                    // Safety timeout per image
-                    setTimeout(resolve, 8_000);
-                  })
+          images.map((img) =>
+            img.complete
+              ? Promise.resolve()
+              : new Promise<void>((resolve) => {
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                  setTimeout(resolve, 8_000);
+                })
           )
         );
 
-        // Wait for paint after images are loaded
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         if (mountToken.current !== token) return;
 
         const size = iframe.clientWidth;
-        if (size === 0) { console.log(`[tex] ${faceId}: iframe has 0 width`); return; }
+        if (size === 0) return;
 
-        console.log(`[tex] ${faceId}: calling html2canvas, size=${size}`);
-        const canvas = await Promise.race([
+        // Pass 1: low-res (scale=1, no DPR) — fast, appears immediately
+        console.log(`[tex] ${faceId}: low-res capture...`);
+        const lowResCanvas = await Promise.race([
           html2canvas(iframeDoc.body, {
             width: size,
             height: size,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
-            scale: window.devicePixelRatio || 1,
+            scale: 1,
           }),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error("html2canvas timed out")), 15_000)
           ),
         ]);
+        if (mountToken.current !== token) return;
+        console.log(`[tex] ${faceId}: low-res done ${lowResCanvas.width}x${lowResCanvas.height}`);
+        setTexture(faceId, lowResCanvas);
 
-        if (mountToken.current !== token) { console.log(`[tex] ${faceId}: stale after html2canvas`); return; }
-        console.log(`[tex] ${faceId}: captured ${canvas.width}x${canvas.height}`);
+        // Pass 2: hi-res (full DPR) — only worth it above 1x
+        const dpr = window.devicePixelRatio || 1;
+        if (dpr <= 1) return;
 
-        canvasesRef.current.set(faceId, canvas);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.minFilter = THREE.LinearMipmapLinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.anisotropy = 16;
-        texture.generateMipmaps = true;
-        texture.needsUpdate = true;
-
-        const idx = FACE_INDEX_TO_ID.indexOf(faceId);
-        if (idx !== -1) {
-          texturesRef.current[idx]?.dispose();
-          texturesRef.current[idx] = texture;
-
-          setState({
-            textures: [...texturesRef.current],
-            canvases: new Map(canvasesRef.current),
-            ready: texturesRef.current.every((t) => t !== null),
-          });
-        }
+        console.log(`[tex] ${faceId}: hi-res capture at ${dpr}x...`);
+        const hiResCanvas = await Promise.race([
+          html2canvas(iframeDoc.body, {
+            width: size,
+            height: size,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null,
+            scale: dpr,
+          }),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("html2canvas hi-res timed out")), 15_000)
+          ),
+        ]);
+        if (mountToken.current !== token) return;
+        console.log(`[tex] ${faceId}: hi-res done ${hiResCanvas.width}x${hiResCanvas.height}`);
+        setTexture(faceId, hiResCanvas);
       } catch (err) {
         console.warn(`[dynamic-texture] Failed to capture ${faceId}:`, err);
       }
     },
-    []
+    [setTexture]
   );
 
+  // Set up the off-screen container on mount
   useEffect(() => {
     if (skip) return;
     const token = ++mountToken.current;
@@ -156,31 +172,56 @@ export function useDynamicTextures(skip = false) {
     container.style.cssText =
       `position:fixed;left:-9999px;top:-9999px;width:${sizePx};height:${sizePx};overflow:hidden;pointer-events:none;`;
     document.body.appendChild(container);
-
-    for (const face of FACES) {
-      const iframe = document.createElement("iframe");
-      iframe.style.cssText = `width:${sizePx};height:${sizePx};border:none;`;
-      iframe.src = face.route;
-
-      iframe.onload = () => {
-        captureIframe(face.id, iframe, token);
-      };
-
-      container.appendChild(iframe);
-      iframesRef.current.set(face.id, iframe);
-    }
+    containerRef.current = container;
 
     return () => {
-      // Incrementing the token invalidates all in-flight captures from this cycle
       console.log(`[tex] effect cleanup, invalidating token=${token}`);
       mountToken.current = token + 1;
       texturesRef.current.forEach((t) => t?.dispose());
       texturesRef.current = FACE_INDEX_TO_ID.map(() => null);
       container.remove();
+      containerRef.current = null;
       iframesRef.current.clear();
+      captureStarted.current.clear();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skip]);
+
+  // Request capture for a single face (no-op if already started)
+  const requestCapture = useCallback(
+    (faceId: FaceId) => {
+      if (skip) return;
+      if (captureStarted.current.has(faceId)) return;
+      const container = containerRef.current;
+      if (!container) return;
+
+      captureStarted.current.add(faceId);
+      const token = mountToken.current;
+
+      const face = FACES.find((f) => f.id === faceId);
+      if (!face) return;
+
+      const size = window.innerWidth;
+      const sizePx = `${size}px`;
+
+      const iframe = document.createElement("iframe");
+      iframe.style.cssText = `width:${sizePx};height:${sizePx};border:none;`;
+      iframe.src = face.route;
+      iframe.onload = () => captureIframe(faceId, iframe, token);
+
+      container.appendChild(iframe);
+      iframesRef.current.set(faceId, iframe);
+      console.log(`[tex] ${faceId}: iframe created (lazy)`);
+    },
+    [skip, captureIframe]
+  );
+
+  // Request capture for all faces not yet started
+  const requestAll = useCallback(() => {
+    for (const face of FACES) {
+      requestCapture(face.id);
+    }
+  }, [requestCapture]);
 
   const getCanvas = useCallback((faceId: FaceId): HTMLCanvasElement | null => {
     return canvasesRef.current.get(faceId) ?? null;
@@ -190,5 +231,7 @@ export function useDynamicTextures(skip = false) {
     textures: state.textures,
     ready: state.ready,
     getCanvas,
+    requestCapture,
+    requestAll,
   };
 }

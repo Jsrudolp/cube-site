@@ -47,7 +47,16 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsIframe(window.self !== window.top);
   }, []);
-  const { textures: dynamicTextures } = useDynamicTextures(isIframe);
+  const { textures: dynamicTextures, requestCapture, requestAll } = useDynamicTextures(isIframe);
+
+  // Immediately capture the front face (most visible on initial load),
+  // then capture all remaining faces after 3s as a fallback.
+  useEffect(() => {
+    if (isIframe) return;
+    requestCapture("front");
+    const fallback = setTimeout(requestAll, 3000);
+    return () => clearTimeout(fallback);
+  }, [isIframe, requestCapture, requestAll]);
 
   const interactive = !activeFace && !zoomingOut && !isTransitioning;
 
@@ -194,6 +203,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
             onZoomComplete={handleZoomComplete}
             onZoomOutComplete={handleZoomOutComplete}
             onSwitchComplete={handleSwitchComplete}
+            onFirstInteraction={requestAll}
             initialZoomedFace={activeFace ?? undefined}
             zoomOutFromFace={zoomingOut ? (activeFace ?? undefined) : undefined}
             switchToFace={isTransitioning && zoomingOut ? (switchTarget ?? undefined) : undefined}

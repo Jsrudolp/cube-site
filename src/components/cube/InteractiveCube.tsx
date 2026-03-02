@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useMemo } from "react";
+import { useCallback, useEffect, useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
@@ -19,6 +19,7 @@ interface InteractiveCubeProps {
   onZoomComplete?: (faceId: FaceId) => void;
   onZoomOutComplete?: (state?: CubeRestoreState) => void;
   onSwitchComplete?: (faceId: FaceId) => void;
+  onFirstInteraction?: () => void;
   disabled?: boolean;
   animationDuration?: number;
   initialFace?: FaceId;
@@ -35,6 +36,7 @@ export function InteractiveCube({
   onZoomComplete,
   onZoomOutComplete,
   onSwitchComplete,
+  onFirstInteraction,
   disabled = false,
   animationDuration = 1800,
   initialFace,
@@ -47,6 +49,7 @@ export function InteractiveCube({
 }: InteractiveCubeProps) {
   const { camera } = useThree();
   const meshRef = useRef<THREE.Mesh>(null);
+  const hasInteracted = useRef(false);
   const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
   const edgeGeometry = useMemo(() => createEdgeGeometry(), []);
   const edgeMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#EDEDED" }), []);
@@ -99,13 +102,25 @@ export function InteractiveCube({
 
   // Rotation hook
   const {
-    onPointerDown,
+    onPointerDown: rotationPointerDown,
     onPointerMove,
     onPointerUp,
     update,
     hasDragged,
     setEnabled: setRotationEnabled,
   } = useCubeRotation({ meshRef, enabled: !disabled });
+
+  // Trigger lazy capture of remaining faces on first interaction
+  const onPointerDown = useCallback(
+    (e: Parameters<typeof rotationPointerDown>[0]) => {
+      if (!hasInteracted.current) {
+        hasInteracted.current = true;
+        onFirstInteraction?.();
+      }
+      rotationPointerDown(e);
+    },
+    [rotationPointerDown, onFirstInteraction]
+  );
 
   // Navigation hook
   const { onClick, isAnimating } = useFaceNavigation({

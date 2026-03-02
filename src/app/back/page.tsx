@@ -31,7 +31,7 @@ export default function BackPage() {
                 <p>My biggest fears are:</p>
                 <div className="mt-3 pl-5 border-l-2 border-white/10 space-y-3 text-white/70">
                   <p>1) being a <strong className="text-white">boring</strong> person</p>
-                  <p>2) building communities that are exclusive</p>
+                  <p>2) building communities that make people feel excluded</p>
                   <p>3) following a pre-defined pathway without thinking about why</p>
                 </div>
               </div>
@@ -41,15 +41,15 @@ export default function BackPage() {
               </div>
 
               <div>
-                <p>I believe that great things take a long time to build, often much longer than anyone would expect. Tenure is a value that I hold close, and feels contradictory to today&apos;s fashion.</p>
+                <p>I believe that great things take a long time to build, often much longer than anyone would expect. Commitment is a value that I hold close, and feels contradictory to today&apos;s fashion.</p>
               </div>
 
               <div>
                 <p>Projects I&apos;ve worked on that never caught on:</p>
                 <div className="mt-3 pl-5 border-l-2 border-white/10 space-y-3 text-white/70">
-                  <p>The Socratica theme song</p>
-                  <p>Digital story-based escape rooms for studying</p>
-                  <p>A skill-tree builder for self-development</p>
+                  <p>The Socratica theme song, written after 100s of hours listening to Leave It All To Me, Make It Shine, and Everything Is Not What It Seems</p>
+                  <p>Digital story-based escape rooms that embed study questions in context to advancing the plot (although my Calculus teacher did offer to pay me to make one for her daughter&apos;s birthday)</p>
+                  <p>A skill-tree builder for self-development, which I&apos;m actually planning on reviving next!</p>
                 </div>
               </div>
 
@@ -92,7 +92,7 @@ export default function BackPage() {
               </div>
 
               <div>
-                <p>My inflection point to becoming a <strong>leadership kid</strong> was during my 8th grade student council, in which I was the VP of Eco — a position I&apos;ve yet to see anywhere else.</p>
+                <p>My inflection point to becoming a leadership kid was during my 8th grade student council, in which I was the VP of Eco-Friendliness for the school. I also think this predisposed me to enjoy irregular, ambiguous and hard-to-explain roles.</p>
               </div>
             </div>
           </section>
@@ -100,7 +100,7 @@ export default function BackPage() {
           {/* Footer */}
           <footer className="pt-8 border-t border-white/10">
             <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] sm:text-[15px]">
-              <a href="https://instagram.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors">Instagram</a>
+              <a href="https://www.instagram.com/jake.rudolph7/" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors">Instagram</a>
               <a href="https://substack.com/@jakerudolph" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white/80 transition-colors">Substack</a>
               <a href="mailto:jakesrudolph7@gmail.com" className="text-white/40 hover:text-white/80 transition-colors">jakesrudolph7@gmail.com</a>
             </div>

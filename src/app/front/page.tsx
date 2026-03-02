@@ -27,14 +27,14 @@ export default function FrontPage() {
             {/* Kindred */}
             <div>
               <p>
-                Led <strong>product, engineering, and design</strong> for{" "}
-                <CompanyLink href="https://kindredhealth.ca" logo="/logos/kindred.png" name="Stealth" bgColor="#f5e6e0" {...pill} />,
-                a B2B2C healthcare marketplace platform as the sole product builder,
+                Led product, engineering, and design for{" "}
+                <CompanyLink href="https://simpleventures.ca/portfolio" logo="/logos/kindly.png" name="Kindly" bgColor="#FFE0E8" {...pill} />,
+                a B2B2C healthcare marketplace platform as the sole product builder and employee #1,
                 working alongside the CEO.
               </p>
               <p className="mt-3 pl-5 border-l-2 border-foreground/10 text-foreground/70">
-                Grew from no customers, supply or product to{" "}
-                <strong className="text-[#434343]">5 pilot customers (4,000 employees),</strong> 12 care
+                Grew from no customers, experts or product to{" "}
+                5 committed pilot customers (4,000 employees), a team of 12 care
                 experts and an end-to-end product with SOC 2 compliance in 90
                 days.
               </p>
@@ -51,7 +51,7 @@ export default function FrontPage() {
               <div className="mt-3 space-y-3 text-foreground/70">
                 <p className="pl-5 border-l-2 border-foreground/10">
                   Rented out a hockey rink for Symposium, the{" "}
-                  <strong className="text-[#434343]">world&apos;s largest student-run demo day</strong> with
+                  world&apos;s largest student-run demo day with
                   80 projects and 2,500 attendees.
                 </p>
                 <p className="pl-5 border-l-2 border-foreground/10">
@@ -79,16 +79,16 @@ export default function FrontPage() {
               </p>
               <div className="mt-3 space-y-3 text-foreground/70">
                 <p className="pl-5 border-l-2 border-foreground/10">
-                  Built internal tooling, dashboards, automations and CRMs for{" "}
-                  <CompanyLink href="https://almacare.ca" logo="/logos/almacares.png" name="Alma Care" bgColor="#e0f0eb" {...pill} />.
+                  Built a comprehensive relational database and layer on internal tooling, dashboards, automations and CRMs for{" "}
+                  <CompanyLink href="https://almacare.ca" logo="/logos/almacares.png" name="Alma Care" bgColor="#e0f0eb" {...pill} />,
+                  enabling the business to scale.
                 </p>
                 <p className="pl-5 border-l-2 border-foreground/10">
-                  Architected the handbag subscription system for{" "}
-                  <CompanyLink href="https://zerocollective.com" logo="/logos/zerocollective.png" name="Zero Collective" bgColor="#d8d8d8" {...pill} />.
+                  Architected the handbag subscription system and checkout flow for{" "}
+                  <CompanyLink href="https://zerocollective.ca" logo="/logos/zerocollective.png" name="Zero Collective" bgColor="#d8d8d8" {...pill} />.
                 </p>
                 <p className="pl-5 border-l-2 border-foreground/10">
-                  Explored the business case for new concepts in Fintech, Vertical
-                  AI and Health.
+                  Explored the business case for new concepts in FinTech, Marketplaces and Health.
                 </p>
               </div>
             </div>
@@ -113,14 +113,18 @@ export default function FrontPage() {
             {/* Outschool */}
             <div>
               <p>
-                Convinced the CEO at{" "}
-                <CompanyLink href="https://outschool.com" logo="/logos/outschool.png" name="Outschool" bgColor="#e8e0f5" {...pill} />{" "}
-                to sunset an underperforming product.
+                Worked on value perception and recommendations at{" "}
+                <CompanyLink href="https://outschool.com" logo="/logos/outschool.png" name="Outschool" bgColor="#e8e0f5" {...pill} />,
+                a K–12 live online learning marketplace.
               </p>
-              <p className="mt-3 pl-5 border-l-2 border-foreground/10 text-foreground/70">
-                Also dove deep into value perception, recommendations, and
-                learning outcomes.
-              </p>
+              <div className="mt-3 space-y-3 text-foreground/70">
+                <p className="pl-5 border-l-2 border-foreground/10">
+                  Quantitatively measured value perception, leading to micro-UI changes that boosted conversions and a macro-strategy deck for a new product line.
+                </p>
+                <p className="pl-5 border-l-2 border-foreground/10">
+                  Identified through user reactions and bookings data that the recommendations feature was underperforming, leading to a full revamp of how the platform surfaces classes.
+                </p>
+              </div>
             </div>
 
             {/* D2L */}
@@ -128,8 +132,7 @@ export default function FrontPage() {
               <p>
                 Led an end-to-end navigation research project at{" "}
                 <CompanyLink href="https://d2l.com" logo="/logos/d2l.png" name="D2L" bgColor="#f5e8dc" {...pill} />{" "}
-                which grew three sizes from its original scope to include assistive
-                technology users, B2B users and &lt;16 y/o users.
+                which uniquely included assistive technology users (screen readers, voice navigation, etc.), B2B users and &lt;16 y/o users.
               </p>
             </div>
 
@@ -138,7 +141,7 @@ export default function FrontPage() {
               <p>
                 First co-op at{" "}
                 <CompanyLink href="https://sunlife.com" logo="/logos/sunlife.png" name="Sun Life" bgColor="#f5f0dc" {...pill} />.
-                Was bored, so I self-initiated 3 projects, starting with discovery
+                Beyond my assigned project, I self-initiated 3 projects, starting with discovery
                 interviews to identify team pain points, which then led to
                 redesigning a legacy tool and developing automations.
               </p>
@@ -148,20 +151,19 @@ export default function FrontPage() {
             <div>
               <p>
                 Joined{" "}
-                <CompanyLink href="https://prequel.co" logo="/logos/prequel.png" name="Prequel" bgColor="#f0e0f0" {...pill} />{" "}
-                as an early employee, owning cx and ops leading to an acquisition.
+                <CompanyLink href="https://joinprequel.com" logo="/logos/prequel.png" name="Prequel" bgColor="#f0e0f0" {...pill} />{" "}
+                as an early employee, owning customer experience and operations leading to an acquisition.
               </p>
             </div>
 
             {/* Basketball */}
             <div>
               <p>
-                Worked my first job as a basketball coach at 13 through to the end
+                I worked my first job as a basketball coach at 13 through to the end
                 of high school.
               </p>
               <p className="mt-3 pl-5 border-l-2 border-foreground/10 text-foreground/70">
-                Was the youngest registered Head Coach for a rep team in Ontario
-                in my senior year.
+                In my senior year of high school, I coached a competitive rep team as the youngest registered Head Coach in Ontario.
               </p>
             </div>
           </div>
@@ -170,18 +172,14 @@ export default function FrontPage() {
         {/* Footer */}
         <footer className="pt-8 border-t border-foreground/10">
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] sm:text-[15px]">
-            <a href="https://x.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">X</a>
+            <a href="https://x.com/jakesrudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">X</a>
             <a href="https://linkedin.com/in/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">LinkedIn</a>
-            <a href="https://github.com/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">GitHub</a>
+            <a href="https://github.com/jsrudolp" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">GitHub</a>
             <a href="mailto:jake.rudolph@uwaterloo.ca" className="text-foreground/40 hover:text-foreground/80 transition-colors">jake.rudolph@uwaterloo.ca</a>
           </div>
 
           <p className="mt-6 text-[12px] sm:text-[14px] leading-[1.6] italic text-foreground/35">
-            This page is what inspired my personal website concept. At face
-            value, its resume-esque aesthetic is an accurate summary of my
-            largest accomplishments and career milestones. But, it lacks depth
-            and dimension. This 3-D cube site is built for people who truly want
-            to learn about the faces that make me, me.
+            You&apos;ve reached the end of Face 1 (Career Milestones). Check out Faces 2–5 to learn about the other dimensions that are important to me (Music, Community, Building, Thinking, and The Dark Side Of The Cube).
           </p>
         </footer>
       </div>
