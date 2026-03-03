@@ -68,8 +68,21 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: "Jake Rudolph",
-  description:
-    "A multi-dimensional website, made by a multidimensional person.",
+  description: "A multi-dimensional website, made by a multidimensional person.",
+  openGraph: {
+    title: "Jake Rudolph",
+    description: "A multi-dimensional website, made by a multidimensional person.",
+    url: "https://jakescube.com",
+    siteName: "Jake Rudolph",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Jake Rudolph" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jake Rudolph",
+    description: "A multi-dimensional website, made by a multidimensional person.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
