@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { getVisitedFaces } from "@/lib/visited-faces";
 
-// Radius in px per number of OTHER faces visited (0-5)
-const RADIUS_MAP = [50, 90, 140, 200, 280, 400];
+const DEFAULT_RADIUS = 280;
 
 function FlashlightInner({ children, fullscreen, overlayZIndex = 40 }: { children: React.ReactNode; fullscreen?: boolean; overlayZIndex?: number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: -1000, y: -1000 });
-  const [radius, setRadius] = useState(0);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS);
   const searchParams = useSearchParams();
 
   // Store last known cursor position in viewport coordinates
@@ -36,14 +34,8 @@ function FlashlightInner({ children, fullscreen, overlayZIndex = 40 }: { childre
       const parsed = parseInt(radiusOverride, 10);
       if (!isNaN(parsed) && parsed > 0) {
         setRadius(parsed);
-        return;
       }
     }
-
-    // Count how many NON-"back" faces have been visited
-    const visited = getVisitedFaces().filter((id) => id !== "back");
-    const count = Math.min(visited.length, 5);
-    setRadius(RADIUS_MAP[count]);
   }, [searchParams]);
 
   // Update position on scroll

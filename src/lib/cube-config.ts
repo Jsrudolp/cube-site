@@ -28,7 +28,7 @@ export const FACE_COLORS: Record<FaceId, string> = {
   building: "#f5e6d3",  // warm beige
   community: "#FFFAE8", // off-white (matches community page)
   thinking: "#F5F5F5",  // light gray (matches thinking page)
-  back: "#1a1a1a",      // near-black (matches back page)
+  back: "#000000",      // true black (overlay color for portrait padding)
 };
 
 // Face normal vectors (outward-pointing, in canonical orientation)

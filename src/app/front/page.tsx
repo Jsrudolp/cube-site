@@ -24,7 +24,7 @@ export default function FrontPage() {
             <div>
               <p>
                 Led product, engineering, and design for{" "}
-                <CompanyLink href="https://simpleventures.ca/portfolio" logo="/logos/kindly.png" name="Kindly" bgColor="#FFE0E8" {...pill} />,
+                <CompanyLink href="https://kindly.ca" logo="/logos/kindly.png" name="Kindly" bgColor="#FFE0E8" {...pill} />,
                 a B2B2C healthcare marketplace platform as the sole product builder and employee #1,
                 working alongside the CEO.
               </p>
