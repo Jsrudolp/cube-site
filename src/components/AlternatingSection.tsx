@@ -12,6 +12,7 @@ export interface TunerStyles {
   imageOffsetY?: number;
   sectionPadding?: number;
   textWidth?: number;
+  mobileCenterText?: boolean;
 }
 
 interface AlternatingSectionProps {
@@ -23,6 +24,8 @@ interface AlternatingSectionProps {
   description: string;
   tags?: { discipline: string; labels: string[] }[];
   imageSrc?: string;
+  imageMobileSrc?: string;
+  imageMobileWidth?: string;
   imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
@@ -39,6 +42,8 @@ export default function AlternatingSection({
   description,
   tags,
   imageSrc,
+  imageMobileSrc,
+  imageMobileWidth,
   imageAlt,
   imageWidth,
   imageHeight,
@@ -74,14 +79,20 @@ export default function AlternatingSection({
   const scaledWidth = imageWidth && ts?.imageScale ? imageWidth * (ts.imageScale / 100) : imageWidth;
 
   const imageContent = imageSrc ? (
-    <img
-      src={imageSrc}
-      alt={imageAlt || title}
-      width={scaledWidth}
-      height={imageHeight}
-      className="max-w-full h-auto"
-      style={scaledWidth ? { width: scaledWidth, maxWidth: "100%" } : undefined}
-    />
+    <picture>
+      {imageMobileSrc && <source media="(max-width: 767px)" srcSet={imageMobileSrc} />}
+      <img
+        src={imageSrc}
+        alt={imageAlt || title}
+        width={scaledWidth}
+        height={imageHeight}
+        className={`max-w-full h-auto${imageMobileWidth ? " [width:var(--img-mobile-w)] md:[width:var(--img-w,auto)]" : ""}`}
+        style={{
+          ...(scaledWidth ? { '--img-w': `${scaledWidth}px`, maxWidth: "100%" } : {}),
+          ...(imageMobileWidth ? { '--img-mobile-w': imageMobileWidth } : scaledWidth ? { width: scaledWidth } : {}),
+        } as React.CSSProperties}
+      />
+    </picture>
   ) : children ? (
     children
   ) : (
@@ -95,11 +106,14 @@ export default function AlternatingSection({
   return (
     <section
       id={id}
-      className="flex flex-col md:flex-row gap-6 md:gap-12 items-start py-8 md:py-12"
-      style={{ ...(ts?.gap ? { gap: ts.gap } : {}), ...(ts?.sectionPadding ? { paddingTop: ts.sectionPadding, paddingBottom: ts.sectionPadding } : {}) }}
+      className="flex flex-col md:flex-row gap-8 md:[gap:var(--section-gap,3rem)] items-start py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
+      style={{
+        ...(ts?.gap ? { '--section-gap': `${ts.gap}px` } as React.CSSProperties : {}),
+        ...(ts?.sectionPadding ? { '--section-py': `${ts.sectionPadding}px` } as React.CSSProperties : {}),
+      }}
     >
       {/* Title — visible on mobile only (above image) */}
-      <div className="md:hidden w-full">{titleElement}</div>
+      <div className="md:hidden w-full text-center">{titleElement}</div>
 
       {/* Desktop image: with vertical offset for two-column visual alignment */}
       <div
@@ -110,7 +124,7 @@ export default function AlternatingSection({
       </div>
 
       {/* Mobile image: stacked, no vertical offset */}
-      <div className="md:hidden flex-1 min-w-0 flex items-center justify-center">
+      <div className="md:hidden w-full flex justify-center mb-3">
         {imageContent}
       </div>
 
@@ -120,7 +134,7 @@ export default function AlternatingSection({
         {metadata && (
           <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
         )}
-        <div className="leading-relaxed space-y-3 text-[16px] md:text-[20px]" style={ts?.lineHeight ? { lineHeight: ts.lineHeight } : undefined}>
+        <div className={`leading-relaxed space-y-3 text-[16px] md:text-[20px]${ts?.mobileCenterText ? " text-center md:text-left" : ""}`} style={ts?.lineHeight ? { lineHeight: ts.lineHeight } : undefined}>
           {description.split("\n\n").map((paragraph, i) => (
             <p key={i}>{renderInline(paragraph)}</p>
           ))}

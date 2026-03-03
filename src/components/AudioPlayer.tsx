@@ -13,7 +13,7 @@ interface AudioPlayerProps {
   onClose: () => void;
 }
 
-export default function AudioPlayer({ albumTitle, tracks, onClose }: AudioPlayerProps) {
+export default function AudioPlayer({ albumTitle: _albumTitle, tracks, onClose }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true); // Autoplay when selected
@@ -78,6 +78,7 @@ export default function AudioPlayer({ albumTitle, tracks, onClose }: AudioPlayer
     });
   }, []);
 
+
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "0:00";
     const m = Math.floor(seconds / 60);
@@ -119,12 +120,23 @@ export default function AudioPlayer({ albumTitle, tracks, onClose }: AudioPlayer
           {/* Track info and progress */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <div className="truncate">
-                <span className="text-xs text-white/50 uppercase tracking-wider">Jake Rudolph</span>
-                <span className="text-white/30 mx-2">·</span>
-                <span className="text-white font-medium">{currentTrack?.title || "No track"}</span>
+              {/* Track title — always scrolling marquee */}
+              <div className="overflow-hidden flex-1 min-w-0 mr-4">
+                <div
+                  className="inline-flex whitespace-nowrap"
+                  style={{ animation: "marquee 10s linear 1.5s infinite" }}
+                >
+                  <span className="text-white font-medium">{currentTrack?.title}</span>
+                  <span className="text-white/30 mx-6">·</span>
+                  <span className="text-xs text-white/50 uppercase tracking-wider self-center">Jake Rudolph</span>
+                  <span className="text-white/30 mx-6">·</span>
+                  <span className="text-white font-medium">{currentTrack?.title}</span>
+                  <span className="text-white/30 mx-6">·</span>
+                  <span className="text-xs text-white/50 uppercase tracking-wider self-center">Jake Rudolph</span>
+                  <span className="text-white/30 mx-6">·</span>
+                </div>
               </div>
-              <div className="text-xs text-white/40 ml-4 flex-shrink-0">
+              <div className="text-xs text-white/40 flex-shrink-0">
                 {formatTime(progress)} / {formatTime(duration)}
               </div>
             </div>

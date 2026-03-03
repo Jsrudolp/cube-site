@@ -160,6 +160,70 @@ function composeSquareSlanted(
   return canvas;
 }
 
+/**
+ * Like composeSquare, but also extends the horizontal "hanging lines" from each
+ * CommunityRow into the padding zones. Scans a thin strip near the left edge of
+ * the content (before photos start, which begin at ~24px due to px-6 padding)
+ * and detects rows where pixels consistently differ from the background color —
+ * those are the 2px wire lines. It then fills the same rows in the padding zones
+ * with the detected line color.
+ */
+function composeSquareCommunity(
+  src: HTMLCanvasElement,
+  squareSize: number,
+  contentWidth: number,
+  bgColor: string
+): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = squareSize;
+  canvas.height = squareSize;
+  const ctx = canvas.getContext("2d")!;
+  const xOffset = Math.round((squareSize - contentWidth) / 2);
+  const rightStart = xOffset + contentWidth;
+  const rightWidth = squareSize - rightStart;
+
+  // Background fill
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, squareSize, squareSize);
+
+  // Draw captured content in center
+  ctx.drawImage(src, xOffset, 0);
+
+  // Parse background color for comparison
+  const bgHex = bgColor.replace("#", "");
+  const bgR = parseInt(bgHex.slice(0, 2), 16);
+  const bgG = parseInt(bgHex.slice(2, 4), 16);
+  const bgB = parseInt(bgHex.slice(4, 6), 16);
+
+  // Sample strip at x=3..10 — within the CommunityRow's full-bleed area but
+  // before any photo content (photos start at ~24px due to px-6 padding).
+  const SCAN_X = 3;
+  const SCAN_W = 8;
+  const strip = src.getContext("2d")!.getImageData(SCAN_X, 0, SCAN_W, squareSize).data;
+  const DIFF_THRESHOLD = 15; // min sum-RGB diff from bg to count as "line pixel"
+  const MIN_RATIO = 0.75;    // fraction of strip columns that must be line pixels
+
+  for (let y = 0; y < squareSize; y++) {
+    let count = 0;
+    let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    for (let x = 0; x < SCAN_W; x++) {
+      const i = (y * SCAN_W + x) * 4;
+      const r = strip[i], g = strip[i + 1], b = strip[i + 2], a = strip[i + 3];
+      if (a < 128) continue;
+      if (Math.abs(r - bgR) + Math.abs(g - bgG) + Math.abs(b - bgB) > DIFF_THRESHOLD) {
+        count++; sumR += r; sumG += g; sumB += b; sumA += a;
+      }
+    }
+    if (count >= Math.ceil(SCAN_W * MIN_RATIO)) {
+      ctx.fillStyle = `rgba(${Math.round(sumR/count)},${Math.round(sumG/count)},${Math.round(sumB/count)},${sumA/count/255})`;
+      if (xOffset > 0)   ctx.fillRect(0,          y, xOffset,    1);
+      if (rightWidth > 0) ctx.fillRect(rightStart, y, rightWidth, 1);
+    }
+  }
+
+  return canvas;
+}
+
 // Module-level cache so the image is only fetched once across all captures
 let _musicHeroImg: HTMLImageElement | null = null;
 let _musicHeroLoading: Promise<HTMLImageElement | null> | null = null;
@@ -344,7 +408,9 @@ export function useDynamicTextures(skip = false) {
               ? composeSquareSlanted(capturedLow, squareSize, contentWidth, FACE_COLORS[faceId])
               : faceId === "music"
                 ? composeSquareMusicHero(capturedLow, squareSize, contentWidth, musicHeroImg)
-                : composeSquare(capturedLow, squareSize, contentWidth, FACE_COLORS[faceId]))
+                : faceId === "community"
+                  ? composeSquareCommunity(capturedLow, squareSize, contentWidth, FACE_COLORS[faceId])
+                  : composeSquare(capturedLow, squareSize, contentWidth, FACE_COLORS[faceId]))
           : capturedLow;
         setTexture(faceId, lowResCanvas);
 
@@ -373,7 +439,9 @@ export function useDynamicTextures(skip = false) {
               ? composeSquareSlanted(capturedHi, squareSize * dpr, contentWidth * dpr, FACE_COLORS[faceId])
               : faceId === "music"
                 ? composeSquareMusicHero(capturedHi, squareSize * dpr, contentWidth * dpr, musicHeroImg)
-                : composeSquare(capturedHi, squareSize * dpr, contentWidth * dpr, FACE_COLORS[faceId]))
+                : faceId === "community"
+                  ? composeSquareCommunity(capturedHi, squareSize * dpr, contentWidth * dpr, FACE_COLORS[faceId])
+                  : composeSquare(capturedHi, squareSize * dpr, contentWidth * dpr, FACE_COLORS[faceId]))
           : capturedHi;
         setTexture(faceId, hiResCanvas);
       } catch (err) {

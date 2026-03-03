@@ -31,6 +31,11 @@ body {
 }
 
 
+@keyframes marquee {
+  0%    { transform: translateX(0); }
+  100%  { transform: translateX(-50%); }
+}
+
 /* View Transitions — fast cross-fade to minimize gap while CubeOverlay mounts */
 ::view-transition-old(root),
 ::view-transition-new(root) {

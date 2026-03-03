@@ -12,6 +12,8 @@ interface ThinkingTool {
   title: string;
   description: string;
   imageSrc?: string;
+  imageMobileSrc?: string;
+  imageMobileWidth?: string;
   imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
@@ -70,6 +72,8 @@ const THINKING_TOOLS: ThinkingTool[] = [
     description:
       "Deduction and induction are two fundamental types of reasoning.\n\nDeduction takes a top-down idea and through hypothesis-led experiments, tests its validity. I use deduction when I have conviction. It lets me push out what I believe should be true and see if it really is. For example, when working on business model validation, asking \"what needs to be true for this business to be profitable?\" and then designing experiments (i.e. landing page tests, financial modelling, expert calls) for each assumption.\n\nInduction gathers raw evidence and pulls out patterns to form a broader theory. I use induction when I need inspiration. I'm pulling in what is already true at a small scale, and using that to springboard my thinking in new directions. For example, interviewing a subset of churned users, and examining patterns to come up with new theories on how to increase retention.",
     imageSrc: "/thinking-diagrams/deduction-and-induction.png",
+    imageMobileSrc: "/thinking-diagrams/deduction-induction-mobile.png",
+    imageMobileWidth: "80vw",
     imageWidth: 380,
     styles: { gap: 56, textWidth: 56, imageOffsetY: 40 },
   },
@@ -120,6 +124,8 @@ const THINKING_TOOLS: ThinkingTool[] = [
     description:
       "In early hunter-gatherer societies, humans decided which bushes to forage by comparing how many berries they could gather to how much energy it would take.\n\nInformation Foraging Theory proposes that we show similar foraging behaviour when hunting for answers to our questions, new movies to watch, and problems to solve.\n\nWe judge value by whether the perceived outcome (berries) is greater than the perceived cost (thorns). Value perception can be increased by improving the outcome or reducing the cost. We can also measure value perception by observing how people navigate.\n\nI've used Information Foraging Theory in designing search and marketplace products, leading change management for new internal processes, and building my internal compass for which problems are valuable to spend my energy on.",
     imageSrc: "/thinking-diagrams/information-foraging-theory.png",
+    imageMobileSrc: "/thinking-diagrams/info-foraging-mobile.png",
+    imageMobileWidth: "80vw",
     imageWidth: 300,
     styles: { gap: 60, textWidth: 68, imageScale: 55, imageOffsetY: 15 },
   },
@@ -212,7 +218,8 @@ export default function ThinkingPage() {
                 <section
                   key={tool.id}
                   id={tool.id}
-                  style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
+                  className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
+                  style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
                   <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
@@ -232,7 +239,7 @@ export default function ThinkingPage() {
                     </span>
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: t.gap }}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:[gap:var(--col-gap,3rem)]" style={{ '--col-gap': `${t.gap}px` } as React.CSSProperties}>
                     {tool.columns.map((col, colIndex) => {
                       const colScale = col.imageScale ?? 100;
                       const colOffsetY = col.imageOffsetY ?? 0;
@@ -275,7 +282,8 @@ export default function ThinkingPage() {
                 <section
                   key={tool.id}
                   id={tool.id}
-                  style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
+                  className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
+                  style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
                   <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
@@ -354,7 +362,8 @@ export default function ThinkingPage() {
                 <section
                   key={tool.id}
                   id={tool.id}
-                  style={{ paddingTop: t.sectionPy, paddingBottom: t.sectionPy }}
+                  className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
+                  style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
                   <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
@@ -374,7 +383,7 @@ export default function ThinkingPage() {
                     </span>
                   </h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: t.gap }}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:[gap:var(--col-gap,3rem)]" style={{ '--col-gap': `${t.gap}px` } as React.CSSProperties}>
                     {tool.columns.map((col, colIndex) => (
                       <div key={col.title || colIndex} className="text-center">
                         {col.imageSrc ? (
@@ -414,6 +423,8 @@ export default function ThinkingPage() {
                 titleHighlight="yellow"
                 description={tool.description}
                 imageSrc={tool.imageSrc}
+                imageMobileSrc={tool.imageMobileSrc}
+                imageMobileWidth={tool.imageMobileWidth}
                 imageAlt={tool.imageAlt}
                 imageWidth={tool.imageWidth}
                 imageHeight={tool.imageHeight}

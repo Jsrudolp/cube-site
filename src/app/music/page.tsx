@@ -83,7 +83,7 @@ export default function MusicPage() {
           <p className="text-xs sm:text-sm uppercase tracking-[0.1em] font-semibold text-white/90 mb-2 sm:mb-3">
             New Demo
           </p>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">
+          <h1 className="text-[6vw] sm:text-5xl md:text-7xl font-bold uppercase tracking-wider font-[family-name:var(--font-druk-wide-bold)]">
             Supermagnetic
           </h1>
           <button
@@ -116,13 +116,13 @@ export default function MusicPage() {
           </div>
         </div>
 
-        {/* Album grids */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-12">
+        {/* Album grids — subgrid ensures images in the same row always align */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 md:gap-x-12">
           {ALBUMS.map((album) => (
             <button
               key={album.id}
               onClick={() => setActiveAlbum(album)}
-              className={`text-left group transition-opacity ${
+              className={`row-span-2 grid [grid-template-rows:subgrid] text-left group transition-opacity ${
                 activeAlbum && activeAlbum.id !== album.id ? "opacity-50" : ""
               }`}
             >
@@ -134,7 +134,7 @@ export default function MusicPage() {
                   loading="lazy"
                 />
               </div>
-              <p className="mt-2 sm:mt-3 text-[10px] sm:text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors font-[family-name:var(--font-druk-wide-bold)]">
+              <p className="mt-2 sm:mt-3 pb-4 sm:pb-6 md:pb-12 text-[10px] sm:text-sm uppercase tracking-wider text-center text-white/70 group-hover:text-white transition-colors font-[family-name:var(--font-druk-wide-bold)]">
                 {album.title}
               </p>
             </button>
