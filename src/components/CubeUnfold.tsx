@@ -14,17 +14,21 @@ interface CubeUnfoldProps {
 /*
   Animation flow:
   1. Mount → "cube" phase: faces are folded into a 3D cube, parent is tilted
-  2. After 400ms → "open" phase: parent flattens, faces hinge open into T-shape
-  3. Click/dismiss → "closing" phase: fade out (faces stay flat, don't re-fold)
+  2. After 400ms → "open" phase: parent flattens, faces hinge open into net shape
+  3. Click/dismiss → "closing" phase: fade out
 
-  T-shape layout (no gaps — a true cube net):
+  LANDSCAPE net (4 wide × 3 tall):
             [thinking]
   [music]   [front]   [community]  [back]
             [building]
 
-  Key: back face is nested inside a community wrapper <div> so that
-  its fold transform composes with community's fold (both hinge in sequence
-  to form the right side + back of the cube).
+  PORTRAIT net (3 wide × 4 tall):
+            [thinking]
+  [music]   [front]   [community]
+            [building]
+               [back]
+
+  In portrait, back chains to building (vertical fold) instead of to community (horizontal fold).
 */
 
 const GAP = 0;
@@ -46,20 +50,35 @@ const FACE_BG: Record<FaceId, { color: string; extra?: React.CSSProperties }> = 
 
 const DARK_FACES = new Set<FaceId>(["music", "back"]);
 
+function computeLayout(): { size: number; portrait: boolean } {
+  const portrait = window.innerWidth < window.innerHeight;
+  const size = portrait
+    ? Math.min(
+        Math.floor((window.innerHeight * 0.75) / 4), // 4 rows in ~75vh
+        Math.floor(window.innerWidth / 3.2)           // 3 cols fit in viewport
+      )
+    : Math.min(
+        Math.floor((window.innerHeight * 0.5) / 3),  // 3 rows in ~50vh
+        Math.floor(window.innerWidth / 4.2)           // 4 cols fit in viewport
+      );
+  return { size, portrait };
+}
+
 export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) {
   const [phase, setPhase] = useState<"cube" | "open" | "closing">("cube");
   const { switchToFace } = usePersistentCube();
 
-  // SIZE = 1 cell = 50vh / 3 rows, clamped to a sensible range
-  const [SIZE, setSIZE] = useState(() =>
-    typeof window !== "undefined" ? Math.floor(window.innerHeight * 0.5 / 3) : 160
+  const [{ size: SIZE, portrait }, setLayout] = useState<{ size: number; portrait: boolean }>(() =>
+    typeof window !== "undefined" ? computeLayout() : { size: 160, portrait: false }
   );
+
   useEffect(() => {
-    const compute = () => setSIZE(Math.floor(window.innerHeight * 0.5 / 3));
+    const compute = () => setLayout(computeLayout());
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
   }, []);
+
   const CELL = SIZE + GAP;
 
   useEffect(() => {
@@ -128,7 +147,6 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
         }}
         title={f.label}
       >
-        {/* Face icon — centered, not full-bleed */}
         <Image
           src={FACE_ICONS[id]}
           alt={f.label}
@@ -136,13 +154,11 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
           height={Math.round(SIZE * 0.46)}
           className="object-contain transition-transform duration-200 ease-out group-hover:scale-[1.18]"
         />
-        {/* Active dot */}
         {active && (
           <span
             className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${dark ? "bg-white/60" : "bg-black/25"}`}
           />
         )}
-        {/* Hover overlay */}
         <span
           className={`absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 ${
             dark ? "bg-white/[0.06]" : "bg-black/[0.03]"
@@ -151,6 +167,10 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       </button>
     );
   }
+
+  // Scene is always centered on the front face (which sits at CELL, CELL in both layouts)
+  const sceneW = portrait ? CELL * 3 : CELL * 4;
+  const sceneH = portrait ? CELL * 4 : CELL * 3;
 
   return (
     <>
@@ -168,15 +188,13 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
       />
 
       {/* Perspective wrapper */}
-      <div
-        className="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none"
-      >
+      <div className="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none">
         {/* 3D scene */}
         <div
           className="pointer-events-auto relative"
           style={{
-            width: CELL * 4,
-            height: CELL * 3,
+            width: sceneW,
+            height: sceneH,
             transformStyle: "preserve-3d",
             transformOrigin: `${CELL + SIZE / 2}px ${CELL + SIZE / 2}px ${-SIZE / 2}px`,
             transform: closing
@@ -188,7 +206,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
               : "transform 650ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
-          {/* Front — center of T, no fold */}
+          {/* Front — center of net, no fold (both layouts) */}
           {faceCard("front", {
             left: CELL,
             top: CELL,
@@ -196,7 +214,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             zIndex: 1,
           })}
 
-          {/* Thinking — top, hinge: bottom edge */}
+          {/* Thinking — above front, hinge on bottom edge (both layouts) */}
           {faceCard("thinking", {
             left: CELL,
             top: 0,
@@ -205,16 +223,7 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             transition: `transform ${ease} ${stagger(150)}`,
           })}
 
-          {/* Building — bottom, hinge: top edge */}
-          {faceCard("building", {
-            left: CELL,
-            top: 2 * CELL,
-            transformOrigin: "center 0px",
-            transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
-            transition: `transform ${ease} ${stagger(150)}`,
-          })}
-
-          {/* Music — left, hinge: right edge */}
+          {/* Music — left of front, hinge on right edge (both layouts) */}
           {faceCard("music", {
             left: 0,
             top: CELL,
@@ -223,30 +232,77 @@ export default function CubeUnfold({ currentFaceId, onClose }: CubeUnfoldProps) 
             transition: `transform ${ease} ${stagger(250)}`,
           })}
 
-          {/* Community + Back wrapper */}
-          <div
-            style={{
-              position: "absolute",
-              left: 2 * CELL,
-              top: CELL,
-              width: CELL + SIZE,
-              height: SIZE,
-              transformStyle: "preserve-3d",
-              transformOrigin: "0px center",
-              transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
-              transition: `transform ${ease} ${stagger(250)}`,
-            }}
-          >
-            {faceCard("community", { left: 0, top: 0 })}
+          {portrait ? (
+            <>
+              {/* PORTRAIT: community is standalone right of front */}
+              {faceCard("community", {
+                left: 2 * CELL,
+                top: CELL,
+                transformOrigin: "0px center",
+                transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
+                transition: `transform ${ease} ${stagger(250)}`,
+              })}
 
-            {faceCard("back", {
-              left: CELL,
-              top: 0,
-              transformOrigin: "0px center",
-              transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
-              transition: `transform ${ease} ${stagger(380)}`,
-            })}
-          </div>
+              {/* PORTRAIT: building + back chain vertically below front */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: CELL,
+                  top: 2 * CELL,
+                  width: SIZE,
+                  height: CELL + SIZE,
+                  transformStyle: "preserve-3d",
+                  transformOrigin: "center 0px",
+                  transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
+                  transition: `transform ${ease} ${stagger(150)}`,
+                }}
+              >
+                {faceCard("building", { left: 0, top: 0 })}
+                {faceCard("back", {
+                  left: 0,
+                  top: CELL,
+                  transformOrigin: "center 0px",
+                  transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
+                  transition: `transform ${ease} ${stagger(380)}`,
+                })}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* LANDSCAPE: building standalone below front */}
+              {faceCard("building", {
+                left: CELL,
+                top: 2 * CELL,
+                transformOrigin: "center 0px",
+                transform: flat ? "rotateX(0deg)" : "rotateX(-90deg)",
+                transition: `transform ${ease} ${stagger(150)}`,
+              })}
+
+              {/* LANDSCAPE: community + back chain horizontally right of front */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: 2 * CELL,
+                  top: CELL,
+                  width: CELL + SIZE,
+                  height: SIZE,
+                  transformStyle: "preserve-3d",
+                  transformOrigin: "0px center",
+                  transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
+                  transition: `transform ${ease} ${stagger(250)}`,
+                }}
+              >
+                {faceCard("community", { left: 0, top: 0 })}
+                {faceCard("back", {
+                  left: CELL,
+                  top: 0,
+                  transformOrigin: "0px center",
+                  transform: flat ? "rotateY(0deg)" : "rotateY(90deg)",
+                  transition: `transform ${ease} ${stagger(380)}`,
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>

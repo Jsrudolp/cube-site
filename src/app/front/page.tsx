@@ -6,13 +6,13 @@ const pill = { scale: 0.75, verticalOffset: 0, shineWhite: true, shineDuration: 
 export default function FrontPage() {
   return (
     <FaceLayout faceId="front" className="bg-[#FFFFFF] text-[#434343]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-      <div className="mx-auto px-5 sm:px-7 pt-16 pb-12 max-w-[52rem] text-[15px] sm:text-[18px] leading-[1.4]">
+      <div className="flex flex-col mx-auto px-5 sm:px-7 xl:px-10 pt-8 sm:pt-16 xl:pt-20 pb-12 max-w-[52rem] lg:max-w-[60rem] xl:max-w-[68rem] text-[15px] sm:text-[18px] xl:text-[20px] leading-[1.4] min-h-[calc(100vh-5rem)]">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
-          <h1 className="text-[24px] sm:text-[32px] tracking-tight leading-[1.1]">
+          <h1 className="text-[24px] sm:text-[32px] xl:text-[42px] tracking-tight leading-[1.1]">
             Jake Rudolph
           </h1>
-          <p className="mt-2 text-[14px] sm:text-[17px] text-foreground/50 leading-[1.5]">
+          <p className="mt-2 text-[14px] sm:text-[17px] xl:text-[19px] text-foreground/50 leading-[1.5]">
             Creating startups, software, communities, songs, and mental models
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function FrontPage() {
               <p>
                 Joined{" "}
                 <CompanyLink href="https://joinprequel.com" logo="/logos/prequel.png" name="Prequel" bgColor="#f0e0f0" {...pill} />{" "}
-                as an early employee, owning customer experience and operations leading to an acquisition.
+                as an early employee while still in high school, owning customer experience and operations leading to an acquisition.
               </p>
             </div>
 
@@ -166,7 +166,7 @@ export default function FrontPage() {
         </section>
 
         {/* Footer */}
-        <footer className="pt-8 border-t border-foreground/10">
+        <footer className="mt-auto pt-8 border-t border-foreground/10">
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] sm:text-[15px]">
             <a href="https://x.com/jakesrudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">X</a>
             <a href="https://linkedin.com/in/jakerudolph" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-foreground/80 transition-colors">LinkedIn</a>

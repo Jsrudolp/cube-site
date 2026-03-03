@@ -4,12 +4,35 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import * as THREE from "three";
 import { FaceId, FACES } from "@/lib/faces";
-import { FACE_INDEX_TO_ID } from "@/lib/cube-config";
+import { FACE_INDEX_TO_ID, FACE_COLORS } from "@/lib/cube-config";
 
 interface DynamicTextureState {
   textures: (THREE.CanvasTexture | null)[];
   canvases: Map<FaceId, HTMLCanvasElement>;
   ready: boolean;
+}
+
+/**
+ * On portrait viewports (mobile), the capture renders the page at its natural vw width,
+ * then composes it centered onto a squareSize×squareSize canvas with the face's background
+ * color filling the side padding. This lets the zoom animation naturally "zoom past"
+ * the padding into the core content.
+ */
+function composeSquare(
+  src: HTMLCanvasElement,
+  squareSize: number,
+  contentWidth: number,
+  bgColor: string
+): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = squareSize;
+  canvas.height = squareSize;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, squareSize, squareSize);
+  const xOffset = Math.round((squareSize - contentWidth) / 2);
+  ctx.drawImage(src, xOffset, 0);
+  return canvas;
 }
 
 export function useDynamicTextures(skip = false) {
@@ -58,7 +81,7 @@ export function useDynamicTextures(skip = false) {
       try {
         // Wait for Next.js hydration
         const maxWait = 10_000;
-        const pollInterval = 200;
+        const pollInterval = 50;
         const start = Date.now();
         await new Promise<void>((resolve) => {
           const check = () => {
@@ -106,18 +129,22 @@ export function useDynamicTextures(skip = false) {
           )
         );
 
-        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        await new Promise((r) => requestAnimationFrame(r));
         if (mountToken.current !== token) return;
 
-        const size = iframe.clientWidth;
-        if (size === 0) return;
+        // contentWidth = page's rendered width (= vw, natural mobile/desktop layout)
+        // squareSize = the square side length for the texture (max of vw and vh)
+        const contentWidth = iframe.clientWidth;
+        if (contentWidth === 0) return;
+        const squareSize = Math.max(contentWidth, window.innerHeight);
+        const isPortrait = squareSize > contentWidth;
 
         // Pass 1: low-res (scale=1, no DPR) — fast, appears immediately
         // console.log(`[tex] ${faceId}: low-res capture...`);
-        const lowResCanvas = await Promise.race([
+        const capturedLow = await Promise.race([
           html2canvas(iframeDoc.body, {
-            width: size,
-            height: size,
+            width: contentWidth,
+            height: squareSize,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
@@ -128,7 +155,10 @@ export function useDynamicTextures(skip = false) {
           ),
         ]);
         if (mountToken.current !== token) return;
-        // console.log(`[tex] ${faceId}: low-res done ${lowResCanvas.width}x${lowResCanvas.height}`);
+        // console.log(`[tex] ${faceId}: low-res done ${capturedLow.width}x${capturedLow.height}`);
+        const lowResCanvas = isPortrait
+          ? composeSquare(capturedLow, squareSize, contentWidth, FACE_COLORS[faceId])
+          : capturedLow;
         setTexture(faceId, lowResCanvas);
 
         // Pass 2: hi-res (full DPR) — only worth it above 1x
@@ -136,10 +166,10 @@ export function useDynamicTextures(skip = false) {
         if (dpr <= 1) return;
 
         // console.log(`[tex] ${faceId}: hi-res capture at ${dpr}x...`);
-        const hiResCanvas = await Promise.race([
+        const capturedHi = await Promise.race([
           html2canvas(iframeDoc.body, {
-            width: size,
-            height: size,
+            width: contentWidth,
+            height: squareSize,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
@@ -150,7 +180,10 @@ export function useDynamicTextures(skip = false) {
           ),
         ]);
         if (mountToken.current !== token) return;
-        // console.log(`[tex] ${faceId}: hi-res done ${hiResCanvas.width}x${hiResCanvas.height}`);
+        // console.log(`[tex] ${faceId}: hi-res done ${capturedHi.width}x${capturedHi.height}`);
+        const hiResCanvas = isPortrait
+          ? composeSquare(capturedHi, squareSize * dpr, contentWidth * dpr, FACE_COLORS[faceId])
+          : capturedHi;
         setTexture(faceId, hiResCanvas);
       } catch (err) {
         console.warn(`[dynamic-texture] Failed to capture ${faceId}:`, err);
@@ -165,12 +198,13 @@ export function useDynamicTextures(skip = false) {
     const token = ++mountToken.current;
     // console.log(`[tex] effect mount, token=${token}`);
 
-    const size = window.innerWidth;
-    const sizePx = `${size}px`;
+    // Square based on the larger viewport dimension so portrait captures work correctly
+    const squareSize = Math.max(window.innerWidth, window.innerHeight);
+    const squarePx = `${squareSize}px`;
 
     const container = document.createElement("div");
     container.style.cssText =
-      `position:fixed;left:-9999px;top:-9999px;width:${sizePx};height:${sizePx};overflow:hidden;pointer-events:none;`;
+      `position:fixed;left:-9999px;top:-9999px;width:${squarePx};height:${squarePx};overflow:hidden;pointer-events:none;`;
     document.body.appendChild(container);
     containerRef.current = container;
 
@@ -201,11 +235,13 @@ export function useDynamicTextures(skip = false) {
       const face = FACES.find((f) => f.id === faceId);
       if (!face) return;
 
-      const size = window.innerWidth;
-      const sizePx = `${size}px`;
+      // iframe renders at the natural viewport width (preserves mobile layout),
+      // but is tall enough to fill the square capture area
+      const vw = window.innerWidth;
+      const squareSize = Math.max(vw, window.innerHeight);
 
       const iframe = document.createElement("iframe");
-      iframe.style.cssText = `width:${sizePx};height:${sizePx};border:none;`;
+      iframe.style.cssText = `width:${vw}px;height:${squareSize}px;border:none;`;
       iframe.src = face.route;
       iframe.onload = () => captureIframe(faceId, iframe, token);
 

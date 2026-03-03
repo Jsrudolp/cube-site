@@ -67,7 +67,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isIframe) return;
     requestCapture("front");
-    const fallback = setTimeout(requestAll, 3000);
+    const fallback = setTimeout(requestAll, 1500);
     return () => clearTimeout(fallback);
   }, [isIframe, requestCapture, requestAll]);
 
