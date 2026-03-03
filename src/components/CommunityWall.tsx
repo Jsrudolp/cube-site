@@ -113,6 +113,7 @@ function FloatingRow({ row }: { row: CommunityRowData }) {
     };
 
     sync();
+    floating.style.visibility = "visible";
     scroller.addEventListener("scroll", sync, { passive: true });
     window.addEventListener("resize", sync);
     return () => {
@@ -145,7 +146,7 @@ function FloatingRow({ row }: { row: CommunityRowData }) {
       <div
         ref={artifactRef}
         className="absolute z-20 pointer-events-auto"
-        style={{ top: 0, left: 0 }}
+        style={{ top: 0, left: 0, visibility: "hidden" }}
       >
         <SvgArtifact
           src={artifact.src}

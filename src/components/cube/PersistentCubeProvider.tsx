@@ -22,6 +22,7 @@ interface PersistentCubeContextValue {
   zoomingOut: boolean;
   faceContentHidden: boolean;
   setActiveFace: (faceId: FaceId | null) => void;
+  texturesReady: boolean;
 }
 
 const PersistentCubeContext = createContext<PersistentCubeContextValue | null>(null);
@@ -60,10 +61,10 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsIframe(window.self !== window.top);
   }, []);
-  const { textures: dynamicTextures, requestCapture, requestAll } = useDynamicTextures(isIframe);
+  const { textures: dynamicTextures, ready: texturesReady, requestCapture, requestAll } = useDynamicTextures(isIframe);
 
-  // Immediately capture the front face (most visible on initial load),
-  // then capture all remaining faces after 3s as a fallback.
+  // Capture front face immediately (fastest visible result), then all others after
+  // a short delay so the front face has a head start on network resources.
   useEffect(() => {
     if (isIframe) return;
     requestCapture("front");
@@ -197,6 +198,7 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
         zoomingOut,
         faceContentHidden,
         setActiveFace: handleSetActiveFace,
+        texturesReady,
       }}
     >
       {/* Persistent cube layer — always mounted, behind everything */}

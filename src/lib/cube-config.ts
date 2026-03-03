@@ -139,7 +139,7 @@ export const CAMERA_UP_VECTORS: Record<FaceId, THREE.Vector3> = {
 export const INITIAL_ROTATION: [number, number, number] = [-0.4, 0.5, 0];
 
 // Auto-rotation configuration
-export const AUTO_ROTATE_SPEED = 0.0015;
+export const AUTO_ROTATE_SPEED = 0.003;
 export const IDLE_TIMEOUT = 3000; // ms before auto-rotation starts
 
 // Drag configuration
