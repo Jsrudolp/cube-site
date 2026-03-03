@@ -24,7 +24,7 @@ export default function LoadingScreen() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-500"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 transition-opacity duration-500"
       style={{
         backgroundColor: "#EDEDED",
         opacity: fading ? 0 : 1,
@@ -39,6 +39,12 @@ export default function LoadingScreen() {
         <div className="cube-face cube-face--top" />
         <div className="cube-face cube-face--bottom" />
       </div>
+      <p className="text-sm tracking-widest uppercase text-black/50 select-none">
+        3-dimensionalising
+        <span className="dot-1">.</span>
+        <span className="dot-2">.</span>
+        <span className="dot-3">.</span>
+      </p>
 
       <style>{`
         .cube-loader {
@@ -68,6 +74,14 @@ export default function LoadingScreen() {
         .cube-face--right  { transform: rotateY(90deg)  translateZ(24px); }
         .cube-face--top    { transform: rotateX(90deg)  translateZ(24px); }
         .cube-face--bottom { transform: rotateX(-90deg) translateZ(24px); }
+
+        @keyframes dotBlink {
+          0%, 80%, 100% { opacity: 0.15; }
+          40%            { opacity: 1; }
+        }
+        .dot-1 { animation: dotBlink 1.4s ease-in-out infinite 0s; }
+        .dot-2 { animation: dotBlink 1.4s ease-in-out infinite 0.2s; }
+        .dot-3 { animation: dotBlink 1.4s ease-in-out infinite 0.4s; }
       `}</style>
     </div>
   );
