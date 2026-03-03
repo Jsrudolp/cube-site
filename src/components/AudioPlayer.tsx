@@ -120,10 +120,11 @@ export default function AudioPlayer({ albumTitle: _albumTitle, tracks, onClose }
           {/* Track info and progress */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              {/* Track title — always scrolling marquee */}
+              {/* Track title — scrolling marquee on mobile, static on desktop */}
               <div className="overflow-hidden flex-1 min-w-0 mr-4">
+                {/* Mobile: marquee */}
                 <div
-                  className="inline-flex whitespace-nowrap"
+                  className="sm:hidden inline-flex whitespace-nowrap"
                   style={{ animation: "marquee 10s linear 1.5s infinite" }}
                 >
                   <span className="text-white font-medium">{currentTrack?.title}</span>
@@ -134,6 +135,12 @@ export default function AudioPlayer({ albumTitle: _albumTitle, tracks, onClose }
                   <span className="text-white/30 mx-6">·</span>
                   <span className="text-xs text-white/50 uppercase tracking-wider self-center">Jake Rudolph</span>
                   <span className="text-white/30 mx-6">·</span>
+                </div>
+                {/* Desktop: static */}
+                <div className="hidden sm:flex items-center gap-3 min-w-0">
+                  <span className="text-white font-medium truncate">{currentTrack?.title}</span>
+                  <span className="text-white/30">·</span>
+                  <span className="text-xs text-white/50 uppercase tracking-wider flex-shrink-0">Jake Rudolph</span>
                 </div>
               </div>
               <div className="text-xs text-white/40 flex-shrink-0">

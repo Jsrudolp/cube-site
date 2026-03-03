@@ -233,12 +233,17 @@ const DEFAULT_TAPE_CONFIG: TapeConfig = {
 
 interface LayoutConfig {
   hero: { height: number; titleSize: number; imgWidth: number; imgHeight: number; imgMarginTop: number };
-  section: { titleSize: number; subtitleSize: number; bodySize: number; tagSize: number; gapX: number; maxWidth: number };
+  section: { titleSize: number; subtitleSize: number; bodySize: number; tagSize: number; gapX: number; maxWidth: number; iconSize: number };
 }
 
 const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   hero: { height: 85, titleSize: 48, imgWidth: 500, imgHeight: 400, imgMarginTop: 90 },
-  section: { titleSize: 44, subtitleSize: 20, bodySize: 16, tagSize: 13, gapX: 64, maxWidth: 1300 },
+  section: { titleSize: 44, subtitleSize: 20, bodySize: 16, tagSize: 13, gapX: 64, maxWidth: 1300, iconSize: 56 },
+};
+
+const MOBILE_LAYOUT_CONFIG: LayoutConfig = {
+  hero: { height: 75, titleSize: 28, imgWidth: 220, imgHeight: 170, imgMarginTop: 40 },
+  section: { titleSize: 26, subtitleSize: 14, bodySize: 12, tagSize: 10, gapX: 0, maxWidth: 500, iconSize: 32 },
 };
 
 interface DecorationConfig {
@@ -881,12 +886,12 @@ function SectionPanel({
             {section.title}
           </h2>
           <p
-            className="italic text-foreground/80 mb-8 font-[family-name:var(--font-fanwood-text)]"
+            className="italic text-foreground/80 mb-3 md:mb-8 font-[family-name:var(--font-fanwood-text)]"
             style={{ fontSize: lc.subtitleSize }}
           >
             {section.subtitle}
           </p>
-          <p className="leading-relaxed mb-6 font-[family-name:var(--font-lora)]" style={{ fontSize: lc.bodySize }}>
+          <p className="leading-relaxed mb-3 md:mb-6 font-[family-name:var(--font-lora)]" style={{ fontSize: lc.bodySize }}>
             {section.description}
           </p>
 
@@ -894,11 +899,11 @@ function SectionPanel({
           {section.projects.length > 0 && (
             <div>
               {section.projects.map((project, i) => (
-                <div key={`${project.name}-${i}`} className="flex items-start gap-4 py-4 border-t border-foreground/10 first:border-t-0">
+                <div key={`${project.name}-${i}`} className="flex items-start gap-3 md:gap-4 py-2 md:py-4 border-t border-foreground/10 first:border-t-0">
                   {/* Image */}
                   {project.icon
-                    ? <img src={project.icon} alt="" className="shrink-0 object-contain" style={{ width: 56, height: 56, filter: "drop-shadow(0px 2px 1px rgba(0,0,0,0.25))" }} />
-                    : <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 56, height: 56 }} />
+                    ? <img src={project.icon} alt="" className="shrink-0 object-contain" style={{ width: lc.iconSize, height: lc.iconSize, filter: "drop-shadow(0px 2px 1px rgba(0,0,0,0.25))" }} />
+                    : <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: lc.iconSize, height: lc.iconSize }} />
                   }
                   <div>
                     <p
@@ -946,7 +951,14 @@ export default function BuildingPage() {
   const [scrappyCursorIdx, setScrappyCursorIdx] = useState(0);
 
   const decoConfig = DEFAULT_DECO_CONFIG;
-  const layoutConfig = DEFAULT_LAYOUT_CONFIG;
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  const layoutConfig = isMobile ? MOBILE_LAYOUT_CONFIG : DEFAULT_LAYOUT_CONFIG;
 
   // Decoration state. keyed by section ID so decorations stay with their section
   const [decorations, setDecorations] = useState<Record<string, Decoration[]>>({});
@@ -1176,6 +1188,25 @@ export default function BuildingPage() {
           </div>
 
         </div>
+      </div>
+
+      {/* Mobile-only image gallery — shown after scroll section */}
+      <div className="md:hidden">
+        {[
+          { section: SECTIONS[0], mosaic: <DiscoveryMosaic /> },
+          { section: SECTIONS[1], mosaic: <DesignMosaic /> },
+          { section: SECTIONS[2], mosaic: <EngineeringMosaic /> },
+          { section: SECTIONS[3], mosaic: <FeedbackMosaic /> },
+          { section: SECTIONS[4], mosaic: <BusinessMosaic /> },
+          { section: SECTIONS[5], mosaic: <ScrappinessMosaic /> },
+        ].map(({ section, mosaic }) => (
+          <div key={section.id} style={{ backgroundColor: section.bgColor }} className="py-10 px-6">
+            <h2 className="font-normal font-[family-name:var(--font-fanwood-text)] text-4xl mb-6 text-center opacity-60" style={{ lineHeight: 1.1 }}>
+              {section.title}
+            </h2>
+            {mosaic}
+          </div>
+        ))}
       </div>
 
     </FaceLayout>

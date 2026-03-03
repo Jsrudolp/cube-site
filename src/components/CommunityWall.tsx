@@ -122,7 +122,7 @@ function FloatingRow({ row }: { row: CommunityRowData }) {
   }, [artifact.offsetY]);
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} className="relative [overflow-x:clip]">
       <CommunityRow scrollContainerRef={scrollContainerRef}>
         {items.map((item, i) => {
           if (item.type === "artifact") {
