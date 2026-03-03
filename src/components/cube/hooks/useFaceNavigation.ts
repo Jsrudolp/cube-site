@@ -42,18 +42,22 @@ function computeZoomedState(faceId: FaceId, camera: THREE.Camera) {
   const cam = camera as THREE.PerspectiveCamera;
   const vfov = cam.fov * (Math.PI / 180);
   const aspect = cam.aspect;
-  const horizontalFit = 1 / (Math.tan(vfov / 2) * aspect);
+  // Cover the viewport: on landscape use horizontal fit, on portrait use vertical fit.
+  // This ensures the face always fills the full screen (no bars) regardless of orientation.
+  const fitDist = 1 / (Math.tan(vfov / 2) * Math.max(1, aspect));
 
   const uprightQuat = computeUprightQuat(faceId);
   const worldFaceCenter = FACE_CENTERS[faceId].clone().applyQuaternion(uprightQuat);
 
   const faceUpWorld = FACE_LOCAL_UP[faceId].clone().applyQuaternion(uprightQuat);
+  // On landscape: shift lookAt toward the top so content aligns to viewport top.
+  // On portrait: no offset — face fills full height and center alignment is correct.
   const topAlignOffset = Math.max(0, 1 - 1 / aspect);
   const offsetVec = faceUpWorld.multiplyScalar(topAlignOffset);
 
   const zoomLookAt = worldFaceCenter.clone().add(offsetVec);
   const zoomTarget = zoomLookAt.clone().add(
-    CAMERA_DIR.clone().multiplyScalar(horizontalFit)
+    CAMERA_DIR.clone().multiplyScalar(fitDist)
   );
 
   return { uprightQuat, zoomTarget, zoomLookAt };

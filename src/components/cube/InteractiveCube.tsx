@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { FaceId } from "@/lib/faces";
-import { INITIAL_ROTATION, CAMERA_POSITION, CAMERA_FOV } from "@/lib/cube-config";
+import { INITIAL_ROTATION } from "@/lib/cube-config";
 import { useCubeRotation } from "./hooks/useCubeRotation";
 import { useFaceNavigation } from "./hooks/useFaceNavigation";
 import {
@@ -47,7 +47,7 @@ export function InteractiveCube({
   restoreState,
   dynamicTextures,
 }: InteractiveCubeProps) {
-  const { camera, size } = useThree();
+  const { camera } = useThree();
   const meshRef = useRef<THREE.Mesh>(null);
   const hasInteracted = useRef(false);
   const geometry = useMemo(() => new THREE.BoxGeometry(2, 2, 2), []);
@@ -99,31 +99,6 @@ export function InteractiveCube({
       });
     };
   }, []);
-
-  // On portrait viewports (mobile) the cube clips off the sides because the
-  // horizontal FOV is very narrow. Scale the camera position outward so the
-  // full cube fits within the viewport. On landscape this is a no-op (scale=1).
-  useEffect(() => {
-    // Don't override zoom-in or restored zoom-out camera positions
-    if (initialZoomedFace || restoreState) return;
-
-    const aspect = size.width / size.height;
-    const vfovRad = (CAMERA_FOV * Math.PI) / 180;
-    // Cube bounding sphere radius ≈ √3 ≈ 1.73; add margin for auto-rotation
-    const cubeHalfWidth = 1.9;
-    const baseDist = Math.sqrt(
-      CAMERA_POSITION[0] ** 2 + CAMERA_POSITION[1] ** 2 + CAMERA_POSITION[2] ** 2
-    );
-    const neededDist = cubeHalfWidth / (Math.tan(vfovRad / 2) * aspect);
-    const scale = Math.max(1, neededDist / baseDist);
-    camera.position.set(
-      CAMERA_POSITION[0] * scale,
-      CAMERA_POSITION[1] * scale,
-      CAMERA_POSITION[2] * scale,
-    );
-    camera.lookAt(0, 0, 0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [size.width, size.height]);
 
   // Rotation hook
   const {
