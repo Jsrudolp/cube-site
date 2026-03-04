@@ -109,6 +109,12 @@ function composeSquareSlanted(
 
   const slope = detectLeftEdgeSlope(src, squareSize);
 
+  // Parse bgColor for fallback on transparent edge pixels (e.g. from FaceNav overlay)
+  const bgHex = bgColor.replace("#", "");
+  const bgR = parseInt(bgHex.slice(0, 2), 16);
+  const bgG = parseInt(bgHex.slice(2, 4), 16);
+  const bgB = parseInt(bgHex.slice(4, 6), 16);
+
   // Solid fill as fallback base
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, squareSize, squareSize);
@@ -124,10 +130,19 @@ function composeSquareSlanted(
         const sy = Math.max(0, Math.min(squareSize - 1, Math.round(py + d * slope)));
         const si = sy * 4;
         const di = (py * xOffset + px) * 4;
-        padL.data[di]     = col0[si];
-        padL.data[di + 1] = col0[si + 1];
-        padL.data[di + 2] = col0[si + 2];
-        padL.data[di + 3] = col0[si + 3];
+        // putImageData replaces alpha too — use bgColor for transparent edge pixels
+        // (e.g. from FaceNav which has no background, rendered transparent by html2canvas)
+        if (col0[si + 3] < 128) {
+          padL.data[di]     = bgR;
+          padL.data[di + 1] = bgG;
+          padL.data[di + 2] = bgB;
+          padL.data[di + 3] = 255;
+        } else {
+          padL.data[di]     = col0[si];
+          padL.data[di + 1] = col0[si + 1];
+          padL.data[di + 2] = col0[si + 2];
+          padL.data[di + 3] = col0[si + 3];
+        }
       }
     }
     ctx.putImageData(padL, 0, 0);
@@ -148,10 +163,18 @@ function composeSquareSlanted(
         const sy = Math.max(0, Math.min(squareSize - 1, Math.round(py - d * slope)));
         const si = sy * 4;
         const di = (py * rightWidth + px) * 4;
-        padR.data[di]     = colR[si];
-        padR.data[di + 1] = colR[si + 1];
-        padR.data[di + 2] = colR[si + 2];
-        padR.data[di + 3] = colR[si + 3];
+        // putImageData replaces alpha too — use bgColor for transparent edge pixels
+        if (colR[si + 3] < 128) {
+          padR.data[di]     = bgR;
+          padR.data[di + 1] = bgG;
+          padR.data[di + 2] = bgB;
+          padR.data[di + 3] = 255;
+        } else {
+          padR.data[di]     = colR[si];
+          padR.data[di + 1] = colR[si + 1];
+          padR.data[di + 2] = colR[si + 2];
+          padR.data[di + 3] = colR[si + 3];
+        }
       }
     }
     ctx.putImageData(padR, rightStart, 0);
@@ -351,6 +374,8 @@ export function useDynamicTextures(skip = false) {
           .h-screen { height: ${realVh}px !important; }
           * { --real-vh: ${realVhUnit}px; }
           .pb-\\[calc\\(8vh\\+64px\\)\\] { padding-bottom: calc(${realVhUnit * 8}px + 64px) !important; }
+          html, body { scrollbar-width: none !important; overflow-y: auto; }
+          html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important; width: 0 !important; }
         `;
         iframeDoc.head.appendChild(style);
 

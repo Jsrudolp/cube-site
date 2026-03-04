@@ -1143,8 +1143,7 @@ export default function BuildingPage() {
       </div>
 
       {/* Scroll-driven sections — desktop only */}
-      <div style={{ display: isMobile ? "none" : "block" }}>
-      <div
+      {!isMobile && <div
         ref={scrollContainerRef}
         style={{ height: `calc(var(--real-vh, 1vh) * ${(TOTAL_VH + 1) * 100})` }}
       >
@@ -1189,12 +1188,10 @@ export default function BuildingPage() {
           </div>
 
         </div>
-      </div>
-      </div>{/* end hidden md:block scroll section */}
+      </div>}{/* end scroll section */}
 
       {/* Mobile-only sections — full content per section */}
-      <div style={{ display: isMobile ? "block" : "none" }}>
-        {[
+      {isMobile && [
           { section: SECTIONS[0], mosaic: <DiscoveryMosaic /> },
           { section: SECTIONS[1], mosaic: <DesignMosaic /> },
           { section: SECTIONS[2], mosaic: <EngineeringMosaic /> },
@@ -1273,8 +1270,7 @@ export default function BuildingPage() {
               {mosaic}
             </div>
           );
-        })}
-      </div>
+        })}{/* end mobile sections */}
 
     </FaceLayout>
   );

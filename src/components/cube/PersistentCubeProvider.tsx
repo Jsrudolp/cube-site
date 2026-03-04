@@ -33,6 +33,13 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
   const pathnameRef = useRef(pathname);
   useEffect(() => { pathnameRef.current = pathname; }, [pathname]);
 
+  // Force reload on browser back/forward to avoid stale cube state.
+  useEffect(() => {
+    const handlePopState = () => { window.location.reload(); };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   // When navigating to a face page, clear the zoomingIn flag.
   // Without this, pressing the browser back button to return to "/" leaves
   // zoomingIn=true (set at zoom-start, only cleared in handleZoomOutComplete),
