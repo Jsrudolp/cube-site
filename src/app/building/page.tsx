@@ -243,7 +243,7 @@ const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
 
 const MOBILE_LAYOUT_CONFIG: LayoutConfig = {
   hero: { height: 75, titleSize: 28, imgWidth: 220, imgHeight: 170, imgMarginTop: 40 },
-  section: { titleSize: 26, subtitleSize: 14, bodySize: 12, tagSize: 10, gapX: 0, maxWidth: 500, iconSize: 32 },
+  section: { titleSize: 28, subtitleSize: 17, bodySize: 15, tagSize: 12, gapX: 0, maxWidth: 0, iconSize: 36 },
 };
 
 interface DecorationConfig {
@@ -348,41 +348,35 @@ function DecorationSVG({ decoration, decoConfig }: { decoration: Decoration; dec
     case "screw": {
       const sc = decoConfig.screw;
       const s = sc.size;
-      const r = s / 2 - 1;
       const cw = sc.crossWidth;
       const cl = sc.crossLength;
       return (
         <div style={style}>
-          <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`}>
-            <defs>
-              <radialGradient id={`screwGrad-${uid}`} cx="40%" cy="35%" r="55%">
-                <stop offset="0%" stopColor="#d0d0d0" />
-                <stop offset="60%" stopColor="#a0a0a0" />
-                <stop offset="100%" stopColor="#606060" />
-              </radialGradient>
-            </defs>
-            <circle cx={s / 2} cy={s / 2} r={r} fill={`url(#screwGrad-${uid})`} />
-            <rect x={(s - cw) / 2} y={(s - cl) / 2} width={cw} height={cl} rx={1} fill="#101010" />
-            <rect x={(s - cl) / 2} y={(s - cw) / 2} width={cl} height={cw} rx={1} fill="#101010" />
-          </svg>
+          <div style={{
+            width: s,
+            height: s,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 40% 35%, #d0d0d0 0%, #a0a0a0 60%, #606060 100%)",
+            position: "relative",
+          }}>
+            <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} style={{ position: "absolute", inset: 0 }}>
+              <rect x={(s - cw) / 2} y={(s - cl) / 2} width={cw} height={cl} rx={1} fill="#101010" />
+              <rect x={(s - cl) / 2} y={(s - cw) / 2} width={cl} height={cw} rx={1} fill="#101010" />
+            </svg>
+          </div>
         </div>
       );
     }
     case "staple": {
       const st = decoConfig.staple;
       return (
-        <div style={style}>
-          <svg width={st.width} height={st.height} viewBox={`0 0 ${st.width} ${st.height}`}>
-            <defs>
-              <linearGradient id={`stapleGrad-${uid}`} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#2B2B2B" />
-                <stop offset="53%" stopColor="#919191" />
-                <stop offset="100%" stopColor="#2B2B2B" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width={st.width} height={st.height} rx={st.height / 6} fill={`url(#stapleGrad-${uid})`} />
-          </svg>
-        </div>
+        <div style={{
+          ...style,
+          width: st.width,
+          height: st.height,
+          borderRadius: st.height / 6,
+          background: "linear-gradient(to right, #2B2B2B 0%, #919191 53%, #2B2B2B 100%)",
+        }} />
       );
     }
     case "stitch": {
@@ -435,34 +429,33 @@ function CardPin({ tool }: { tool: ToolType }) {
       );
     case "staple":
       return (
-        <div className="absolute left-1/2 z-10" style={{ top: -2, transform: "translateX(-50%)" }}>
-          <svg width="32" height="3" viewBox="0 0 32 3">
-            <defs>
-              <linearGradient id="stapleGradPin" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#2B2B2B" />
-                <stop offset="53%" stopColor="#919191" />
-                <stop offset="100%" stopColor="#2B2B2B" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="32" height="3" rx="0.5" fill="url(#stapleGradPin)" />
-          </svg>
-        </div>
+        <div
+          className="absolute left-1/2 z-10"
+          style={{
+            top: -2,
+            transform: "translateX(-50%)",
+            width: 32,
+            height: 3,
+            borderRadius: 0.5,
+            background: "linear-gradient(to right, #2B2B2B 0%, #919191 53%, #2B2B2B 100%)",
+          }}
+        />
       );
     case "screw":
       return (
         <div className="absolute left-1/2 z-10" style={{ top: -12, transform: "translateX(-50%)" }}>
-          <svg width="18" height="18" viewBox="0 0 18 18">
-            <defs>
-              <radialGradient id="screwGradPin" cx="40%" cy="35%" r="55%">
-                <stop offset="0%" stopColor="#d0d0d0" />
-                <stop offset="60%" stopColor="#a0a0a0" />
-                <stop offset="100%" stopColor="#606060" />
-              </radialGradient>
-            </defs>
-            <circle cx="9" cy="9" r="8" fill="url(#screwGradPin)" />
-            <rect x="6.5" y="3" width="5" height="12" rx="1" fill="#101010" />
-            <rect x="3" y="6.5" width="12" height="5" rx="1" fill="#101010" />
-          </svg>
+          <div style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 40% 35%, #d0d0d0 0%, #a0a0a0 60%, #606060 100%)",
+            position: "relative",
+          }}>
+            <svg width={18} height={18} viewBox="0 0 18 18" style={{ position: "absolute", inset: 0 }}>
+              <rect x="6.5" y="3" width="5" height="12" rx="1" fill="#101010" />
+              <rect x="3" y="6.5" width="12" height="5" rx="1" fill="#101010" />
+            </svg>
+          </div>
         </div>
       );
     case "tape":
@@ -567,27 +560,27 @@ function FeedbackMosaic() {
 const SCREW_SIZE = 20;
 const SCREW_INSET = 26; // distance from edge to screw center
 
-function CornerScrew({ uid }: { uid: string }) {
-  const s = SCREW_SIZE;
-  const safeUid = uid.replace(/\s+/g, "-");
+function CornerScrew({ size = SCREW_SIZE }: { uid: string; size?: number }) {
+  const s = size;
   return (
-    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`}>
-      <defs>
-        <radialGradient id={`screwGradCorner-${safeUid}`} cx="40%" cy="35%" r="55%">
-          <stop offset="0%" stopColor="#d0d0d0" />
-          <stop offset="60%" stopColor="#a0a0a0" />
-          <stop offset="100%" stopColor="#606060" />
-        </radialGradient>
-      </defs>
-      <circle cx={s / 2} cy={s / 2} r={s / 2 - 0.5} fill={`url(#screwGradCorner-${safeUid})`} />
-      <rect x={(s - 4) / 2} y={(s - 10) / 2} width={4} height={10} rx={0.5} fill="#101010" />
-      <rect x={(s - 10) / 2} y={(s - 4) / 2} width={10} height={4} rx={0.5} fill="#101010" />
-    </svg>
+    <div style={{
+      width: s,
+      height: s,
+      borderRadius: "50%",
+      background: "radial-gradient(circle at 40% 35%, #d0d0d0 0%, #a0a0a0 60%, #606060 100%)",
+      position: "relative",
+    }}>
+      <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`} style={{ position: "absolute", inset: 0 }}>
+        <rect x={(s - 4) / 2} y={(s - 10) / 2} width={4} height={10} rx={0.5} fill="#101010" />
+        <rect x={(s - 10) / 2} y={(s - 4) / 2} width={10} height={4} rx={0.5} fill="#101010" />
+      </svg>
+    </div>
   );
 }
 
-function ScrewedImage({ label, src }: { label: string; src?: string }) {
-  const o = SCREW_INSET - SCREW_SIZE / 2; // positions screw center at SCREW_INSET from edge
+function ScrewedImage({ label, src, screwSize = SCREW_SIZE }: { label: string; src?: string; screwSize?: number }) {
+  const inset = screwSize < SCREW_SIZE ? screwSize + 4 : SCREW_INSET;
+  const o = inset - screwSize / 2;
   return (
     <div className="relative" style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
       <div style={{ borderRadius: 6, overflow: "hidden" }}>
@@ -598,10 +591,10 @@ function ScrewedImage({ label, src }: { label: string; src?: string }) {
             </div>
         }
       </div>
-      <div className="absolute z-10" style={{ top: o, left: o }}><CornerScrew uid={`${label}-tl`} /></div>
-      <div className="absolute z-10" style={{ top: o, right: o }}><CornerScrew uid={`${label}-tr`} /></div>
-      <div className="absolute z-10" style={{ bottom: o, left: o }}><CornerScrew uid={`${label}-bl`} /></div>
-      <div className="absolute z-10" style={{ bottom: o, right: o }}><CornerScrew uid={`${label}-br`} /></div>
+      <div className="absolute z-10" style={{ top: o, left: o }}><CornerScrew uid={`${label}-tl`} size={screwSize} /></div>
+      <div className="absolute z-10" style={{ top: o, right: o }}><CornerScrew uid={`${label}-tr`} size={screwSize} /></div>
+      <div className="absolute z-10" style={{ bottom: o, left: o }}><CornerScrew uid={`${label}-bl`} size={screwSize} /></div>
+      <div className="absolute z-10" style={{ bottom: o, right: o }}><CornerScrew uid={`${label}-br`} size={screwSize} /></div>
     </div>
   );
 }
@@ -652,18 +645,19 @@ function StapledImage({ label, src, staplePositions = [0.5] }: {
   return (
     <div className="relative">
       {staplePositions.map((pos, i) => (
-        <div key={i} className="absolute z-10" style={{ top: 10, left: `${pos * 100}%`, transform: "translateX(-50%)" }}>
-          <svg width="32" height="3" viewBox="0 0 32 3">
-            <defs>
-              <linearGradient id={`stapleGradDM-${safeId}-${i}`} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#2B2B2B" />
-                <stop offset="53%" stopColor="#919191" />
-                <stop offset="100%" stopColor="#2B2B2B" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="32" height="3" rx="0.5" fill={`url(#stapleGradDM-${safeId}-${i})`} />
-          </svg>
-        </div>
+        <div
+          key={i}
+          className="absolute z-10"
+          style={{
+            top: 10,
+            left: `${pos * 100}%`,
+            transform: "translateX(-50%)",
+            width: 32,
+            height: 3,
+            borderRadius: 0.5,
+            background: "linear-gradient(to right, #2B2B2B 0%, #919191 53%, #2B2B2B 100%)",
+          }}
+        />
       ))}
       <div style={{ filter: "drop-shadow(2px 4px 5px rgba(0,0,0,0.18)) drop-shadow(0px 1px 2px rgba(0,0,0,0.10))" }}>
         {src
@@ -796,12 +790,12 @@ function ScrappinessMosaic() {
           <PinnedImage label="Socratica review" src="/building-images/scrappy-2.png" rotate={0} />
         </div>
         <div style={{ flex: "1", paddingTop: "8%", transform: "rotate(4deg)" }}>
-          <ScrewedImage label="Rachel beast mode" src="/building-images/scrappy-3.png" />
+          <StapledImage label="Rachel beast mode" src="/building-images/scrappy-3.png" staplePositions={[0.5]} />
         </div>
       </div>
-      {/* Row 3: stapled */}
+      {/* Row 3: screwed */}
       <div style={{ paddingLeft: "11%", paddingRight: "11%" }}>
-        <StapledImage label="Farewell messages" src="/building-images/scrappy-4.png" staplePositions={[0.3, 0.7]} />
+        <ScrewedImage label="Farewell messages" src="/building-images/scrappy-4.png" screwSize={13} />
       </div>
     </div>
   );
@@ -875,7 +869,7 @@ function SectionPanel({
     >
       <div
         className={`flex flex-col md:flex-row items-center mx-auto w-full ${isTextLeft ? "" : "md:flex-row-reverse"}`}
-        style={{ gap: lc.gapX, maxWidth: lc.maxWidth }}
+        style={{ gap: lc.gapX || 24, maxWidth: lc.maxWidth || undefined }}
       >
         {/* Text column */}
         <div className="flex-1 min-w-0">
@@ -926,13 +920,90 @@ function SectionPanel({
         </div>
 
         {/* Image */}
-        <div className="flex-1 min-w-0 hidden md:flex items-center justify-center">
+        <div className="flex-1 min-w-0 flex items-center justify-center">
           {imageContent ?? (
             <div className="w-full max-w-md aspect-[4/3] rounded-lg bg-foreground/5 border border-dashed border-foreground/15 flex items-center justify-center">
               <span className="text-sm text-foreground/30">Image / Collage</span>
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tape anchor dot (mobile — no mousemove preview, just show where first tap was)
+// ---------------------------------------------------------------------------
+
+function TapeAnchorDot({ x, y }: { x: number; y: number }) {
+  return (
+    <div
+      className="absolute pointer-events-none"
+      style={{
+        left: x,
+        top: y,
+        transform: "translate(-50%, -50%)",
+        width: 10,
+        height: 10,
+        borderRadius: "50%",
+        background: "rgba(0,0,0,0.3)",
+        border: "1.5px solid rgba(0,0,0,0.5)",
+        zIndex: 2,
+      }}
+    />
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mobile section wrapper (provides its own ref for tap-based decorations)
+// ---------------------------------------------------------------------------
+
+function MobileSection({
+  section,
+  imageContent,
+  layoutConfig,
+  addDecoration,
+  onAfterDecoration,
+  decorations,
+  pendingTape,
+  decoConfig,
+  cursorOverride,
+}: {
+  section: SectionData;
+  imageContent: React.ReactNode;
+  layoutConfig: LayoutConfig["section"];
+  addDecoration: (tool: ToolType, x: number, y: number, sectionId: string) => "started" | "completed" | "placed";
+  onAfterDecoration: (tool: ToolType, x: number, y: number, result: "started" | "completed" | "placed") => void;
+  decorations: Decoration[];
+  pendingTape: { x: number; y: number; sectionId: string } | null;
+  decoConfig: DecorationConfig;
+  cursorOverride?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={ref}
+      className="relative min-h-screen overflow-y-auto py-10"
+      style={{ backgroundColor: section.bgColor }}
+    >
+      <SectionPanel
+        section={section}
+        layoutConfig={layoutConfig}
+        imageContent={imageContent}
+        stickyRef={ref}
+        addDecoration={addDecoration}
+        onAfterDecoration={onAfterDecoration}
+        cursorOverride={cursorOverride}
+      />
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+        {decorations.map((d) => (
+          <DecorationSVG key={d.id} decoration={d} decoConfig={decoConfig} />
+        ))}
+        {pendingTape?.sectionId === section.id && (
+          <TapeAnchorDot x={pendingTape.x} y={pendingTape.y} />
+        )}
       </div>
     </div>
   );
@@ -953,7 +1024,7 @@ export default function BuildingPage() {
   const decoConfig = DEFAULT_DECO_CONFIG;
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -1115,14 +1186,29 @@ export default function BuildingPage() {
 
         {/* Content. centered over both backgrounds */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4" style={{ lineHeight: 1.15 }}>
+          {/* Desktop: 2 lines. Mobile: 3 lines with controlled breaks */}
           <p
-            className="font-[family-name:var(--font-fanwood-text)]"
+            className="hidden lg:block font-[family-name:var(--font-fanwood-text)]"
             style={{ fontSize: layoutConfig.hero.titleSize }}
           >
             I figure out what&apos;s valuable, then build it
           </p>
           <p
-            className="italic font-[family-name:var(--font-fanwood-text)]"
+            className="hidden lg:block italic font-[family-name:var(--font-fanwood-text)]"
+            style={{ fontSize: layoutConfig.hero.titleSize }}
+          >
+            using whatever tools it takes.
+          </p>
+          <p
+            className="lg:hidden font-[family-name:var(--font-fanwood-text)]"
+            style={{ fontSize: layoutConfig.hero.titleSize }}
+          >
+            I figure out what&apos;s valuable,
+            <br />
+            then build it
+          </p>
+          <p
+            className="lg:hidden italic font-[family-name:var(--font-fanwood-text)]"
             style={{ fontSize: layoutConfig.hero.titleSize }}
           >
             using whatever tools it takes.
@@ -1143,7 +1229,8 @@ export default function BuildingPage() {
       </div>
 
       {/* Scroll-driven sections — desktop only */}
-      {!isMobile && <div
+      <div className="hidden lg:block">
+      <div
         ref={scrollContainerRef}
         style={{ height: `calc(var(--real-vh, 1vh) * ${(TOTAL_VH + 1) * 100})` }}
       >
@@ -1188,89 +1275,33 @@ export default function BuildingPage() {
           </div>
 
         </div>
-      </div>}{/* end scroll section */}
+      </div>
+      </div>
 
-      {/* Mobile-only sections — full content per section */}
-      {isMobile && [
-          { section: SECTIONS[0], mosaic: <DiscoveryMosaic /> },
-          { section: SECTIONS[1], mosaic: <DesignMosaic /> },
-          { section: SECTIONS[2], mosaic: <EngineeringMosaic /> },
-          { section: SECTIONS[3], mosaic: <FeedbackMosaic /> },
-          { section: SECTIONS[4], mosaic: <BusinessMosaic /> },
-          { section: SECTIONS[5], mosaic: <ScrappinessMosaic /> },
-        ].map(({ section, mosaic }) => {
-          const cursorSvg = section.id === "scrappiness" ? ALL_CURSORS[scrappyCursorIdx] : section.cursor;
-          const tool = TOOL_FOR_CURSOR[cursorSvg];
-          return (
-            <div
-              key={section.id}
-              style={{ backgroundColor: section.bgColor, position: "relative", touchAction: "manipulation" }}
-              className="py-16 px-6"
-              onClick={(e) => {
-                if (!tool) return;
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const result = addDecoration(tool, x, y, section.id);
-                if (section.id === "scrappiness") handleScrappyAfterDecoration(tool, x, y, result);
-                else handleAfterDecoration(tool, x, y, result);
-              }}
-            >
-              {/* Decoration overlay */}
-              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
-                {(decorations[section.id] ?? []).map((d) => (
-                  <DecorationSVG key={d.id} decoration={d} decoConfig={decoConfig} />
-                ))}
-                {pendingTape?.sectionId === section.id && (
-                  <div
-                    className="absolute w-3 h-3 rounded-full border-2 border-black/40 bg-black/10"
-                    style={{ left: pendingTape.x - 6, top: pendingTape.y - 6 }}
-                  />
-                )}
-              </div>
-
-              <h2
-                className="font-normal font-[family-name:var(--font-fanwood-text)] mb-1"
-                style={{ fontSize: 28, lineHeight: 1.1 }}
-              >
-                {section.title}
-              </h2>
-              <p
-                className="italic text-foreground/80 mb-4 font-[family-name:var(--font-fanwood-text)]"
-                style={{ fontSize: 15 }}
-              >
-                {section.subtitle}
-              </p>
-              <p
-                className="leading-relaxed mb-6 font-[family-name:var(--font-lora)]"
-                style={{ fontSize: 14 }}
-              >
-                {section.description}
-              </p>
-              {section.projects.length > 0 && (
-                <div className="mb-8">
-                  {section.projects.map((project, i) => (
-                    <div key={`${project.name}-${i}`} className="flex items-start gap-3 py-3 border-t border-foreground/10 first:border-t-0">
-                      {project.icon
-                        ? <img src={project.icon} alt="" className="shrink-0 object-contain" style={{ width: 32, height: 32, filter: "drop-shadow(0px 2px 1px rgba(0,0,0,0.25))" }} />
-                        : <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 32, height: 32 }} />
-                      }
-                      <div>
-                        <p className="font-semibold font-[family-name:var(--font-lora)] mb-1" style={{ fontSize: 14 }}>
-                          {project.name}{project.company && <span className="font-normal"> | {project.company}</span>}
-                        </p>
-                        <p className="font-[family-name:var(--font-lora)] text-foreground/75 leading-snug" style={{ fontSize: 13 }}>
-                          {project.description}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {mosaic}
-            </div>
-          );
-        })}{/* end mobile sections */}
+      {/* Mobile static panels */}
+      <div className="lg:hidden">
+        {[
+          { section: SECTIONS[0], imageContent: <DiscoveryMosaic /> },
+          { section: SECTIONS[1], imageContent: <DesignMosaic /> },
+          { section: SECTIONS[2], imageContent: <EngineeringMosaic /> },
+          { section: SECTIONS[3], imageContent: <FeedbackMosaic /> },
+          { section: SECTIONS[4], imageContent: <BusinessMosaic /> },
+          { section: SECTIONS[5], imageContent: <ScrappinessMosaic />, isScrappy: true },
+        ].map(({ section, imageContent, isScrappy }) => (
+          <MobileSection
+            key={section.id}
+            section={section}
+            imageContent={imageContent}
+            layoutConfig={MOBILE_LAYOUT_CONFIG.section}
+            addDecoration={addDecoration}
+            onAfterDecoration={isScrappy ? handleScrappyAfterDecoration : handleAfterDecoration}
+            decorations={decorations[section.id] ?? []}
+            pendingTape={pendingTape}
+            decoConfig={decoConfig}
+            cursorOverride={isScrappy ? ALL_CURSORS[scrappyCursorIdx] : undefined}
+          />
+        ))}
+      </div>
 
     </FaceLayout>
   );

@@ -202,7 +202,7 @@ export default function ThinkingPage() {
             height={96}
             className="mx-auto max-w-[280px] sm:max-w-[380px] md:max-w-[480px] h-auto"
           />
-          <p className="mt-3 text-[16px] sm:text-[20px]">
+          <p className="mt-3 text-[18px] sm:text-[20px]">
             My favourite frameworks, philosophies and principles, in my favourite medium for thinking.
           </p>
         </div>
@@ -221,7 +221,7 @@ export default function ThinkingPage() {
                   className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
                   style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
-                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
+                  <h2 className="text-[24px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -248,7 +248,7 @@ export default function ThinkingPage() {
                         <div key={col.title || colIndex} className="text-center" style={{ gap: colGap, display: "flex", flexDirection: "column", alignItems: "center" }}>
                           {/* Title above image */}
                           {col.title && (
-                            <h3 className="font-semibold italic mb-2 text-[16px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
+                            <h3 className="font-semibold italic mb-2 text-[18px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
                           )}
                           {/* Image */}
                           {col.imageSrc && (
@@ -263,7 +263,7 @@ export default function ThinkingPage() {
                             />
                           )}
                           {/* Description */}
-                          <div className="leading-relaxed space-y-2 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
+                          <div className="leading-relaxed space-y-2 text-[18px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                             {col.description.split("\n\n").map((p, i) => (
                               <p key={i}>{p}</p>
                             ))}
@@ -285,7 +285,7 @@ export default function ThinkingPage() {
                   className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
                   style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
-                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
+                  <h2 className="text-[24px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -304,7 +304,7 @@ export default function ThinkingPage() {
                   </h2>
 
                   {tool.introText && (
-                    <p className="text-center mb-8 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.introText}</p>
+                    <p className="text-center mb-8 text-[18px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.introText}</p>
                   )}
 
                   {/* Three columns with arrows between them */}
@@ -329,7 +329,7 @@ export default function ThinkingPage() {
                                 />
                               </div>
                             )}
-                            <div className="leading-relaxed text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
+                            <div className="leading-relaxed text-[18px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                               {col.description}
                             </div>
                           </div>
@@ -350,7 +350,7 @@ export default function ThinkingPage() {
                   </div>
 
                   {tool.outroText && (
-                    <p className="text-center text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.outroText}</p>
+                    <p className="text-center text-[18px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>{tool.outroText}</p>
                   )}
                 </section>
               );
@@ -365,7 +365,7 @@ export default function ThinkingPage() {
                   className="py-8 md:[padding-top:var(--section-py,3rem)] md:[padding-bottom:var(--section-py,3rem)]"
                   style={{ '--section-py': `${t.sectionPy}px` } as React.CSSProperties}
                 >
-                  <h2 className="text-[22px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
+                  <h2 className="text-[24px] md:text-[28px] font-normal mb-8 text-center font-[family-name:var(--font-merriweather)]">
                     <span className="relative inline-block">
                       <span
                         className="absolute inset-0 -z-0"
@@ -399,9 +399,9 @@ export default function ThinkingPage() {
                           </div>
                         )}
                         {col.title && (
-                          <h3 className="font-semibold italic mb-2 text-[16px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
+                          <h3 className="font-semibold italic mb-2 text-[18px] md:text-[20px] font-[family-name:var(--font-merriweather)]">{col.title}</h3>
                         )}
-                        <div className="leading-relaxed space-y-2 text-[16px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
+                        <div className="leading-relaxed space-y-2 text-[18px] md:text-[20px]" style={{ lineHeight: LINE_HEIGHT }}>
                           {col.description.split("\n\n").map((p, i) => (
                             <p key={i}>{p}</p>
                           ))}

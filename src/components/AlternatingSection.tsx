@@ -53,7 +53,7 @@ export default function AlternatingSection({
   const isOdd = index % 2 === 0; // 0-indexed: first item has text on left
 
   const titleElement = (
-    <h2 className="text-[22px] md:text-[28px] font-normal mb-7 font-[family-name:var(--font-merriweather)]">
+    <h2 className="text-[24px] md:text-[28px] font-normal mb-7 font-[family-name:var(--font-merriweather)]">
       {titleHighlight === "yellow" ? (
         <span className="relative inline-block ml-3">
           <span
@@ -134,7 +134,7 @@ export default function AlternatingSection({
         {metadata && (
           <p className="text-sm text-foreground/50 mb-3">{metadata}</p>
         )}
-        <div className={`leading-relaxed space-y-3 text-[16px] md:text-[20px]${ts?.mobileCenterText ? " text-center md:text-left" : ""}`} style={ts?.lineHeight ? { lineHeight: ts.lineHeight } : undefined}>
+        <div className={`leading-relaxed space-y-3 text-[18px] md:text-[20px]${ts?.mobileCenterText ? " text-center md:text-left" : ""}`} style={ts?.lineHeight ? { lineHeight: ts.lineHeight } : undefined}>
           {description.split("\n\n").map((paragraph, i) => (
             <p key={i}>{renderInline(paragraph)}</p>
           ))}
