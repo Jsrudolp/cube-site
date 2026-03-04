@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Polaroid from "@/components/Polaroid";
 import SvgArtifact from "@/components/SvgArtifact";
 import CommunityRow from "@/components/CommunityRow";
@@ -15,6 +15,7 @@ interface CommunityRowData {
   id: string;
   coverPosition: number;
   artifactPosition: number;
+  mobileArtifactPosition?: number;
   artifact: {
     src: string;
     hoverSrc: string;
@@ -38,10 +39,11 @@ type RowItem =
       offsetY?: number;
     };
 
-function buildRowItems(row: CommunityRowData): RowItem[] {
+function buildRowItems(row: CommunityRowData, artifactPositionOverride?: number): RowItem[] {
   const result: (RowItem | null)[] = [null, null, null, null, null, null];
+  const artPos = artifactPositionOverride ?? row.artifactPosition;
   result[row.coverPosition - 1] = { type: "cover", ...row.cover };
-  result[row.artifactPosition - 1] = { type: "artifact", ...row.artifact };
+  result[artPos - 1] = { type: "artifact", ...row.artifact };
   let photoIdx = 0;
   for (let i = 0; i < 6; i++) {
     if (!result[i]) {
@@ -82,12 +84,26 @@ function PolaroidItem({ item }: { item: RowItem & { type: "photo" | "cover" } })
   );
 }
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    setMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return mobile;
+}
+
 function FloatingRow({ row }: { row: CommunityRowData }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const artifactRef = useRef<HTMLDivElement>(null);
-  const items = buildRowItems(row);
+  const isMobile = useIsMobile();
+  const artPos = isMobile && row.mobileArtifactPosition ? row.mobileArtifactPosition : undefined;
+  const items = buildRowItems(row, artPos);
   const artifact = row.artifact;
   const artifactSize = artifact.size || 160;
 

@@ -83,6 +83,7 @@ const COMMUNITY_ROWS = [
     id: "silly-songs",
     coverPosition: 4,
     artifactPosition: 2,
+    mobileArtifactPosition: 6,
     artifact: {
       src: "/community-artifacts/silly-songs-svg.svg",
       hoverSrc: "/community-artifacts/silly-songs-svg-hover.svg",
