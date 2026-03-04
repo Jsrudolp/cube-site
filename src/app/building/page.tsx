@@ -1142,7 +1142,8 @@ export default function BuildingPage() {
         </div>
       </div>
 
-      {/* Scroll-driven sections */}
+      {/* Scroll-driven sections — desktop only */}
+      <div style={{ display: isMobile ? "none" : "block" }}>
       <div
         ref={scrollContainerRef}
         style={{ height: `calc(var(--real-vh, 1vh) * ${(TOTAL_VH + 1) * 100})` }}
@@ -1189,9 +1190,10 @@ export default function BuildingPage() {
 
         </div>
       </div>
+      </div>{/* end hidden md:block scroll section */}
 
-      {/* Mobile-only image gallery — shown after scroll section */}
-      <div className="md:hidden">
+      {/* Mobile-only sections — full content per section */}
+      <div style={{ display: isMobile ? "block" : "none" }}>
         {[
           { section: SECTIONS[0], mosaic: <DiscoveryMosaic /> },
           { section: SECTIONS[1], mosaic: <DesignMosaic /> },
@@ -1199,14 +1201,79 @@ export default function BuildingPage() {
           { section: SECTIONS[3], mosaic: <FeedbackMosaic /> },
           { section: SECTIONS[4], mosaic: <BusinessMosaic /> },
           { section: SECTIONS[5], mosaic: <ScrappinessMosaic /> },
-        ].map(({ section, mosaic }) => (
-          <div key={section.id} style={{ backgroundColor: section.bgColor }} className="py-10 px-6">
-            <h2 className="font-normal font-[family-name:var(--font-fanwood-text)] text-4xl mb-6 text-center opacity-60" style={{ lineHeight: 1.1 }}>
-              {section.title}
-            </h2>
-            {mosaic}
-          </div>
-        ))}
+        ].map(({ section, mosaic }) => {
+          const cursorSvg = section.id === "scrappiness" ? ALL_CURSORS[scrappyCursorIdx] : section.cursor;
+          const tool = TOOL_FOR_CURSOR[cursorSvg];
+          return (
+            <div
+              key={section.id}
+              style={{ backgroundColor: section.bgColor, position: "relative", touchAction: "manipulation" }}
+              className="py-16 px-6"
+              onClick={(e) => {
+                if (!tool) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const result = addDecoration(tool, x, y, section.id);
+                if (section.id === "scrappiness") handleScrappyAfterDecoration(tool, x, y, result);
+                else handleAfterDecoration(tool, x, y, result);
+              }}
+            >
+              {/* Decoration overlay */}
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+                {(decorations[section.id] ?? []).map((d) => (
+                  <DecorationSVG key={d.id} decoration={d} decoConfig={decoConfig} />
+                ))}
+                {pendingTape?.sectionId === section.id && (
+                  <div
+                    className="absolute w-3 h-3 rounded-full border-2 border-black/40 bg-black/10"
+                    style={{ left: pendingTape.x - 6, top: pendingTape.y - 6 }}
+                  />
+                )}
+              </div>
+
+              <h2
+                className="font-normal font-[family-name:var(--font-fanwood-text)] mb-1"
+                style={{ fontSize: 28, lineHeight: 1.1 }}
+              >
+                {section.title}
+              </h2>
+              <p
+                className="italic text-foreground/80 mb-4 font-[family-name:var(--font-fanwood-text)]"
+                style={{ fontSize: 15 }}
+              >
+                {section.subtitle}
+              </p>
+              <p
+                className="leading-relaxed mb-6 font-[family-name:var(--font-lora)]"
+                style={{ fontSize: 14 }}
+              >
+                {section.description}
+              </p>
+              {section.projects.length > 0 && (
+                <div className="mb-8">
+                  {section.projects.map((project, i) => (
+                    <div key={`${project.name}-${i}`} className="flex items-start gap-3 py-3 border-t border-foreground/10 first:border-t-0">
+                      {project.icon
+                        ? <img src={project.icon} alt="" className="shrink-0 object-contain" style={{ width: 32, height: 32, filter: "drop-shadow(0px 2px 1px rgba(0,0,0,0.25))" }} />
+                        : <div className="shrink-0 rounded bg-foreground/8 border border-foreground/10" style={{ width: 32, height: 32 }} />
+                      }
+                      <div>
+                        <p className="font-semibold font-[family-name:var(--font-lora)] mb-1" style={{ fontSize: 14 }}>
+                          {project.name}{project.company && <span className="font-normal"> | {project.company}</span>}
+                        </p>
+                        <p className="font-[family-name:var(--font-lora)] text-foreground/75 leading-snug" style={{ fontSize: 13 }}>
+                          {project.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {mosaic}
+            </div>
+          );
+        })}
       </div>
 
     </FaceLayout>

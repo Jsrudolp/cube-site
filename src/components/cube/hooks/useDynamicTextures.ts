@@ -374,6 +374,7 @@ export function useDynamicTextures(skip = false) {
         // Wait for fonts to resolve before capturing — especially important for
         // text-heavy pages like the resume where spacing depends on font metrics.
         await iframeDoc.fonts?.ready?.catch(() => {});
+
         await new Promise((r) => requestAnimationFrame(r));
         if (mountToken.current !== token) return;
 

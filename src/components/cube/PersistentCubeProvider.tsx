@@ -204,8 +204,9 @@ export function PersistentCubeProvider({ children }: { children: ReactNode }) {
       {/* Persistent cube layer — always mounted, behind everything */}
       {!isIframe && (
         <div
-          className="fixed inset-0"
+          className="fixed top-0 left-0 right-0"
           style={{
+            height: "100dvh",
             zIndex: 0,
             background: "#EDEDED",
             visibility: cubeVisible ? "visible" : "hidden",
