@@ -5,6 +5,7 @@ import "./globals.css";
 import { PersistentCubeProvider } from "@/components/cube";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -102,6 +103,7 @@ export default function RootLayout({
             {children}
           </PersistentCubeProvider>
         </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   );
