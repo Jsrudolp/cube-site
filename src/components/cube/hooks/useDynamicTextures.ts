@@ -469,9 +469,11 @@ export function useDynamicTextures(skip = false) {
           : capturedLow;
         setTexture(faceId, lowResCanvas);
 
-        // Pass 2: hi-res (full DPR) — only worth it above 1x
-        const dpr = window.devicePixelRatio || 1;
-        if (dpr <= 1) return;
+        // Pass 2: hi-res — skip on mobile (low-res is sharp enough on small screens)
+        // and cap DPR at 2 (3x creates huge canvases for minimal visual gain)
+        const isMobile = window.innerWidth < 1024;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        if (dpr <= 1 || isMobile) return;
 
         // console.log(`[tex] ${faceId}: hi-res capture at ${dpr}x...`);
         const capturedHi = await Promise.race([
