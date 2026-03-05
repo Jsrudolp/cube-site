@@ -12,7 +12,7 @@ const CUBE_FACTS = [
 ];
 
 export default function LoadingScreen() {
-  const { texturesReady } = usePersistentCube();
+  const { texturesReady, texturesLoadedCount, texturesTotalCount } = usePersistentCube();
   const [isIframe, setIsIframe] = useState(true); // default true — skip on SSR
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
@@ -68,6 +68,14 @@ export default function LoadingScreen() {
       >
         {CUBE_FACTS[factIndex]}
       </p>
+
+      {/* Progress bar */}
+      <div className="w-40 sm:w-48 h-[3px] bg-foreground/10 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-foreground/30 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${texturesTotalCount > 0 ? (texturesLoadedCount / texturesTotalCount) * 100 : 0}%` }}
+        />
+      </div>
 
       <style>{`
         .cube-loader {

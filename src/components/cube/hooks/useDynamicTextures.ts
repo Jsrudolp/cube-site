@@ -10,6 +10,7 @@ interface DynamicTextureState {
   textures: (THREE.CanvasTexture | null)[];
   canvases: Map<FaceId, HTMLCanvasElement>;
   ready: boolean;
+  loadedCount: number;
 }
 
 /**
@@ -285,6 +286,7 @@ export function useDynamicTextures(skip = false) {
     textures: FACE_INDEX_TO_ID.map(() => null),
     canvases: new Map(),
     ready: false,
+    loadedCount: 0,
   });
   const texturesRef = useRef<(THREE.CanvasTexture | null)[]>(
     FACE_INDEX_TO_ID.map(() => null)
@@ -314,10 +316,12 @@ export function useDynamicTextures(skip = false) {
     if (idx !== -1) {
       texturesRef.current[idx]?.dispose();
       texturesRef.current[idx] = texture;
+      const loaded = texturesRef.current.filter((t) => t !== null).length;
       setState({
         textures: [...texturesRef.current],
         canvases: new Map(canvasesRef.current),
-        ready: texturesRef.current.every((t) => t !== null),
+        ready: loaded === FACE_INDEX_TO_ID.length,
+        loadedCount: loaded,
       });
     }
   }, []);
@@ -576,6 +580,8 @@ export function useDynamicTextures(skip = false) {
   return {
     textures: state.textures,
     ready: state.ready,
+    loadedCount: state.loadedCount,
+    totalCount: FACE_INDEX_TO_ID.length,
     getCanvas,
     requestCapture,
     requestAll,
