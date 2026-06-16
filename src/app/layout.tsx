@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans, Fanwood_Text, Metal, Lora } from "next/font/google";
+import { Geist, Geist_Mono, Caveat, Belanosima, Work_Sans, Merriweather, DM_Sans, Fanwood_Text, Metal, Lora, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { PersistentCubeProvider } from "@/components/cube";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Analytics } from "@vercel/analytics/next";
+import PlayfulCornerEmbed from "@/components/PlayfulCornerEmbed";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +16,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const caveat = Caveat({
@@ -95,12 +102,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} ${lora.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${caveat.variable} ${belanosima.variable} ${workSans.variable} ${drukWideBold.variable} ${merriweather.variable} ${dmSans.variable} ${fanwoodText.variable} ${metal.variable} ${lora.variable} antialiased`}
       >
         <PostHogProvider>
           <PersistentCubeProvider>
             <LoadingScreen />
             {children}
+            <PlayfulCornerEmbed />
           </PersistentCubeProvider>
         </PostHogProvider>
         <Analytics />
