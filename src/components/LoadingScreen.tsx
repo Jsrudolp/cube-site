@@ -62,12 +62,14 @@ export default function LoadingScreen() {
         <div className="cube-face cube-face--top" />
         <div className="cube-face cube-face--bottom" />
       </div>
-      <p
-        className="text-xs sm:text-sm tracking-widest uppercase text-foreground/80 select-none font-[family-name:var(--font-geist-mono)] text-center max-w-xs sm:max-w-sm px-4 transition-opacity duration-300"
-        style={{ opacity: factFading ? 0 : 1 }}
-      >
-        {CUBE_FACTS[factIndex]}
-      </p>
+      <div className="min-h-[3.75rem] flex items-center justify-center overflow-hidden">
+        <p
+          className="text-xs sm:text-sm tracking-widest uppercase text-foreground/80 select-none font-[family-name:var(--font-geist-mono)] text-center max-w-xs sm:max-w-sm px-4 transition-opacity duration-300"
+          style={{ opacity: factFading ? 0 : 1 }}
+        >
+          {CUBE_FACTS[factIndex]}
+        </p>
+      </div>
 
       {/* Progress bar */}
       <div className="w-40 sm:w-48 h-[3px] bg-foreground/10 rounded-full overflow-hidden">
