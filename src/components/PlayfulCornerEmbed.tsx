@@ -40,39 +40,39 @@ type MotionSettings = {
 const MOTION_PRESETS: Record<Exclude<MotionPreset, "custom">, MotionSettings> = {
   soft: {
     preset: "soft",
-    openDuration: 280,
-    closeDuration: 220,
-    openStartScale: 0.9,
-    openPeakScale: 1.035,
-    openStartY: 12,
+    openDuration: 340,
+    closeDuration: 190,
+    openStartScale: 0.93,
+    openPeakScale: 1.018,
+    openStartY: 10,
     openPeakY: -2,
-    closeEndScale: 0.9,
-    closeEndY: 8,
-    backdropDuration: 180,
+    closeEndScale: 0.94,
+    closeEndY: 6,
+    backdropDuration: 200,
   },
   bloom: {
     preset: "bloom",
-    openDuration: 340,
-    closeDuration: 260,
-    openStartScale: 0.86,
-    openPeakScale: 1.05,
-    openStartY: 18,
-    openPeakY: -4,
-    closeEndScale: 0.88,
-    closeEndY: 10,
-    backdropDuration: 220,
+    openDuration: 440,
+    closeDuration: 240,
+    openStartScale: 0.88,
+    openPeakScale: 1.032,
+    openStartY: 16,
+    openPeakY: -3,
+    closeEndScale: 0.9,
+    closeEndY: 8,
+    backdropDuration: 260,
   },
   playful: {
     preset: "playful",
-    openDuration: 420,
-    closeDuration: 310,
-    openStartScale: 0.8,
-    openPeakScale: 1.08,
-    openStartY: 24,
-    openPeakY: -6,
-    closeEndScale: 0.84,
-    closeEndY: 14,
-    backdropDuration: 260,
+    openDuration: 520,
+    closeDuration: 280,
+    openStartScale: 0.82,
+    openPeakScale: 1.05,
+    openStartY: 22,
+    openPeakY: -5,
+    closeEndScale: 0.86,
+    closeEndY: 12,
+    backdropDuration: 300,
   },
 };
 
@@ -80,13 +80,13 @@ const PLAYFUL_CONFIG: PlayfulConfig = {
   name: "Jake Rudolph",
   handle: "@jakerudolph",
   avatar: "https://www.figma.com/api/mcp/asset/7bd0b6d3-84a8-4d7e-b7d2-76ec10b218a9",
-  opener: "I make websites and playful interfaces.",
-  bio: "This corner pill is a tiny invite to follow along with experiments, launches, and new micro-sites.",
-  hook: "One email a week. No noise.",
+  opener: "I make websites :)",
+  bio: "I'm exploring the interactive web, mixed-media, and the art of play.",
+  hook: "Subscribe for a new micro-site every week.",
   buttonText: "Subscribe",
   count: 1,
   corner: "bottom-right",
-  endpoint: "",
+  endpoint: "/api/subscribe",
 };
 
 function track(event: "embed_viewed" | "popup_opened" | "subscribe_submitted" | "subscribe_succeeded", payload: Record<string, unknown> = {}) {
@@ -115,6 +115,7 @@ export default function PlayfulCornerEmbed() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [viewTracked, setViewTracked] = useState(false);
+  const [hasOpened, setHasOpened] = useState(false);
   const [successEmail, setSuccessEmail] = useState("");
   const dialogId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -132,6 +133,7 @@ export default function PlayfulCornerEmbed() {
       closeTimerRef.current = null;
     }
 
+    setHasOpened(true);
     setModalPhase("opening");
     setIsOpen(true);
     track("popup_opened", {
@@ -178,6 +180,10 @@ export default function PlayfulCornerEmbed() {
 
   useEffect(() => {
     setMounted(true);
+    if (PLAYFUL_CONFIG.avatar) {
+      const img = new Image();
+      img.src = PLAYFUL_CONFIG.avatar;
+    }
   }, []);
 
   useEffect(() => {
@@ -262,6 +268,8 @@ export default function PlayfulCornerEmbed() {
       email: trimmedEmail,
       creator: PLAYFUL_CONFIG.handle,
       name: PLAYFUL_CONFIG.name,
+      page: pathname,
+      site: window.location.origin,
     });
 
     try {
@@ -270,9 +278,7 @@ export default function PlayfulCornerEmbed() {
       } else {
         const response = await fetch(PLAYFUL_CONFIG.endpoint, {
           method: "POST",
-          headers: {
-            "Content-Type": "text/plain",
-          },
+          headers: { "Content-Type": "application/json" },
           body: payload,
         });
 
@@ -303,7 +309,7 @@ export default function PlayfulCornerEmbed() {
     : PLAYFUL_CONFIG.corner === "bottom-left"
       ? "pf-embed--bottom-left"
       : "pf-embed--bottom-right";
-  const pillBadge = !submitted && PLAYFUL_CONFIG.count > 0 ? PLAYFUL_CONFIG.count : null;
+  const pillBadge = !hasOpened && PLAYFUL_CONFIG.count > 0 ? PLAYFUL_CONFIG.count : null;
   const hiddenClass = shouldHide ? "pf-embed--hidden" : "";
   const isVisible = modalPhase !== "closed";
   const panelStyle = {
@@ -360,21 +366,22 @@ export default function PlayfulCornerEmbed() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 13.515px;
-          padding: 24.572px;
+          gap: 28px;
+          padding: 13px;
           border: 0;
-          border-radius: 73.717px;
-          background: #f8f8f8;
+          border-radius: 999px;
+          background: #ffffff;
           color: #494949;
           box-shadow:
-            1.229px 1.843px 12.286px rgba(0, 0, 0, 0.1);
+            0.66px 0.99px 13.15px rgba(0, 0, 0, 0.10),
+            inset -0.66px -0.66px 3.29px rgba(0, 0, 0, 0.25),
+            inset 0.66px 1.32px 6.58px rgba(255, 255, 255, 1);
           overflow: hidden;
           isolation: isolate;
           cursor: pointer;
           pointer-events: auto;
           transition:
-            transform 180ms ease,
-            box-shadow 180ms ease,
+            background 160ms ease,
             opacity 180ms ease;
           animation: pf-pop 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
         }
@@ -384,16 +391,17 @@ export default function PlayfulCornerEmbed() {
           position: absolute;
           inset: 0;
           border-radius: inherit;
-          box-shadow:
-            inset -1.229px -1.229px 6.143px rgba(0, 0, 0, 0.25),
-            inset 1.229px 2.457px 12.286px white;
           pointer-events: none;
         }
 
+        .pf-pill--away {
+          opacity: 0;
+          pointer-events: none;
+          visibility: hidden;
+        }
+
         .pf-pill:hover {
-          transform: translateY(-1px) scale(1.01);
-          box-shadow:
-            1.229px 1.843px 16px rgba(0, 0, 0, 0.11);
+          background: #f0f0f0;
         }
 
         .pf-pill:focus-visible,
@@ -405,8 +413,8 @@ export default function PlayfulCornerEmbed() {
         }
 
         .pf-pill__avatar {
-          width: 55.288px;
-          height: 55.288px;
+          width: 30px;
+          height: 30px;
           flex: 0 0 auto;
           border-radius: 999px;
           overflow: hidden;
@@ -426,11 +434,14 @@ export default function PlayfulCornerEmbed() {
         .pf-pill__label {
           display: flex;
           align-items: center;
-          gap: 13.515px;
+          gap: 8px;
           flex: 1 1 auto;
           min-width: 0;
-          font: 600 29.487px/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
-          letter-spacing: -0.5897px;
+          font-family: var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          line-height: 1.2;
+          letter-spacing: -0.32px;
           white-space: nowrap;
         }
 
@@ -439,19 +450,24 @@ export default function PlayfulCornerEmbed() {
           overflow: hidden;
           text-overflow: ellipsis;
           color: #494949;
+          line-height: 1.2;
+          padding-left: 1px;
         }
 
         .pf-pill__badge {
-          display: inline-flex;
+          display: flex;
           align-items: center;
           justify-content: center;
-          width: 49.145px;
-          height: 49.145px;
+          flex: 0 0 auto;
+          width: 26px;
+          height: 26px;
           border-radius: 999px;
           background: #ff1515;
           color: #fff;
-          font: 600 24.572px/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
-          letter-spacing: -0.4914px;
+          font-family: var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          line-height: 0;
           box-shadow: none;
         }
 
@@ -485,12 +501,10 @@ export default function PlayfulCornerEmbed() {
           width: min(22.5rem, calc(100vw - 1rem));
           border: 1px solid rgba(20, 20, 20, 0.1);
           border-radius: 1.5rem;
-          background:
-            radial-gradient(circle at top left, rgba(111, 92, 255, 0.08), transparent 36%),
-            rgba(255, 255, 255, 0.97);
+          background: #ffffff;
           box-shadow:
-            0 28px 72px rgba(18, 18, 24, 0.24),
-            0 4px 14px rgba(18, 18, 24, 0.08);
+            0 8px 32px rgba(18, 18, 24, 0.12),
+            0 2px 8px rgba(18, 18, 24, 0.06);
           pointer-events: auto;
           overflow: hidden;
           backdrop-filter: blur(18px);
@@ -500,11 +514,11 @@ export default function PlayfulCornerEmbed() {
 
         .pf-panel--opening,
         .pf-panel--open {
-          animation: pf-panel-open var(--pf-open-duration) cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: pf-panel-open var(--pf-open-duration) cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .pf-panel--closing {
-          animation: pf-panel-close var(--pf-close-duration) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+          animation: pf-panel-close var(--pf-close-duration) cubic-bezier(0.55, 0, 0.7, 0.2) both;
         }
 
         .pf-embed--bottom-right .pf-pill,
@@ -542,8 +556,10 @@ export default function PlayfulCornerEmbed() {
             opacity: 0;
             transform: translate3d(0, var(--pf-open-start-y), 0) scale(var(--pf-open-start-scale));
           }
-          58% {
+          25% {
             opacity: 1;
+          }
+          62% {
             transform: translate3d(0, var(--pf-open-peak-y), 0) scale(var(--pf-open-peak-scale));
           }
           100% {
@@ -557,196 +573,190 @@ export default function PlayfulCornerEmbed() {
             opacity: 1;
             transform: translate3d(0, 0, 0) scale(1);
           }
-          54% {
-            opacity: 1;
-            transform: translate3d(0, calc(var(--pf-close-end-y) * -0.35), 0) scale(1.02);
+          35% {
+            opacity: 0;
           }
           100% {
             opacity: 0;
-            transform: translate3d(0, 0, 0) scale(var(--pf-close-end-scale));
+            transform: translate3d(0, var(--pf-close-end-y), 0) scale(var(--pf-close-end-scale));
           }
         }
 
         .pf-panel__shell {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          padding: 1rem;
+          gap: 0.85rem;
+          padding: 1.1rem;
         }
 
         .pf-panel__header {
           display: flex;
-          align-items: start;
+          align-items: center;
           justify-content: space-between;
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .pf-panel__identity {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.65rem;
           min-width: 0;
         }
 
         .pf-panel__avatar {
-          width: 3rem;
-          height: 3rem;
+          width: 2.5rem;
+          height: 2.5rem;
           border-radius: 999px;
           overflow: hidden;
           background: linear-gradient(145deg, #a855f7, #4f46e5 54%, #312e81);
-          box-shadow:
-            inset 0 0 0 1px rgba(255, 255, 255, 0.3),
-            0 12px 24px rgba(79, 70, 229, 0.22);
           flex: 0 0 auto;
         }
 
         .pf-panel__name {
           display: block;
-          font: 700 1.05rem/1.1 var(--font-dm-sans), Arial, Helvetica, sans-serif;
-          letter-spacing: -0.03em;
-          color: #121212;
+          font: 600 0.95rem/1.15 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          letter-spacing: -0.02em;
+          color: #111111;
         }
 
         .pf-panel__handle {
           display: block;
-          margin-top: 0.15rem;
-          color: rgba(18, 18, 18, 0.58);
-          font: 500 0.82rem/1.2 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          margin-top: 0.1rem;
+          color: rgba(18, 18, 18, 0.45);
+          font: 400 0.78rem/1.2 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
         }
 
         .pf-close {
-          width: 2rem;
-          height: 2rem;
+          width: 1.75rem;
+          height: 1.75rem;
           border: 0;
           border-radius: 999px;
-          background: rgba(17, 17, 17, 0.06);
-          color: rgba(17, 17, 17, 0.75);
-          font: 600 1.2rem/1 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          background: rgba(17, 17, 17, 0.05);
+          color: rgba(17, 17, 17, 0.5);
+          font: 400 1.1rem/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
           cursor: pointer;
           flex: 0 0 auto;
-          transition: background 160ms ease, transform 160ms ease;
+          transition: background 140ms ease, color 140ms ease;
         }
 
         .pf-close:hover {
           background: rgba(17, 17, 17, 0.09);
-          transform: scale(1.03);
+          color: rgba(17, 17, 17, 0.75);
         }
 
         .pf-panel__copy {
           display: grid;
-          gap: 0.7rem;
+          gap: 0.45rem;
         }
 
         .pf-panel__opener {
           margin: 0;
-          color: #1a1a1a;
-          font: 700 1.12rem/1.28 var(--font-dm-sans), Arial, Helvetica, sans-serif;
-          letter-spacing: -0.03em;
+          color: #111111;
+          font: 600 1rem/1.3 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          letter-spacing: -0.02em;
         }
 
         .pf-panel__bio,
-        .pf-panel__hook,
         .pf-success__body {
           margin: 0;
-          color: rgba(26, 26, 26, 0.72);
-          font: 500 0.95rem/1.45 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          color: rgba(18, 18, 18, 0.55);
+          font: 400 0.875rem/1.5 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
         }
 
         .pf-panel__hook {
-          color: #1a1a1a;
-          font-weight: 700;
+          margin: 0;
+          color: #111111;
+          font: 600 0.875rem/1.4 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
         }
 
         .pf-form {
           display: grid;
-          gap: 0.75rem;
+          gap: 0.5rem;
         }
 
         .pf-input {
           width: 100%;
-          border: 1px solid rgba(17, 17, 17, 0.18);
-          border-radius: 0.95rem;
-          background: rgba(255, 255, 255, 0.92);
-          color: #141414;
-          padding: 0.9rem 1rem;
-          font: 500 0.95rem/1.2 var(--font-dm-sans), Arial, Helvetica, sans-serif;
-          transition: border-color 160ms ease, box-shadow 160ms ease;
+          border: 1px solid rgba(17, 17, 17, 0.14);
+          border-radius: 0.6rem;
+          background: #fafafa;
+          color: #111111;
+          padding: 0.75rem 0.875rem;
+          font: 400 0.875rem/1.2 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          transition: border-color 140ms ease;
         }
 
         .pf-input::placeholder {
-          color: rgba(20, 20, 20, 0.38);
+          color: rgba(18, 18, 18, 0.3);
         }
 
         .pf-input:focus {
-          border-color: rgba(111, 92, 255, 0.65);
-          box-shadow: 0 0 0 4px rgba(111, 92, 255, 0.16);
+          border-color: rgba(17, 17, 17, 0.4);
+          background: #fff;
           outline: none;
         }
 
         .pf-submit {
           border: 0;
-          border-radius: 0.95rem;
-          background: linear-gradient(180deg, #1f1f27, #111115);
+          border-radius: 0.6rem;
+          background: #111111;
           color: #fff;
-          padding: 0.95rem 1rem;
-          font: 700 0.97rem/1 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          padding: 0.78rem 1rem;
+          font: 600 0.875rem/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
           cursor: pointer;
-          box-shadow: 0 14px 24px rgba(15, 15, 20, 0.22);
-          transition:
-            transform 160ms ease,
-            box-shadow 160ms ease,
-            opacity 160ms ease;
+          transition: opacity 140ms ease;
         }
 
         .pf-submit:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 18px 30px rgba(15, 15, 20, 0.24);
+          opacity: 0.82;
         }
 
         .pf-submit:disabled,
         .pf-input:disabled {
-          opacity: 0.72;
+          opacity: 0.5;
           cursor: not-allowed;
         }
 
         .pf-status {
-          min-height: 1.2rem;
-          color: #b52f3d;
-          font: 500 0.84rem/1.3 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          min-height: 1.1rem;
+          color: #c0392b;
+          font: 400 0.78rem/1.3 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
         }
 
         .pf-success {
           display: grid;
-          gap: 0.65rem;
-          padding: 0.15rem 0 0.05rem;
+          gap: 0.4rem;
+          padding: 0.1rem 0;
         }
 
         .pf-success__title {
           margin: 0;
-          color: #121212;
-          font: 700 1.2rem/1.15 var(--font-dm-sans), Arial, Helvetica, sans-serif;
-          letter-spacing: -0.03em;
+          color: #111111;
+          font: 600 1rem/1.2 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          letter-spacing: -0.02em;
+        }
+
+        .pf-divider {
+          border: none;
+          border-top: 1px solid rgba(18, 18, 18, 0.07);
+          margin: 0;
         }
 
         .pf-foot {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.45rem;
-          padding-top: 0.1rem;
-          color: rgba(18, 18, 18, 0.48);
-          font: 600 0.72rem/1 var(--font-dm-sans), Arial, Helvetica, sans-serif;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
+          gap: 0.25rem;
+          font: 400 0.68rem/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
           user-select: none;
         }
 
-        .pf-foot__mark {
-          width: 0.68rem;
-          height: 0.68rem;
-          border-radius: 0.18rem;
-          background: linear-gradient(145deg, #a855f7, #6366f1 55%, #312e81);
-          box-shadow: 0 3px 10px rgba(99, 102, 241, 0.26);
+        .pf-foot__label {
+          color: rgba(18, 18, 18, 0.35);
+        }
+
+        .pf-foot__brand {
+          color: #6f5cff;
+          font-weight: 600;
         }
 
         .pf-motion {
@@ -755,7 +765,7 @@ export default function PlayfulCornerEmbed() {
           left: 1rem;
           z-index: 1004;
           pointer-events: auto;
-          font: 600 0.75rem/1 var(--font-dm-sans), Arial, Helvetica, sans-serif;
+          font: 600 0.75rem/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
           color: #111;
         }
 
@@ -829,23 +839,27 @@ export default function PlayfulCornerEmbed() {
 
         @media (max-width: 600px) {
           .pf-pill {
-            gap: 10px;
-            padding: 18px;
+            gap: 7px;
+            padding: 10px;
+          }
+
+          .pf-pill__label {
+            font-size: 15px;
           }
 
           .pf-pill__name {
-            font-size: 18px;
+            font-size: 15px;
           }
 
           .pf-pill__avatar {
-            width: 42px;
-            height: 42px;
+            width: 26px;
+            height: 26px;
           }
 
           .pf-pill__badge {
-            width: 38px;
-            height: 38px;
-            font-size: 18px;
+            width: 23px;
+            height: 23px;
+            font-size: 12px;
           }
 
           .pf-panel {
@@ -901,24 +915,23 @@ export default function PlayfulCornerEmbed() {
       `}</style>
 
       <div className={`pf-embed ${cornerClass} ${hiddenClass}`}>
-        {!isOpen ? (
-          <button
-            type="button"
-            className="pf-pill"
-            onClick={handleOpen}
-            aria-haspopup="dialog"
-            aria-expanded="false"
-            aria-controls={dialogId}
-          >
-            <div className="pf-pill__label">
-              <div className="pf-pill__avatar">
-                <Avatar />
-              </div>
-              <span className="pf-pill__name">{PLAYFUL_CONFIG.handle.replace(/^@/, "")}</span>
+        <button
+          type="button"
+          className={`pf-pill${isOpen ? " pf-pill--away" : ""}`}
+          onClick={handleOpen}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-controls={dialogId}
+          tabIndex={isOpen ? -1 : 0}
+        >
+          <div className="pf-pill__label">
+            <div className="pf-pill__avatar">
+              <Avatar />
             </div>
-            {pillBadge ? <span className="pf-pill__badge">{pillBadge}</span> : null}
-          </button>
-        ) : null}
+            <span className="pf-pill__name">{PLAYFUL_CONFIG.handle.replace(/^@/, "")}</span>
+          </div>
+          {pillBadge ? <span className="pf-pill__badge">{pillBadge}</span> : null}
+        </button>
 
         {isVisible ? (
           <>
@@ -1000,9 +1013,10 @@ export default function PlayfulCornerEmbed() {
                   </div>
                 )}
 
+                <hr className="pf-divider" aria-hidden="true" />
                 <div className="pf-foot" aria-hidden="true">
-                  <span className="pf-foot__mark" />
-                  <span>powered by Playful</span>
+                  <span className="pf-foot__label">powered by</span>
+                  <span className="pf-foot__brand">Playful</span>
                 </div>
               </div>
             </section>
