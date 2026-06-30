@@ -79,7 +79,7 @@ const MOTION_PRESETS: Record<Exclude<MotionPreset, "custom">, MotionSettings> = 
 const PLAYFUL_CONFIG: PlayfulConfig = {
   name: "Jake Rudolph",
   handle: "@jakerudolph",
-  avatar: "https://www.figma.com/api/mcp/asset/7bd0b6d3-84a8-4d7e-b7d2-76ec10b218a9",
+  avatar: "/music-hero.png",
   opener: "I make websites :)",
   bio: "I'm exploring the interactive web, mixed-media, and the art of play.",
   hook: "Subscribe for a new micro-site every week.",
@@ -429,6 +429,7 @@ export default function PlayfulCornerEmbed() {
 
         .pf-avatar__img {
           object-fit: cover;
+          object-position: 68% 52%;
         }
 
         .pf-pill__label {
@@ -591,7 +592,7 @@ export default function PlayfulCornerEmbed() {
 
         .pf-panel__header {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
           gap: 0.75rem;
         }
@@ -627,13 +628,18 @@ export default function PlayfulCornerEmbed() {
         }
 
         .pf-close {
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 1.75rem;
           height: 1.75rem;
           border: 0;
           border-radius: 999px;
           background: rgba(17, 17, 17, 0.05);
           color: rgba(17, 17, 17, 0.5);
-          font: 400 1.1rem/1 var(--font-inter), Inter, Arial, Helvetica, sans-serif;
+          font-size: 1.1rem;
+          line-height: 0;
+          font-family: var(--font-inter), Inter, Arial, Helvetica, sans-serif;
           cursor: pointer;
           flex: 0 0 auto;
           transition: background 140ms ease, color 140ms ease;
