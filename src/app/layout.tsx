@@ -6,7 +6,6 @@ import { PersistentCubeProvider } from "@/components/cube";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Analytics } from "@vercel/analytics/next";
-import PlayfulCornerEmbed from "@/components/PlayfulCornerEmbed";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -108,7 +107,6 @@ export default function RootLayout({
           <PersistentCubeProvider>
             <LoadingScreen />
             {children}
-            <PlayfulCornerEmbed />
           </PersistentCubeProvider>
         </PostHogProvider>
         <Analytics />
